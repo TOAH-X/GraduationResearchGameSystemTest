@@ -41,10 +41,6 @@ public class ShotPooler : MonoBehaviour
 
     public GameObject GetShot()
     {
-        var shot = pool.Dequeue();
-        shot.SetActive(true);
-        return shot;
-        /*
         if (pool.Count > 0)
         {
             var shot = pool.Dequeue();
@@ -53,12 +49,8 @@ public class ShotPooler : MonoBehaviour
         }
         else
         {
-            // 追加で生成（必要なら）
-            GameObject newShot = Instantiate(shotPrefab);
-            newShot.transform.SetParent(shotParentObj.transform);
-            return newShot;
+            return null;
         }
-        */
     }
 
     public void ReturnShot(GameObject shot)

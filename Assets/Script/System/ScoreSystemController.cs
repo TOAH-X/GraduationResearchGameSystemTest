@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -11,7 +12,7 @@ public class ScoreSystemController : MonoBehaviour
     [Header("ƒvƒŒƒCƒ„[2‚ÌƒXƒRƒA")]
     [SerializeField] int player2Score = 0;
 
-    [SerializeField] PlayerAgent playerAgentScript;     // PlayerAgent‚ÌƒXƒNƒŠƒvƒg
+    //[SerializeField] RewardManager rewardManagerScript;
 
     public static ScoreSystemController Instance { get; private set; }
 
@@ -32,21 +33,54 @@ public class ScoreSystemController : MonoBehaviour
     /// <summary>
     /// ƒXƒRƒAXV(‰ÁZ)
     /// </summary>
-    /// <param name="score">‰ÁZ‚·‚éƒXƒRƒA</param>
+    /// <param name="case">ƒP[ƒXA“G‚Ì”í’ec1,“G‚Ì€–Sc0</param>
     /// <param name="id">‰ÁZ‘ÎÛ(ƒvƒŒƒCƒ„[1‚©ƒvƒŒƒCƒ„[2‚©)</param>
-    public void UpdateScore(int score, int id) 
+    public void UpdateScore(int caseType, int id) 
     {
+        int score = 0;
+        // “G‚Ì”í’e
+        if (caseType == 1) 
+        {
+            score = 1;
+        }
+        // “G‚Ì€–S
+        if (caseType == 2) 
+        {
+            score = 100;
+        }
         totalScore += score;
+
         if (id == 1) 
         {
             player1Score += score;
-            // Œ±“I‚È•ñV(Œã‚Å‘‚«Š·‚¦‚é‚±‚Æ)
-            playerAgentScript.AddReward(100f);
 
+            // Œ±“I‚È•ñV(Œã‚Å‘‚«Š·‚¦‚é‚±‚Æ)¦“G‚ğ“|‚µ‚½‚Æ‚«
+            // “G‚Ì”í’e
+            /*if (caseType == 1)
+            {
+                rewardManagerScript.AddReward(RewardType.AttackReward);
+            }
+            // “G‚Ì€–S
+            if (caseType == 2)
+            {
+                rewardManagerScript.AddReward(RewardType.KillReward);
+            }*/
         }
         else if (id == 2) 
         {
             player2Score += score;
+
+            // Œ±“I‚È•ñV(Œã‚Å‘‚«Š·‚¦‚é‚±‚Æ)¦“G‚ğ“|‚µ‚½‚Æ‚«
+            // “G‚Ì”í’e
+            /*if (caseType == 1)
+            {
+                rewardManagerScript.AddReward(RewardType.AttackReward);
+            }
+            // “G‚Ì€–S
+            if (caseType == 2)
+            {
+                rewardManagerScript.AddReward(RewardType.KillReward);
+            }*/
         }
     }
 

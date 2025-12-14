@@ -1,4 +1,6 @@
+using Unity.MLAgents;
 using UnityEngine;
+using static UnityEditor.PlayerSettings;
 
 public class ShotController : MonoBehaviour
 {
@@ -8,14 +10,18 @@ public class ShotController : MonoBehaviour
     [SerializeField] float angleDegree = 30.0f;
     float timer = 0;
 
+    [SerializeField] GameObject shotEffectObj;
+    [SerializeField] GameObject shotEffectParentObj;
+
     [Header("ショットのプレイヤーID")]
     [SerializeField] int playerID = 0;
+    RewardManager rewardManager;
 
     // 画面外の範囲
-    float minX = -10f;
-    float maxX = 10f;
-    float minY = -6f;
-    float maxY = 6f;
+    float minX = -6.5f;
+    float maxX = 6.5f;
+    float minY = -5.0f;
+    float maxY = 5.0f;
 
     // Start is called before the first frame update
     void Start()
@@ -37,6 +43,11 @@ public class ShotController : MonoBehaviour
         }
     }
 
+    public void Initialize(RewardManager rewardManager)
+    {
+        this.rewardManager = rewardManager;
+    }
+
     // 移動
     public void Move()
     {
@@ -51,13 +62,41 @@ public class ShotController : MonoBehaviour
         transform.position += (Vector3)(moveDirection * moveSpeed * Time.deltaTime);
     }
 
-    // 敵にぶつかったとき
+    // 敵に当たったとき
     void OnTriggerEnter2D(Collider2D other)
     {
         if (other.gameObject.CompareTag("Enemy"))
         {
+            // 敵のHP判定(オーバーキル防止)
+            EnemyBase enemyBase = other.GetComponent<EnemyBase>();
+            if (enemyBase.CurrentHP <= 0) 
+            {
+                return;
+            }
+
+            // ショットエフェクトの生成
+            var shotEffectObjs = Instantiate(shotEffectObj);
+            //shotEffectObjs.transform.SetParent(shotEffectParentObj.transform);
+            shotEffectObjs.transform.position = transform.position;
+
+            // ショットの音の再生
+            SoundManager.PlaySE(SEType.Shot1);
+
             // ダメージを与える
-            other.GetComponent<EnemyBase>()?.Damage(1, playerID);       //ダメージを1と仮定
+            //int statusNum = (int)(other.GetComponent<EnemyBase>()?.Damage(1, playerID));       //ダメージを1と仮定
+            int statusNum = (int)(enemyBase?.Damage(1, playerID));
+
+            // 報酬
+            if (statusNum == 0)
+            {
+                rewardManager.AddReward(RewardType.AttackReward);
+            }
+            // 敵の死亡
+            if (statusNum == 1)
+            {
+                rewardManager.AddReward(RewardType.KillReward);
+            }
+
             // 貫通しない場合
             Death();
         }

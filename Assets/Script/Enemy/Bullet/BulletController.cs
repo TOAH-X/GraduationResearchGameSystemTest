@@ -3,16 +3,16 @@ using UnityEngine;
 public class BulletController : MonoBehaviour
 {
     [Header("移動速度")]
-    [SerializeField] float moveSpeed = 20.0f;
+    [SerializeField] float moveSpeed = 10.0f;
     [Header("角度")]
     [SerializeField] float angleDegree = 30.0f;
     float timer = 0;
 
     // 画面外の範囲
-    float minX = -10f;
-    float maxX = 10f;
-    float minY = -6f;
-    float maxY = 6f;
+    float minX = -6.5f;
+    float maxX = 6.5f;
+    float minY = -5.0f;
+    float maxY = 5.0f;
 
     // Start is called before the first frame update
     void Start()
@@ -45,7 +45,7 @@ public class BulletController : MonoBehaviour
         // Z軸回転（見た目の向き）も合わせる
         transform.rotation = Quaternion.Euler(0f, 0f, angleDegree);
 
-        transform.position += (Vector3)(moveDirection * moveSpeed * Time.deltaTime);
+        transform.position += (Vector3)(moveDirection * moveSpeed * Time.fixedDeltaTime);
     }
 
     // 敵にぶつかったとき
@@ -57,6 +57,13 @@ public class BulletController : MonoBehaviour
             other.GetComponent<PlayerBase>()?.Damage(1);         // ダメージを1と仮定
             // 貫通しない場合
             Death();
+        }
+
+        // 試験的(必ずリファクタリングを行うこと)
+        if (other.gameObject.name=="Graze")
+        {
+            Debug.Log("Graze");
+            other.GetComponent<GrazeController>().AddReward();
         }
     }
 

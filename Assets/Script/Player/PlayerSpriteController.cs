@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class PlayerSpriteController : MonoBehaviour
@@ -38,5 +39,10 @@ public class PlayerSpriteController : MonoBehaviour
             if (spriteRenderer.sprite != playerCenterSprite)
                 spriteRenderer.sprite = playerCenterSprite;
         }
+    }
+
+    public void UpdateCenterSprite() 
+    {
+        spriteRenderer.sprite = playerCenterSprite;
     }
 }

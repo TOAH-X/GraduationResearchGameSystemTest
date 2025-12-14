@@ -12,7 +12,7 @@ public class FPSTextController : MonoBehaviour
     }
 
     // Update is called once per frame
-    void FixedUpdate()
+    void Update()
     {
         fpsText.text = FPSController.GetFPS().ToString("F1") + "fps";
     }

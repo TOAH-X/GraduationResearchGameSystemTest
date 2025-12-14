@@ -165,3 +165,6 @@ MonoBehaviour:
   attackID: 0
   bulletPrefab: {fileID: 3126628179048461705, guid: 1c44efa81616b0b40b3250bd0b906ce2, type: 3}
   bulletParentObj: {fileID: 0}
+  enemyDeathEffectObj: {fileID: 3280450629069845819, guid: bdc06cba0b07ded4ca9d81779ce3f7c3, type: 3}
+  enemyDeathEffectParticle: {fileID: 9066365412768461112, guid: cdc61faa834bd784e932290622ac2665, type: 3}
+  particleParent: {fileID: 0}

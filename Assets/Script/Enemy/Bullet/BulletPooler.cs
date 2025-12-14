@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class BulletPooler : MonoBehaviour
@@ -34,17 +35,13 @@ public class BulletPooler : MonoBehaviour
     }
 
     // Update is called once per frame
-    void FixedUpdate()
+    void Update()
     {
-
+        //Debug.Log(poolSize - pool.Count);
     }
 
     public GameObject GetBullet()
     {
-        var bullet = pool.Dequeue();
-        bullet.SetActive(true);
-        return bullet;
-        /*
         if (pool.Count > 0)
         {
             var bullet = pool.Dequeue();
@@ -53,12 +50,8 @@ public class BulletPooler : MonoBehaviour
         }
         else
         {
-            // 追加で生成（必要なら）
-            GameObject newBullet = Instantiate(bulletPrefab);
-            newBullet.transform.SetParent(bulletParentObj.transform);
-            return newBullet;
+            return null;
         }
-        */
     }
 
     public void ReturnBullet (GameObject bullet)

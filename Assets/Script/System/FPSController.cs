@@ -11,7 +11,7 @@ public class FPSController
 
     public static float GetFPS() 
     {
-        float fps = 1f / Time.deltaTime;
+        float fps = 1f / Time.fixedDeltaTime;
         return fps;
     }
 }

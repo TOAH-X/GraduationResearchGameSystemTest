@@ -3,29 +3,64 @@ using System.Collections.Generic;
 using Unity.MLAgents;
 using Unity.MLAgents.Sensors;
 using Unity.MLAgents.Actuators;
-using Unity.MLAgents.Policies;
 using UnityEngine.SceneManagement;
+using System.Threading;
 
 public class PlayerAgent : Agent
 {
-    public Transform taraget;
-
     Rigidbody2D rb2D;
 
-    [SerializeField] PlayerBase playerBaseScript;   // PlayerBaseスクリプト
-    [SerializeField] PlayerMoveController playerMoveControllerScript;   // PlayerMoveControllerスクリプト
-    [SerializeField] PlayerShotController playerShotControllerScript;   // PlayerShotControllerスクリプト
+    [SerializeField] PlayerBase playerBaseScript;                           // PlayerBaseスクリプト
+    [SerializeField] PlayerMoveController playerMoveControllerScript;       // PlayerMoveControllerスクリプト
+    [SerializeField] PlayerShotController playerShotControllerScript;       // PlayerShotControllerスクリプト
 
-    [SerializeField] Transform bulletParent;        // BulletParentのTransform
-    [SerializeField] Transform enemyParent;         // EnemyParentのTransform
+    [SerializeField] Transform bulletParent;                                // BulletParentのTransform
+    [SerializeField] Transform enemyParent;                                 // EnemyParentのTransform 
 
+    [SerializeField] bool isLimitedCollectObservations = true;              // 観察数の制限(弾幕を全て把握から一部把握へ変更)
 
+    [SerializeField] RewardManager rewardManagerScript;                     // rewardManagerスクリプト
+
+    [SerializeField] float gameTimer = 0;                                   // ゲームタイマー
+    public int currentStep = 0;                                             // 出力用ステップ数管理(やり直しても管理できるようにするため)
+    [SerializeField] private DataOutput dataOutputScript;                   // DataOutputスクリプト
+
+    // 追加
+    [Header("基準となるプレイヤー")]
+    [SerializeField] private Transform player;
+
+    [Header("追跡する弾の最大数")]
+    [SerializeField] private int bulletTrackCount = 30;
+
+    [Header("非アクティブ時のダミー座標")]
+    [SerializeField] private Vector2 bulletInactivePos = new Vector2(-100f, -100f);
+
+    // 弾の履歴データ（現在・1F前・2F前）
+    private readonly Dictionary<Transform, Vector2[]> bulletHistory = new Dictionary<Transform, Vector2[]>();
+
+    // ML用など他スクリプトで参照したい場合に使う
+    public List<(Vector2 now, Vector2 prev1, Vector2 prev2)> bulletTrackedPositions = new List<(Vector2, Vector2, Vector2)>();
+    // 追加
+
+    // 追加
+    [Header("追跡する敵の最大数")]
+    [SerializeField] private int enemyTrackCount = 25;
+
+    [Header("非アクティブ時のダミー座標")]
+    [SerializeField] private Vector2 enemyInactivePos = new Vector2(-100f, -100f);
+
+    // 弾の履歴データ（現在・1F前・2F前）
+    private readonly Dictionary<Transform, Vector2[]> enemyHistory = new Dictionary<Transform, Vector2[]>();
+
+    // ML用など他スクリプトで参照したい場合に使う
+    public List<(Vector2 now, Vector2 prev1, Vector2 prev2)> enemyTrackedPositions = new List<(Vector2, Vector2, Vector2)>();
+
+    // 追加
 
     // Start is called before the first frame update
     void Start()
     {
-        
-        
+
     }
 
     // Update is called once per frame
@@ -51,10 +86,320 @@ public class PlayerAgent : Agent
     // 観察取得時に呼ばれる
     public override void CollectObservations(VectorSensor vectorSensor)//posかも？
     {
+        // 1*2(プレイヤー)+25*2*3(敵)+30*2*3(弾)=
+        if (bulletParent == null || enemyParent == null) return;
         // 自身の位置を取得
         vectorSensor.AddObservation(transform.position.x);
         vectorSensor.AddObservation(transform.position.y);
 
+        // 敵取得
+        // 近い順
+        if (enemyParent == null || player == null) return;
+
+        // --- 敵リストを更新 ---
+        List<Transform> enemys = new List<Transform>();
+        for (int i = 0; i < enemyParent.childCount; i++)
+        {
+            enemys.Add(enemyParent.GetChild(i));
+        }
+
+        // --- アクティブな敵を抽出 ---
+        List<Transform> activeEnemys = new List<Transform>();
+        foreach (var b in enemys)
+        {
+            if (b != null && b.gameObject.activeSelf)
+                activeEnemys.Add(b);
+        }
+
+        // --- プレイヤーに近い順に並び替え ---
+        activeEnemys.Sort((a, b) =>
+        {
+            float da = (a.position - player.position).sqrMagnitude;
+            float db = (b.position - player.position).sqrMagnitude;
+            return da.CompareTo(db);
+        });
+
+        // --- trackCount件に制限し、不足分をnullで埋める ---
+        List<Transform> trackedEnemys = new List<Transform>();
+        for (int i = 0; i < enemyTrackCount; i++)
+        {
+            trackedEnemys.Add(i < activeEnemys.Count ? activeEnemys[i] : null);
+        }
+
+        // --- 敵の履歴更新 ---
+        foreach (var enemy in trackedEnemys)
+        {
+            if (enemy == null) continue;
+
+            if (!enemyHistory.ContainsKey(enemy))
+            {
+                enemyHistory[enemy] = new Vector2[3]
+                {
+                    enemyInactivePos,
+                    enemyInactivePos,
+                    enemyInactivePos
+                };
+            }
+
+            var h = enemyHistory[enemy];
+            if (enemy.gameObject.activeSelf)
+            {
+                h[2] = h[1];
+                h[1] = h[0];
+                h[0] = enemy.position;
+            }
+            else
+            {
+                h[2] = h[1];
+                h[1] = h[0];
+                h[0] = enemyInactivePos;
+            }
+        }
+
+        // --- 削除された弾の履歴をクリア ---
+        List<Transform> enemyRemoveList = new List<Transform>();
+        foreach (var kvp in enemyHistory)
+        {
+            if (kvp.Key == null)
+                enemyRemoveList.Add(kvp.Key);
+        }
+        foreach (var key in enemyRemoveList)
+        {
+            enemyHistory.Remove(key);
+        }
+
+        // --- 最終的なリストを作成 ---
+        enemyTrackedPositions.Clear();
+        int enemyCount = 0;
+        foreach (var kvp in enemyHistory)
+        {
+            if (enemyCount >= enemyTrackCount) break;
+            var h = kvp.Value;
+            enemyTrackedPositions.Add((h[0], h[1], h[2]));
+            enemyCount++;
+        }
+
+        // 敵が足りない場合はダミー座標で埋める
+        while (enemyTrackedPositions.Count < enemyTrackCount)
+        {
+            enemyTrackedPositions.Add((enemyInactivePos, enemyInactivePos, enemyInactivePos));
+        }
+
+        // --- 観測を登録 ---
+        foreach (var (now, prev1, prev2) in enemyTrackedPositions)
+        {
+            // 相対座標
+            // 現在
+            Vector2 relNow = now - (Vector2)player.position;
+            vectorSensor.AddObservation(relNow.x);
+            vectorSensor.AddObservation(relNow.y);
+
+            // 1フレーム前
+            Vector2 relPrev1 = prev1 - (Vector2)player.position;
+            vectorSensor.AddObservation(relPrev1.x);
+            vectorSensor.AddObservation(relPrev1.y);
+
+            // 2フレーム前
+            Vector2 relPrev2 = prev2 - (Vector2)player.position;
+            vectorSensor.AddObservation(relPrev2.x);
+            vectorSensor.AddObservation(relPrev2.y);
+        }
+
+        // 弾取得
+        // 近い順
+        if (bulletParent == null || player == null) return;
+
+        // --- 弾リストを更新 ---
+        List<Transform> bullets = new List<Transform>();
+        for (int i = 0; i < bulletParent.childCount; i++)
+        {
+            bullets.Add(bulletParent.GetChild(i));
+        }
+
+        // --- アクティブな弾を抽出 ---
+        List<Transform> activeBullets = new List<Transform>();
+        foreach (var b in bullets)
+        {
+            if (b != null && b.gameObject.activeSelf)
+                activeBullets.Add(b);
+        }
+
+        // --- プレイヤーに近い順に並び替え ---
+        activeBullets.Sort((a, b) =>
+        {
+            float da = (a.position - player.position).sqrMagnitude;
+            float db = (b.position - player.position).sqrMagnitude;
+            return da.CompareTo(db);
+        });
+
+        // --- trackCount件に制限し、不足分をnullで埋める ---
+        List<Transform> trackedBullets = new List<Transform>();
+        for (int i = 0; i < bulletTrackCount; i++)
+        {
+            trackedBullets.Add(i < activeBullets.Count ? activeBullets[i] : null);
+        }
+
+        // --- 弾の履歴更新 ---
+        foreach (var bullet in trackedBullets)
+        {
+            if (bullet == null) continue;
+
+            if (!bulletHistory.ContainsKey(bullet))
+            {
+                bulletHistory[bullet] = new Vector2[3]
+                {
+                    bulletInactivePos,
+                    bulletInactivePos,
+                    bulletInactivePos
+                };
+            }
+
+            var h = bulletHistory[bullet];
+            if (bullet.gameObject.activeSelf)
+            {
+                h[2] = h[1];
+                h[1] = h[0];
+                h[0] = bullet.position;
+            }
+            else
+            {
+                h[2] = h[1];
+                h[1] = h[0];
+                h[0] = bulletInactivePos;
+            }
+        }
+
+        // --- 削除された弾の履歴をクリア ---
+        List<Transform> bulletRemoveList = new List<Transform>();
+        foreach (var kvp in bulletHistory)
+        {
+            if (kvp.Key == null)
+                bulletRemoveList.Add(kvp.Key);
+        }
+        foreach (var key in bulletRemoveList)
+        {
+            bulletHistory.Remove(key);
+        }
+
+        // --- 最終的なリストを作成 ---
+        bulletTrackedPositions.Clear();
+        int bulletCount = 0;
+        foreach (var kvp in bulletHistory)
+        {
+            if (bulletCount >= bulletTrackCount) break;
+            var h = kvp.Value;
+            bulletTrackedPositions.Add((h[0], h[1], h[2]));
+            bulletCount++;
+        }
+
+        // 弾が足りない場合はダミー座標で埋める
+        while (bulletTrackedPositions.Count < bulletTrackCount)
+        {
+            bulletTrackedPositions.Add((bulletInactivePos, bulletInactivePos, bulletInactivePos));
+        }
+
+        // --- 観測を登録 ---
+        foreach (var (now, prev1, prev2) in bulletTrackedPositions)
+        {
+            // 相対座標
+            // 現在
+            Vector2 relNow = now - (Vector2)player.position;
+            vectorSensor.AddObservation(relNow.x);
+            vectorSensor.AddObservation(relNow.y);
+
+            // 1フレーム前
+            Vector2 relPrev1 = prev1 - (Vector2)player.position;
+            vectorSensor.AddObservation(relPrev1.x);
+            vectorSensor.AddObservation(relPrev1.y);
+
+            // 2フレーム前
+            Vector2 relPrev2 = prev2 - (Vector2)player.position;
+            vectorSensor.AddObservation(relPrev2.x);
+            vectorSensor.AddObservation(relPrev2.y);
+        }
+
+        /*
+        // ID順
+
+        if (bulletParent == null || enemyParent == null) return;
+        // 自身の位置を取得
+        vectorSensor.AddObservation(transform.position);
+        //vectorSensor.AddObservation(transform.position.y);
+
+        // 弾幕を全て取得
+        if (isLimitedCollectObservations == false)
+        {
+            // 1フレーム前の弾幕の座標の取得
+            for (int i = 0; i < bulletParent.childCount; i++)
+            {
+                Vector2 lastPos = (i < lastFrameBulletPositions.Count) ? lastFrameBulletPositions[i] : new Vector2(100f, 100f);
+
+                vectorSensor.AddObservation(lastPos);
+                //vectorSensor.AddObservation(lastPos.y);
+            }
+
+            // 現在の弾幕の座標の取得
+            lastFrameBulletPositions.Clear();
+
+            for (int i = 0; i < bulletParent.childCount; i++)
+            {
+                Transform bullet = bulletParent.GetChild(i);
+
+
+                Vector2 relativePos;
+
+                if (bullet.gameObject.activeSelf)
+                {
+                    relativePos = bullet.position - transform.position;
+                }
+                else
+                {
+                    relativePos = new Vector2(100f, 100f);      // 居ないものとして扱う
+                }
+
+                lastFrameBulletPositions.Add(relativePos);      // 弾幕の1フレーム前の座標リストに現在座標を登録
+
+                vectorSensor.AddObservation(relativePos);
+                //vectorSensor.AddObservation(relativePos.y);
+            }
+        }
+        // 弾幕を近くのものだけ取得
+        else 
+        { 
+            // 最も近いn個の弾幕を取得
+            // 順番は守る
+            // 最も近いn個に入ると最も遠い弾幕と交換してリストに入れる
+        }
+
+
+
+        // 敵の座標の取得(のちのち1フレーム前の座標も取得しておくと精度が上がるかもしれない)
+        int maxEnemysToObserve = 100;     // エネミープーラから取得すること
+        int count2 = 0;
+
+        foreach (Transform enemy in enemyParent)
+        {
+            if (enemy.gameObject.activeSelf)
+            {
+                Vector2 relativePos = enemy.position - transform.position; // 相対位置
+                vectorSensor.AddObservation(relativePos);
+                //vectorSensor.AddObservation(relativePos.y);
+                count2++;
+
+                if (count2 >= maxEnemysToObserve)
+                    break;
+            }
+        }
+
+        // 観測数が max に満たない場合、座標を(100,100)にしておく。
+        for (int i = count2; i < maxEnemysToObserve; i++)
+        {
+            vectorSensor.AddObservation(new Vector2(100f, 100f)); // x
+            //vectorSensor.AddObservation(100f); // y
+        }
+
+        */
+        /*
         // 弾幕の座標の取得(のちのち1フレーム前の座標も取得しておくと精度が上がるかもしれない)
         int maxBulletsToObserve = 1000;     // バレットプーラから取得すること
         int count = 0;
@@ -80,37 +425,13 @@ public class PlayerAgent : Agent
             vectorSensor.AddObservation(0f); // y
         }
 
-        // 弾幕の座標の取得(のちのち1フレーム前の座標も取得しておくと精度が上がるかもしれない)
-        int maxEnemysToObserve = 100;     // エネミープーラから取得すること
-        int count2 = 0;
-
-        foreach (Transform bullet in enemyParent)
-        {
-            if (bullet.gameObject.activeSelf)
-            {
-                Vector2 relativePos = bullet.position - transform.position; // 相対位置でもOK
-                vectorSensor.AddObservation(relativePos.x);
-                vectorSensor.AddObservation(relativePos.y);
-                count2++;
-
-                if (count2 >= maxEnemysToObserve)
-                    break;
-            }
-        }
-
-        // 観測数が max に満たない場合、ゼロ埋め
-        for (int i = count2; i < maxEnemysToObserve; i++)
-        {
-            vectorSensor.AddObservation(0f); // x
-            vectorSensor.AddObservation(0f); // y
-        }
+        */
     }
-    
+
     // 行動決定時に呼ばれる
     public override void OnActionReceived(ActionBuffers actionBuffers) 
     {
-        float moveSpeed = 5.0f;
-        //float slowSpeedRate = 0.5f;
+        // 低速モードも実装すること
 
         // 行動：連続値2つ（横・縦）を取得
         float h = Mathf.Clamp(actionBuffers.ContinuousActions[0], -1f, 1f);
@@ -130,16 +451,19 @@ public class PlayerAgent : Agent
         { 
             isShot = false;
         }
-
+        isShot = true;                                          // 後で絶対消せ(ショット常に出る化モード)
         // ショット
         playerShotControllerScript.ShotTrigger(isShot);
 
-        // 報酬設計：生きてるほど報酬 +0.5
-        AddReward(0.5f);
+        // 報酬設計
+        // 生存報酬 +1.0
+        rewardManagerScript.AddReward(RewardType.SurvivalReward);
         // 報酬…被弾(負)、敵に弾を当てる
-        
 
-        // エピソード終了(HPが0のとき)
+
+        // エピソード終了
+        /*
+        // HPが0のとき
         if (playerBaseScript.CurrentHP <= 0)  
         {
             EndEpisode();
@@ -147,8 +471,32 @@ public class PlayerAgent : Agent
             playerBaseScript.CurrentHP = 3;
             SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         }
+        */
+        // 開始時間から30秒経ったとき
+        if (gameTimer >= 30.0f) 
+        {
+            // HP・報酬・状態を出力
+            currentStep += 1000;
+            dataOutputScript.UpdateData(currentStep, gameTimer, playerBaseScript.CurrentHP, "Training");
 
-        
+            EndEpisode();
+
+            gameTimer = 0;
+            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        }
+        gameTimer += Time.fixedDeltaTime;
+
+        // 手動評価ボタン(後で消すこと)
+        if (Input.GetKeyDown(KeyCode.O) == true)
+        {
+            // 報酬・天祐
+            rewardManagerScript.AddReward(RewardType.GraceReward);
+        }
+        if (Input.GetKeyDown(KeyCode.L) == true)
+        {
+            // 報酬・神罰
+            rewardManagerScript.AddReward(RewardType.PunishPenalty);
+        }
     }
 
     // ヒューリスティックモード

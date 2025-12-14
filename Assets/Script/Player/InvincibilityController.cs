@@ -19,7 +19,7 @@ public class InvincibilityController : MonoBehaviour
     {
         if (invincibilityTimer > 0)
         {
-            invincibilityTimer -= Time.deltaTime;
+            invincibilityTimer -= Time.fixedDeltaTime;
         }
     }
 

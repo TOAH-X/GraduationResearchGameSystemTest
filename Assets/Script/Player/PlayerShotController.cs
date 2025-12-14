@@ -6,6 +6,8 @@ public class PlayerShotController : MonoBehaviour
     [SerializeField] GameObject shotPrefab;
     [Header("PlayerID")]
     [SerializeField] int playerID;
+    [Header("PlayerAgentスクリプト")]
+    [SerializeField] RewardManager rewardManager;
     [Header("PlayerBaseスクリプト")]
     [SerializeField] PlayerBase playerBaseScript;
 
@@ -50,7 +52,7 @@ public class PlayerShotController : MonoBehaviour
             }
             isShotTrigger = false;
         }
-        timer += Time.deltaTime;
+        timer += Time.fixedDeltaTime;
         
 
     }
@@ -64,27 +66,37 @@ public class PlayerShotController : MonoBehaviour
     // ショット
     public void ShotGroup(bool isSlow) 
     {
-        //中央ショット
-        GenerateShot(new Vector3(-0.25f, 0), 20f, 0f);
-        GenerateShot(new Vector3(0.25f, 0), 20f, 0f);
-        GenerateShot(new Vector3(-0.125f, 0), 20f, 0f);
-        GenerateShot(new Vector3(0.125f, 0), 20f, 0f);
+        if (playerBaseScript.IsRestart == false) 
+        {
+            //中央ショット
+            GenerateShot(new Vector3(-0.25f, 0), 20f, 0f);
+            GenerateShot(new Vector3(0.25f, 0), 20f, 0f);
+            GenerateShot(new Vector3(-0.125f, 0), 20f, 0f);
+            GenerateShot(new Vector3(0.125f, 0), 20f, 0f);
 
-        // 非低速モード
-        if (isSlow == false)
-        {
-            GenerateShot(new Vector3(-0.5f, 0.5f), 20f, 30f);
-            GenerateShot(new Vector3(0.5f, 0.5f), 20f, -30f);
-            GenerateShot(new Vector3(-0.5f, 0.5f), 20f, 15f);
-            GenerateShot(new Vector3(0.5f, 0.5f), 20f, -15f);
-        }
-        //低速モード
-        else
-        {
-            GenerateShot(new Vector3(-0.5f, 0.5f), 20f, 10f);
-            GenerateShot(new Vector3(0.5f, 0.5f), 20f, -10f);
-            GenerateShot(new Vector3(-0.5f, 0.5f), 20f, 5f);
-            GenerateShot(new Vector3(0.5f, 0.5f), 20f, -5f);
+            GenerateShot(new Vector3(-0.375f, 0), 20f, 0f);
+            GenerateShot(new Vector3(0.375f, 0), 20f, 0f);
+
+            // 非低速モード
+            if (isSlow == false)
+            {
+                /*
+                GenerateShot(new Vector3(-0.5f, 0.5f), 20f, 30f);
+                GenerateShot(new Vector3(0.5f, 0.5f), 20f, -30f);
+                GenerateShot(new Vector3(-0.5f, 0.5f), 20f, 15f);
+                GenerateShot(new Vector3(0.5f, 0.5f), 20f, -15f);
+                */
+            }
+            //低速モード
+            else
+            {
+                /*
+                GenerateShot(new Vector3(-0.5f, 0.5f), 20f, 10f);
+                GenerateShot(new Vector3(0.5f, 0.5f), 20f, -10f);
+                GenerateShot(new Vector3(-0.5f, 0.5f), 20f, 5f);
+                GenerateShot(new Vector3(0.5f, 0.5f), 20f, -5f);
+                */
+            }
         }
     }
 
@@ -119,5 +131,6 @@ public class PlayerShotController : MonoBehaviour
         shotControllerScript.MoveSpeed = moveSpeed;
         shotControllerScript.AngleDegree = angleDegree;
         shotControllerScript.PlayerID = playerID;
+        shotControllerScript.Initialize(rewardManager);
     }
 }
