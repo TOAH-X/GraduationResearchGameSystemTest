@@ -690,7 +690,7 @@ MonoBehaviour:
   m_Model: {fileID: 0}
   m_InferenceDevice: 0
   m_BehaviorType: 0
-  m_BehaviorName: SubPlayer
+  m_BehaviorName: SubPlayer_Another
   TeamId: 0
   m_UseChildSensors: 1
   m_UseChildActuators: 1
@@ -709,7 +709,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerName: SubPlayer_Another
-  playerID: 1
+  playerID: 4
   playerType: SubPlayer
   currentHp: 10
   playerMoveController: {fileID: 210556211}
@@ -728,7 +728,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   shotPrefab: {fileID: 7898888502785738670, guid: ba50c24ab7bc74e45aa9a35c9b8e4917, type: 3}
-  playerID: 0
+  playerID: 4
   rewardManager: {fileID: 210556206}
   playerBaseScript: {fileID: 210556209}
   shotParentObj: {fileID: 1764550024}
@@ -1484,7 +1484,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   shotPrefab: {fileID: 7898888502785738670, guid: ba50c24ab7bc74e45aa9a35c9b8e4917, type: 3}
-  playerID: 0
+  playerID: 1
   rewardManager: {fileID: 526268578}
   playerBaseScript: {fileID: 526268568}
   shotParentObj: {fileID: 1764550024}
@@ -1504,7 +1504,7 @@ MonoBehaviour:
   slowSpeedRate: 0.5
   playerSpriteControllerScript: {fileID: 526268576}
   playerBaseScript: {fileID: 526268568}
-  isMove: 1
+  isMove: 0
 --- !u!212 &526268566
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -2269,6 +2269,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 49316c71e5741464796fc1a4f1017554, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  simulationSpeed: 25
 --- !u!1 &920481899
 GameObject:
   m_ObjectHideFlags: 0
@@ -2652,7 +2653,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1022352612
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2741,7 +2742,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerName: SubPlayer
-  playerID: 1
+  playerID: 2
   playerType: SubPlayer
   currentHp: 10
   playerMoveController: {fileID: 1022352619}
@@ -2760,7 +2761,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   shotPrefab: {fileID: 7898888502785738670, guid: ba50c24ab7bc74e45aa9a35c9b8e4917, type: 3}
-  playerID: 0
+  playerID: 2
   rewardManager: {fileID: 1022352625}
   playerBaseScript: {fileID: 1022352617}
   shotParentObj: {fileID: 1764550024}
@@ -2780,7 +2781,7 @@ MonoBehaviour:
   slowSpeedRate: 0.5
   playerSpriteControllerScript: {fileID: 1022352612}
   playerBaseScript: {fileID: 1022352617}
-  isMove: 1
+  isMove: 0
 --- !u!58 &1022352620
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -3395,7 +3396,7 @@ MonoBehaviour:
   bgmList:
   - type: 2
     clip: {fileID: 8300000, guid: 1d83f4cb69d5a944f8ab40d828ed736c, type: 3}
-    volume: 1
+    volume: 0
   seList:
   - type: 0
     clip: {fileID: 8300000, guid: e2453d25d71c85042a1217c9513a5436, type: 3}
@@ -3738,7 +3739,7 @@ MonoBehaviour:
   m_Model: {fileID: 5022602860645237092, guid: 85fed5999e30c2b408a541f5344ee072, type: 3}
   m_InferenceDevice: 0
   m_BehaviorType: 2
-  m_BehaviorName: Player
+  m_BehaviorName: Player_Another
   TeamId: 0
   m_UseChildSensors: 1
   m_UseChildActuators: 1
@@ -3757,7 +3758,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerName: Player_Another
-  playerID: 1
+  playerID: 2
   playerType: Player
   currentHp: 10
   playerMoveController: {fileID: 1703502166}
@@ -3776,7 +3777,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   shotPrefab: {fileID: 7898888502785738670, guid: ba50c24ab7bc74e45aa9a35c9b8e4917, type: 3}
-  playerID: 0
+  playerID: 2
   rewardManager: {fileID: 1703502162}
   playerBaseScript: {fileID: 1703502164}
   shotParentObj: {fileID: 1764550024}

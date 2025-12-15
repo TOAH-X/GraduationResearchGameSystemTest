@@ -246,6 +246,7 @@ public class EnemyBase : MonoBehaviour
 }
 */
 
+using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
@@ -273,6 +274,15 @@ public class EnemyBase : MonoBehaviour
 
     private float lifeTimer = 0f;
 
+    // ログ出力用
+    List<PlayerBase> activePlayersList = new List<PlayerBase>();    // プレイヤーの位置
+    private int taskAssigneeID_Local = 0;           // 責任者ID(エネミー側で扱う便宜的なID)
+    private int taskAssigneeID_Player = 0;          // 責任者ID(プレイヤーのプレイヤーID)
+    private int taskAssigneeCountFrame = 0;         // 責任者IDを付与する際のフレームのカウンター(最初のカウントは最後の座標が記録されないなどの理由)
+    private bool isEscape = false;                  // 撃ち漏らし
+    Vector2 currentPos;                             // 現在の位置
+    Vector2 lastPos;                                // 1フレーム前の位置
+
     // 画面外の範囲
     float minX = -10.0f;
     float maxX = 10.0f;
@@ -287,10 +297,29 @@ public class EnemyBase : MonoBehaviour
     void FixedUpdate()
     {
         lifeTimer += Time.fixedDeltaTime;
-
-        Move();
-
         timer += Time.fixedDeltaTime;
+
+        // 責任者ID取得
+        if (taskAssigneeID_Local == 0) 
+        {
+            GetTaskAssigneeID();
+        }
+
+        // 撃ち漏らし取得
+        if (taskAssigneeCountFrame > 1) 
+        {
+            if (taskAssigneeID_Local == 1 || taskAssigneeID_Local == 2)
+            {
+                GetIsEscape();
+            }
+        }
+        taskAssigneeCountFrame++;
+
+        //
+
+        // 移動処理
+        Move();
+        
         if (timer >= 1.0f)
         {
             float num = Random.Range(0.0f, 360.0f);
@@ -306,17 +335,16 @@ public class EnemyBase : MonoBehaviour
         if (pos.x < minX || pos.x > maxX || pos.y < minY || pos.y > maxY)
         {
             // 画面外で即死させたくない場合は何もしない
-            // Death("Out of screen") ;
+            Death("Out of screen") ;
         }
     }
 
     /// <summary>
     /// 被ダメージ処理（HP <= 0 のときは Death を呼ぶ）
     /// </summary>
-    public int Damage(int damage, int id)
+    public int Damage(int damage, int attackID)
     {
         currentHp -= damage;
-        attackID = id;
         if (currentHp <= 0)
         {
             // スコア等の処理（既存通り）
@@ -327,6 +355,18 @@ public class EnemyBase : MonoBehaviour
                 EnemyDeathEffect.Instance.PlayEffect(transform.position);
             SoundManager.PlaySE(SEType.EnemyDeath);
 
+            // 撃ち漏らしフラグがある敵が倒された
+            // 自己回収(責任者が撃ち漏らしを倒した)
+            if (taskAssigneeID_Player == attackID)
+            {
+            }
+            // 協力(責任者以外が撃ち漏らしを倒した)
+            else 
+            { 
+            }
+            
+
+            // 死亡
             Death("HP Depleted (Current HP: " + currentHp + ")");
             return 1;
         }
@@ -366,6 +406,104 @@ public class EnemyBase : MonoBehaviour
         transform.position += (Vector3)(moveDirection * moveSpeed * Time.fixedDeltaTime);
     }
 
+    // 責任者ID取得
+    public void GetTaskAssigneeID() 
+    {
+        // めちゃくちゃ重い処理なので後で書き直す
+        PlayerBase[] activePlayersArray = FindObjectsOfType<PlayerBase>();
+        activePlayersList = new List<PlayerBase>(activePlayersArray);
+
+        if (activePlayersList.Count != 2)
+        {
+            Debug.Log("Playerが" + activePlayersList.Count + "体いる状態。");
+            taskAssigneeID_Local = -1;
+        }
+        else
+        {
+            // 責任者ID
+            Vector2 pos_0 = this.transform.position;
+            Vector2 pos_1 = (Vector2)activePlayersList[0].transform.position - pos_0;
+            Vector2 pos_2 = (Vector2)activePlayersList[1].transform.position - pos_0;
+
+            // プレイヤーが自身より下にいる場合(ショットは上向きなので無視する必要がある)
+            if (pos_1.y < 0)
+            {
+                pos_1.y = 0;
+            }
+            if (pos_2.y < 0)
+            {
+                pos_2.y = 0;
+            }
+
+            // 距離比較、ID取得。
+            if (pos_1.sqrMagnitude <= pos_2.sqrMagnitude)
+            {
+                // ローカルID
+                taskAssigneeID_Local = 1;
+                Debug.Log("taskAssigneeID_Local==" + taskAssigneeID_Local);
+                // プレイヤーID
+                taskAssigneeID_Player = activePlayersList[0].PlayerID;
+                Debug.Log("taskAssigneeID_Player==" + taskAssigneeID_Player);
+            }
+            else
+            {
+                // ローカルID
+                taskAssigneeID_Local = 2;
+                Debug.Log("taskAssigneeID_Local==" + taskAssigneeID_Local);
+                // プレイヤーID
+                taskAssigneeID_Player = activePlayersList[1].PlayerID;
+                Debug.Log("taskAssigneeID_Player==" + taskAssigneeID_Player);
+            }
+        }
+    }
+
+    // 撃ち漏らし取得
+    public void GetIsEscape() 
+    {
+        // 移動方向記録
+        lastPos = currentPos;                   // 1フレーム前
+        currentPos = this.transform.position;   // 現在のフレーム
+
+        // 責任者の位置
+        //Vector2 playerPos = activePlayersList[taskAssigneeID - 1].transform.position;
+        Vector2 playerPos = (Vector2)activePlayersList[taskAssigneeID_Local - 1].transform.position;
+
+        // 責任者が未設定、または既に撃ち漏らし状態なら判定しない
+        //if (activePlayersList[taskAssigneeID] == null || isBypassed)
+        //    return;
+
+        // 敵の「現在の移動方向」を示すベクトル
+        Vector2 movementVector = currentPos - lastPos;
+
+        // 敵が停止している場合は判定できないため、処理を中断
+        // if (movementVector.sqrMagnitude < 0.001f)
+        // return;
+
+        // V_N (法線): 移動方向 V_E の逆向きを定義
+        Vector2 normalVector = -movementVector.normalized;
+
+        // V_EP (相対位置): 敵 E からプレイヤー P へ向かうベクトル
+        // V_EP = PlayerPosition - EnemyPosition
+        Vector2 vectorEnemyToPlayer = playerPos - currentPos;
+
+        // ----------------------------------------------------
+        // 3. ドット積による通過判定
+        // ----------------------------------------------------
+
+        float dotProduct = Vector2.Dot(vectorEnemyToPlayer, normalVector);
+
+
+        float escapeBorder = 0.5f;      // 撃ち漏らし距離
+
+        if (dotProduct >= escapeBorder) //どれだけ越えたか。
+        {
+            // ドット積が正 = 敵が判定ラインを越えてプレイヤーの後ろに回った
+            isEscape = true;
+            Debug.Log("【撃ち漏らし発生】: " + activePlayersList[taskAssigneeID_Local - 1].name + " を敵が通過。");
+        }
+    }
+
+
     /// <summary>
     /// ★ 新規：内部専用の軽い初期化（Active化前に呼ぶ）
     /// - Transform の初期化は呼び出し側（Spawn）でやる想定
@@ -379,6 +517,11 @@ public class EnemyBase : MonoBehaviour
 
         // ★追加：位置リセット
         transform.position = new Vector3(9999, 9999, 0);
+
+        taskAssigneeID_Local = 0;
+        taskAssigneeID_Player = 0;
+        taskAssigneeCountFrame = 0;
+        isEscape = false;
     }
 
     // LaunchBullet は既存のものをそのまま利用
@@ -440,7 +583,7 @@ public class EnemyBase : MonoBehaviour
         float survivalTime = lifeTimer;
         if (survivalTime < 0.5f)
         {
-            Debug.LogWarning($"[EnemyBase] Disabled quickly. ID:{enemyID}, survivalTime:{survivalTime:F3}s, frame:{Time.frameCount}\nSTACK: {System.Environment.StackTrace}");
+            //Debug.LogWarning($"[EnemyBase] Disabled quickly. ID:{enemyID}, survivalTime:{survivalTime:F3}s, frame:{Time.frameCount}\nSTACK: {System.Environment.StackTrace}");
         }
     }
 }
