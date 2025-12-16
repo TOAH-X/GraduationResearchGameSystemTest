@@ -251,7 +251,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: -4
   m_Sprite: {fileID: -2413806693520163455, guid: a86470a33a6bf42c4b3595704624658b, type: 3}
-  m_Color: {r: 0, g: 0.34390402, b: 1, a: 1}
+  m_Color: {r: 0, g: 0.34390402, b: 1, a: 0}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -658,7 +658,7 @@ MonoBehaviour:
   rewardManagerScript: {fileID: 210556206}
   gameTimer: 0
   currentStep: 0
-  dataOutputScript: {fileID: 210556202}
+  learningLogCSVScript: {fileID: 210556202}
   player: {fileID: 210556215}
   bulletTrackCount: 30
   bulletInactivePos: {x: -100, y: -100}
@@ -983,7 +983,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: -4
   m_Sprite: {fileID: -2413806693520163455, guid: a86470a33a6bf42c4b3595704624658b, type: 3}
-  m_Color: {r: 0, g: 0.34390402, b: 1, a: 1}
+  m_Color: {r: 0, g: 0.34390402, b: 1, a: 0}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -1635,9 +1635,9 @@ MonoBehaviour:
     VectorActionDescriptions: []
     VectorActionSpaceType: 1
     hasUpgradedBrainParametersWithActionSpec: 1
-  m_Model: {fileID: 5022602860645237092, guid: 85fed5999e30c2b408a541f5344ee072, type: 3}
+  m_Model: {fileID: 0}
   m_InferenceDevice: 0
-  m_BehaviorType: 2
+  m_BehaviorType: 0
   m_BehaviorName: Player
   TeamId: 0
   m_UseChildSensors: 1
@@ -1669,7 +1669,7 @@ MonoBehaviour:
   rewardManagerScript: {fileID: 526268578}
   gameTimer: 0
   currentStep: 0
-  dataOutputScript: {fileID: 526268579}
+  learningLogCSVScript: {fileID: 526268579}
   player: {fileID: 526268577}
   bulletTrackCount: 30
   bulletInactivePos: {x: -100, y: -100}
@@ -1898,7 +1898,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: -4
   m_Sprite: {fileID: -2413806693520163455, guid: a86470a33a6bf42c4b3595704624658b, type: 3}
-  m_Color: {r: 0, g: 0.34390402, b: 1, a: 1}
+  m_Color: {r: 0, g: 0.34390402, b: 1, a: 0}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -2254,6 +2254,7 @@ Transform:
   - {fileID: 595839544}
   - {fileID: 1491615384}
   - {fileID: 1104147300}
+  - {fileID: 1179311034}
   m_Father: {fileID: 0}
   m_RootOrder: 20
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -2269,7 +2270,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 49316c71e5741464796fc1a4f1017554, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  simulationSpeed: 25
+  simulationSpeed: 1
 --- !u!1 &920481899
 GameObject:
   m_ObjectHideFlags: 0
@@ -2377,7 +2378,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: -4
   m_Sprite: {fileID: -2413806693520163455, guid: a86470a33a6bf42c4b3595704624658b, type: 3}
-  m_Color: {r: 0, g: 0.34390402, b: 1, a: 1}
+  m_Color: {r: 0, g: 0.34390402, b: 1, a: 0}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -2653,7 +2654,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &1022352612
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2720,9 +2721,9 @@ MonoBehaviour:
     VectorActionDescriptions: []
     VectorActionSpaceType: 1
     hasUpgradedBrainParametersWithActionSpec: 1
-  m_Model: {fileID: 0}
+  m_Model: {fileID: 5022602860645237092, guid: 9d5a10c6a84e9ba48aaa04f62b85581b, type: 3}
   m_InferenceDevice: 0
-  m_BehaviorType: 0
+  m_BehaviorType: 2
   m_BehaviorName: SubPlayer
   TeamId: 0
   m_UseChildSensors: 1
@@ -2913,7 +2914,7 @@ MonoBehaviour:
   rewardManagerScript: {fileID: 1022352625}
   gameTimer: 0
   currentStep: 0
-  dataOutputScript: {fileID: 1022352626}
+  learningLogCSVScript: {fileID: 1022352626}
   player: {fileID: 1022352623}
   bulletTrackCount: 30
   bulletInactivePos: {x: -100, y: -100}
@@ -3071,6 +3072,63 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!1 &1179311033
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1179311034}
+  - component: {fileID: 1179311035}
+  - component: {fileID: 1179311036}
+  m_Layer: 0
+  m_Name: ActionLog
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1179311034
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1179311033}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 915512734}
+  m_RootOrder: 3
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1179311035
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1179311033}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: abea43944a266194dbcc7270cbe3e837, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1179311036
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1179311033}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8e19967307242d746bfda4a745cfda65, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1306420297
 GameObject:
   m_ObjectHideFlags: 0
@@ -3395,7 +3453,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   bgmList:
   - type: 2
-    clip: {fileID: 8300000, guid: 1d83f4cb69d5a944f8ab40d828ed736c, type: 3}
+    clip: {fileID: 0}
     volume: 0
   seList:
   - type: 0
@@ -3688,7 +3746,7 @@ MonoBehaviour:
   rewardManagerScript: {fileID: 1703502162}
   gameTimer: 0
   currentStep: 0
-  dataOutputScript: {fileID: 1703502157}
+  learningLogCSVScript: {fileID: 1703502157}
   player: {fileID: 1703502170}
   bulletTrackCount: 30
   bulletInactivePos: {x: -100, y: -100}
@@ -3736,7 +3794,7 @@ MonoBehaviour:
     VectorActionDescriptions: []
     VectorActionSpaceType: 1
     hasUpgradedBrainParametersWithActionSpec: 1
-  m_Model: {fileID: 5022602860645237092, guid: 85fed5999e30c2b408a541f5344ee072, type: 3}
+  m_Model: {fileID: 5022602860645237092, guid: 2737ce26d8a5fd94ea8214d26aef03a5, type: 3}
   m_InferenceDevice: 0
   m_BehaviorType: 2
   m_BehaviorName: Player_Another
@@ -3877,7 +3935,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: -5
   m_Sprite: {fileID: 21300000, guid: 3aed0143333ef59479e4be6a027dafd8, type: 3}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.68553454, g: 0.69255936, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0

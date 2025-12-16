@@ -6,6 +6,7 @@ public class BulletController : MonoBehaviour
     [SerializeField] float moveSpeed = 10.0f;
     [Header("Šp“x")]
     [SerializeField] float angleDegree = 30.0f;
+
     float timer = 0;
 
     // ‰æ–ÊŠO‚Ì”ÍˆÍ

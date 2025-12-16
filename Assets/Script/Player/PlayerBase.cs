@@ -27,7 +27,7 @@ public class PlayerBase : MonoBehaviour
     {
         // リスタート
         cts = new CancellationTokenSource();
-        playerMoveController.RestartAsync(cts.Token).Forget();
+        playerMoveController.RestartAsync(true, cts.Token).Forget();
     }
 
     // Update is called once per frame
@@ -51,7 +51,7 @@ public class PlayerBase : MonoBehaviour
 
             // リスタート
             cts = new CancellationTokenSource();
-            playerMoveController.RestartAsync(cts.Token).Forget();
+            playerMoveController.RestartAsync(false, cts.Token).Forget();
         }
     }
 

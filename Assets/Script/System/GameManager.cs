@@ -11,7 +11,10 @@ public class GameManager : MonoBehaviour
     void Awake()
     {
         // 学習開始時に時間スケールを設定する
-        //Time.timeScale = simulationSpeed;
+        if (simulationSpeed != 1) 
+        {
+            Time.timeScale = simulationSpeed;
+        }
     }
 
     // Start is called before the first frame update

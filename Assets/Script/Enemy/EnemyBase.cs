@@ -263,8 +263,6 @@ public class EnemyBase : MonoBehaviour
     [SerializeField] int maxHp = 1;
     [Header("Œ»İHP")]
     [SerializeField] int currentHp;
-    [Header("ƒAƒ^ƒbƒNID")]
-    [SerializeField] int attackID;
 
     [Header("’e–‹ƒvƒŒƒnƒu")]
     [SerializeField] GameObject bulletPrefab;
@@ -315,8 +313,6 @@ public class EnemyBase : MonoBehaviour
         }
         taskAssigneeCountFrame++;
 
-        //
-
         // ˆÚ“®ˆ—
         Move();
         
@@ -335,7 +331,7 @@ public class EnemyBase : MonoBehaviour
         if (pos.x < minX || pos.x > maxX || pos.y < minY || pos.y > maxY)
         {
             // ‰æ–ÊŠO‚Å‘¦€‚³‚¹‚½‚­‚È‚¢ê‡‚Í‰½‚à‚µ‚È‚¢
-            Death("Out of screen") ;
+            Death(false, -1);
         }
     }
 
@@ -355,28 +351,23 @@ public class EnemyBase : MonoBehaviour
                 EnemyDeathEffect.Instance.PlayEffect(transform.position);
             SoundManager.PlaySE(SEType.EnemyDeath);
 
-            // Œ‚‚¿˜R‚ç‚µƒtƒ‰ƒO‚ª‚ ‚é“G‚ª“|‚³‚ê‚½
-            // ©ŒÈ‰ñû(Ó”CÒ‚ªŒ‚‚¿˜R‚ç‚µ‚ğ“|‚µ‚½)
-            if (taskAssigneeID_Player == attackID)
-            {
-            }
-            // ‹¦—Í(Ó”CÒˆÈŠO‚ªŒ‚‚¿˜R‚ç‚µ‚ğ“|‚µ‚½)
-            else 
-            { 
-            }
-            
-
             // €–S
-            Death("HP Depleted (Current HP: " + currentHp + ")");
+            Death(true, attackID);
             return 1;
         }
         return 0;
     }
 
     // Death: ƒv[ƒ‹‚Ö–ß‚·iDestroy‚µ‚È‚¢j
-    public void Death(string reason = "Unknown")
+    public void Death(bool isKilled, int attackID)
     {
-        Debug.Log($"[EnemyBase] Death called. ID:{enemyID}, reason:{reason}, hp:{currentHp} (frame {Time.frameCount})");
+        // Œ‚‚¿˜R‚ç‚µ•â•”»’è(Œ‚‚¿˜R‚ç‚µƒtƒ‰ƒO‚ª‚ ‚é“G‚ª“|‚³‚ê‚½)
+        if (ActionLogController.IsAvailable())
+        {
+            // isEscape(Œ‚‚¿˜R‚ç‚µ‚ª”­¶‚µ‚½‚©),taskAssigneeID_Player(Ó”CÒ),attackID(UŒ‚Ò),true/false(‹¦’²¬—§‚©)
+            ActionLogController.Instance.AddIsEscapeData(isKilled, isEscape, taskAssigneeID_Player, attackID);
+        }
+
         // ƒv[ƒ‹‚Ö•Ô‹piEnemyPoolManager ‚ğg—pj
         if (EnemyPoolManager.Instance != null)
         {

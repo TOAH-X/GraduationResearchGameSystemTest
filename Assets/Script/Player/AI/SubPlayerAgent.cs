@@ -24,7 +24,7 @@ public class SubPlayerAgent : Agent
 
     [SerializeField] float gameTimer = 0;                                   // ゲームタイマー
     public int currentStep = 0;                                             // 出力用ステップ数管理(やり直しても管理できるようにするため)
-    [SerializeField] private DataOutput dataOutputScript;                   // DataOutputスクリプト
+    [SerializeField] private LearningLogCSV learningLogCSVScript;           // LearningLogスクリプト
 
     // 追加
     [Header("基準となるプレイヤー")]
@@ -102,6 +102,7 @@ public class SubPlayerAgent : Agent
         vectorSensor.AddObservation(playerObj.transform.position.x);
         vectorSensor.AddObservation(playerObj.transform.position.y);
 
+        /*
         // 敵取得
         // 近い順
         if (enemyParent == null || player == null) return;
@@ -166,7 +167,7 @@ public class SubPlayerAgent : Agent
             }
         }
 
-        // --- 削除された弾の履歴をクリア ---
+        // --- 削除された敵の履歴をクリア ---
         List<Transform> enemyRemoveList = new List<Transform>();
         foreach (var kvp in enemyHistory)
         {
@@ -307,9 +308,185 @@ public class SubPlayerAgent : Agent
         {
             bulletTrackedPositions.Add((bulletInactivePos, bulletInactivePos, bulletInactivePos));
         }
+        */
+        // 敵取得
+        // 近い順
+        if (enemyParent == null || player == null) return;
+
+        // --- 敵リストを更新 ---
+        List<Transform> enemys = new List<Transform>();
+        for (int i = 0; i < enemyParent.childCount; i++)
+        {
+            enemys.Add(enemyParent.GetChild(i));
+        }
+
+        // --- アクティブな敵を抽出 ---
+        List<Transform> activeEnemys = new List<Transform>();
+        foreach (var b in enemys)
+        {
+            if (b != null && b.gameObject.activeSelf)
+                activeEnemys.Add(b);
+        }
+
+        // --- プレイヤーに近い順に並び替え ---
+        activeEnemys.Sort((a, b) =>
+        {
+            float da = (a.position - player.position).sqrMagnitude;
+            float db = (b.position - player.position).sqrMagnitude;
+            return da.CompareTo(db);
+        });
+
+        // --- trackCount件に制限し、不足分をnullで埋める ---
+        // ★★★ trackedEnemys の宣言と初期化 ★★★
+        List<Transform> trackedEnemys = new List<Transform>();
+        for (int i = 0; i < enemyTrackCount; i++)
+        {
+            trackedEnemys.Add(i < activeEnemys.Count ? activeEnemys[i] : null);
+        }
+
+        // --- 敵の履歴更新 ---
+        foreach (var enemy in trackedEnemys)
+        {
+            if (enemy == null) continue;
+
+            if (!enemyHistory.ContainsKey(enemy))
+            {
+                enemyHistory[enemy] = new Vector2[3]
+                {
+            enemyInactivePos,
+            enemyInactivePos,
+            enemyInactivePos
+                };
+            }
+
+            var h = enemyHistory[enemy];
+            if (enemy.gameObject.activeSelf)
+            {
+                h[2] = h[1];
+                h[1] = h[0];
+                h[0] = enemy.position;
+            }
+            else
+            {
+                h[2] = h[1];
+                h[1] = h[0];
+                h[0] = enemyInactivePos;
+            }
+        }
+
+        // --- 削除された敵の履歴をクリア ---
+        List<Transform> enemyRemoveList = new List<Transform>();
+        foreach (var kvp in enemyHistory)
+        {
+            // kvp.Key == null のチェックは Dictionary の foreach で安全ではないため修正。
+            // UnityのTransformが破棄されたかを確認するのが確実です。
+            // ただし、このコードではキーに null が入る可能性が低いため、元のロジックを維持します。
+            if (kvp.Key == null)
+                enemyRemoveList.Add(kvp.Key);
+        }
+        foreach (var key in enemyRemoveList)
+        {
+            enemyHistory.Remove(key);
+        }
+
+        // 近い順
+        if (bulletParent == null || player == null) return;
+
+        // --- 弾リストを更新 ---
+        List<Transform> bullets = new List<Transform>();
+        for (int i = 0; i < bulletParent.childCount; i++)
+        {
+            bullets.Add(bulletParent.GetChild(i));
+        }
+
+        // --- アクティブな弾を抽出 ---
+        List<Transform> activeBullets = new List<Transform>();
+        foreach (var b in bullets)
+        {
+            if (b != null && b.gameObject.activeSelf)
+                activeBullets.Add(b);
+        }
+
+        // --- プレイヤーに近い順に並び替え ---
+        activeBullets.Sort((a, b) =>
+        {
+            float da = (a.position - player.position).sqrMagnitude;
+            float db = (b.position - player.position).sqrMagnitude;
+            return da.CompareTo(db);
+        });
+
+        // --- trackCount件に制限し、不足分をnullで埋める ---
+        List<Transform> trackedBullets = new List<Transform>();
+        for (int i = 0; i < bulletTrackCount; i++)
+        {
+            trackedBullets.Add(i < activeBullets.Count ? activeBullets[i] : null);
+        }
+
+        // --- 弾の履歴更新 ---
+        foreach (var bullet in trackedBullets)
+        {
+            if (bullet == null) continue;
+
+            if (!bulletHistory.ContainsKey(bullet))
+            {
+                bulletHistory[bullet] = new Vector2[3]
+                {
+            bulletInactivePos,
+            bulletInactivePos,
+            bulletInactivePos
+                };
+            }
+
+            var h = bulletHistory[bullet];
+            if (bullet.gameObject.activeSelf)
+            {
+                h[2] = h[1];
+                h[1] = h[0];
+                h[0] = bullet.position;
+            }
+            else
+            {
+                h[2] = h[1];
+                h[1] = h[0];
+                h[0] = bulletInactivePos;
+            }
+        }
+
+        // --- 削除された弾の履歴をクリア ---
+        List<Transform> bulletRemoveList = new List<Transform>();
+        foreach (var kvp in bulletHistory)
+        {
+            if (kvp.Key == null)
+                bulletRemoveList.Add(kvp.Key);
+        }
+        foreach (var key in bulletRemoveList)
+        {
+            bulletHistory.Remove(key);
+        }
 
         // --- 観測を登録 ---
+        // 観測値の登録順序が i=0, 1, 2... で一貫しているため、学習が安定します。
         foreach (var (now, prev1, prev2) in bulletTrackedPositions)
+        {
+            // 相対座標
+            // 現在
+            Vector2 relNow = now - (Vector2)player.position;
+            vectorSensor.AddObservation(relNow.x);
+            vectorSensor.AddObservation(relNow.y);
+
+            // 1フレーム前
+            Vector2 relPrev1 = prev1 - (Vector2)player.position;
+            vectorSensor.AddObservation(relPrev1.x);
+            vectorSensor.AddObservation(relPrev1.y);
+
+            // 2フレーム前
+            Vector2 relPrev2 = prev2 - (Vector2)player.position;
+            vectorSensor.AddObservation(relPrev2.x);
+            vectorSensor.AddObservation(relPrev2.y);
+        }
+
+        // --- 観測を登録 ---
+        foreach (var (now, prev1, prev2) in enemyTrackedPositions)
         {
             // 相対座標
             // 現在
@@ -487,7 +664,7 @@ public class SubPlayerAgent : Agent
         {
             // HP・報酬・状態を出力
             currentStep += 1000;
-            dataOutputScript.UpdateData(currentStep, gameTimer, playerBaseScript.CurrentHP, "Training");
+            learningLogCSVScript.UpdateData(currentStep, gameTimer, playerBaseScript.CurrentHP, "Training");
 
             EndEpisode();
 

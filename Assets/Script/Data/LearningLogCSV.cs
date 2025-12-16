@@ -1,7 +1,8 @@
 using UnityEngine;
 using System.IO;
+using System;
 
-public class DataOutput : MonoBehaviour
+public class LearningLogCSV : MonoBehaviour
 {
     [SerializeField] PlayerBase playerBase;
     [SerializeField] RewardManager rewardManager;
@@ -18,7 +19,7 @@ public class DataOutput : MonoBehaviour
 
         if (!File.Exists(logFilePath))
         {
-            File.WriteAllText(logFilePath, "Step,Time,HP,reward,AttackReward,KillReward,SurvivalReward,GrazePenalty,HitPenalty,PunishPenalty,GraceReward,State\n");
+            File.WriteAllText(logFilePath, "JST,Step,Time,HP,reward,AttackReward,KillReward,SurvivalReward,GrazePenalty,HitPenalty,PunishPenalty,GraceReward,State\n");
         }
     }
 
@@ -37,8 +38,10 @@ public class DataOutput : MonoBehaviour
     // ‘‚«‚İ(step,time,hp,reward,state)
     public void UpdateData(int step, float time, float hp, string state)
     {
+        string jst = GetCurrentJST();
         stepCounter += 1 * 1000;
         string line =
+            $"{jst}," +
             $"{stepCounter}," +
             $"{time:F2}," +
             $"{hp:F1}," +
@@ -52,5 +55,19 @@ public class DataOutput : MonoBehaviour
             $"{rewardManager.GetRewardCount(RewardType.GraceReward)}," +
             $"{state}\n";
         File.AppendAllText(logFilePath, line);
+    }
+
+    // “ú–{‚ÌŒ»İŠÔ‚Ìæ“¾
+    public string GetCurrentJST() 
+    {
+        // ‹¦’è¢ŠE (UTC) ‚ğæ“¾
+        DateTime utcNow = DateTime.UtcNow;
+
+        // JST‚ÍUTC+9ŠÔ‚È‚Ì‚ÅA9ŠÔ‚ğ‰ÁZ‚·‚é
+        DateTime jstTime = utcNow.AddHours(9);
+
+        Debug.Log("Œ»İ‚Ì“ú–{ŠÔ (ŠÈˆÕ”Å): " + jstTime.ToString("yyyy/MM/dd HH:mm:ss"));
+
+        return jstTime.ToString("yyyy/MM/dd HH:mm:ss");
     }
 }
