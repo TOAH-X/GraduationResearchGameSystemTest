@@ -2,14 +2,70 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[System.Serializable] 
+public struct ActionDataGroup
+{
+    // プレイヤーが敵を倒した数(倒したプレイヤー)
+    public int killedCount;
+    // 責任割り当て数(プレイヤーの責任の数)
+    public int taskAssigneeCount;
+    // 自身の責任が付いた敵を倒した数(サブ手法)
+    public int taskAssigneeKilldedCount;
+    // 自身の責任が付いていない敵を倒した数(サブ手法)
+    public int nonTaskAssigneeKilldedCount;
+    // 撃ち漏らしの数(責任の所属)
+    public int escapedCount;
+    // 相手が撃ち漏らして自分が敵を倒した数
+    public int escapedPartnerKilledSelf;
+    // 自分が撃ち漏らして自分が敵を倒した数
+    public int escapedSelfKilledSelf;
+}
+
 public class ActionLogController : SafeSingleton<ActionLogController>
 {
     [SerializeField] ActionLogCSV actionLogCSV;
 
-    private int killedCountA = 0;
-    private int killedCountB = 0;
-    private int escapedCountA = 0;
-    private int escapedCountB = 0;
+    public ActionDataGroup statsTotal;
+    public ActionDataGroup statsA;
+    public ActionDataGroup statsB;
+
+    /*
+    // プレイヤーが敵を倒した数(倒したプレイヤー)
+    [SerializeField] private int killedCount = 0;
+    [SerializeField] private int killedCountA = 0;
+    [SerializeField] private int killedCountB = 0;
+    // 責任割り当て数(プレイヤーの責任の数)
+    [SerializeField] private int taskAssigneeCount = 0;
+    [SerializeField] private int taskAssigneeCountA = 0;
+    [SerializeField] private int taskAssigneeCountB = 0;
+    // 自身の責任が付いた敵を倒した数(サブ手法)
+    [SerializeField] private int taskAssigneeKilldedCount = 0;
+    [SerializeField] private int taskAssigneeKilldedCountA = 0;
+    [SerializeField] private int taskAssigneeKilldedCountB = 0;
+    // 自身の責任が付いていない敵を倒した数(サブ手法)
+    [SerializeField] private int nonTaskAssigneeKilldedCount = 0;
+    [SerializeField] private int nonTaskAssigneeKilldedCountA = 0;
+    [SerializeField] private int nonTaskAssigneeKilldedCountB = 0;
+    // 撃ち漏らしの数(責任の所属)
+    [SerializeField] private int escapedCount = 0;
+    [SerializeField] private int escapedCountA = 0;
+    [SerializeField] private int escapedCountB = 0;
+    // 相手が撃ち漏らして自分が敵を倒した数
+    [SerializeField] private int escapedPartnerKilledSelf = 0;
+    [SerializeField] private int escapedPartnerKilledSelfA = 0;
+    [SerializeField] private int escapedPartnerKilledSelfB = 0;
+    // 自分が撃ち漏らして自分が敵を倒した数
+    [SerializeField] private int escapedSelfKilledSelf = 0;
+    [SerializeField] private int escapedSelfKilledSelfA = 0;
+    [SerializeField] private int escapedSelfKilledSelfB = 0;
+    */
+    // 逃げ切った敵の数(完全な撃ち漏らし)
+
+    // 出現した敵の数
+    [SerializeField] private int enemyCount = 0;
+    
+
+    // ※システム上、ゲームが中断されてしまって倒されずに処理されなかった敵の扱いも考えておく
 
     // Start is called before the first frame update
     void Start()
@@ -32,28 +88,175 @@ public class ActionLogController : SafeSingleton<ActionLogController>
 
     }
 
+    // 出力。ActionLogCSVに渡す。
+    public void ExportData() 
+    {
+        //actionLogCSV.UpdateData(isKilled, isEscape, taskAssigneeID_Player, attackID);
+    }
+
     // 撃ち漏らし補助
     // isKilled(倒されたのか),isEscape(撃ち漏らしが発生したか),taskAssigneeID_Player(責任者),attackID(攻撃者),true/false(協調成立か)
     public void AddIsEscapeData(bool isKilled, bool isEscape, int taskAssigneeID_Player, int attackID)
     {
-        actionLogCSV.UpdateData(isKilled, isEscape, taskAssigneeID_Player, attackID);
-        // 協調成立かはtaskAssigneeID_PlayerとattackIDを見る
-        if (isEscape == true)
+        
+        if (isKilled == true) 
         {
-            // 協調行動成立
-            if (taskAssigneeID_Player == attackID)
+            // プレイヤーが敵を倒した数
+            statsTotal.killedCount++;
+            // 奇数ID機体
+            if (attackID == 1 || attackID == 3)
             {
-                
+                statsA.killedCount++;
             }
-            // 協調行動不成立
+            // 偶数ID機体
+            else if (attackID == 2 || attackID == 4)
+            {
+                statsB.killedCount++;
+            }
             else
             {
-                //
+                Debug.Log("プレイヤーID周りに不具合");
             }
+
+            // 自身の責任が付いた敵を倒した数(サブ手法)
+            if (taskAssigneeID_Player == attackID)
+            {
+                statsTotal.taskAssigneeKilldedCount++;
+                // 奇数ID機体
+                if (attackID == 1 || attackID == 3)
+                {
+                    statsA.taskAssigneeKilldedCount++;
+                }
+                // 偶数ID機体
+                else if (attackID == 2 || attackID == 4)
+                {
+                    statsB.taskAssigneeKilldedCount++;
+                }
+                else
+                {
+                    Debug.Log("プレイヤーID周りに不具合");
+                }
+            }
+            // 自身の責任が付いていない敵を倒した数(サブ手法)
+            else if (taskAssigneeID_Player != attackID) 
+            {
+                statsTotal.nonTaskAssigneeKilldedCount++;
+                // 奇数ID機体
+                if (attackID == 1 || attackID == 3)
+                {
+                    statsA.nonTaskAssigneeKilldedCount++;
+                }
+                // 偶数ID機体
+                else if (attackID == 2 || attackID == 4)
+                {
+                    statsB.nonTaskAssigneeKilldedCount++;
+                }
+                else
+                {
+                    Debug.Log("プレイヤーID周りに不具合");
+                }
+            }
+
+        }
+
+        // 協調成立かはtaskAssigneeID_PlayerとattackIDを見る
+        if (isEscape == true)  
+        {
+            // 撃ち漏らしの数(責任の所属)
+            statsTotal.escapedCount++;
+            // 奇数ID機体
+            if (taskAssigneeID_Player == 1 || taskAssigneeID_Player == 3)
+            {
+                statsA.escapedCount++;
+            }
+            // 偶数ID機体
+            else if (taskAssigneeID_Player == 2 || taskAssigneeID_Player == 4)
+            {
+                statsB.escapedCount++;
+            }
+            else
+            {
+                Debug.Log("プレイヤーID周りに不具合");
+            }
+
+            if (isKilled == true) 
+            {
+                // 協調行動成立
+                if (taskAssigneeID_Player != attackID)
+                {
+                    // 相手が撃ち漏らして自分が敵を倒した数
+                    statsTotal.escapedPartnerKilledSelf++;
+                    // 奇数ID機体
+                    if (attackID == 1 || attackID == 3)
+                    {
+                        statsA.escapedPartnerKilledSelf++;
+                    }
+                    // 偶数ID機体
+                    else if (attackID == 2 || attackID == 4)
+                    {
+                        statsB.escapedPartnerKilledSelf++;
+                    }
+                    else
+                    {
+                        Debug.Log("プレイヤーID周りに不具合");
+                    }
+                }
+                // 協調行動不成立
+                else
+                {
+                    // 自分が撃ち漏らして自分が敵を倒した数
+                    statsTotal.escapedSelfKilledSelf++;
+                    // 奇数ID機体
+                    if (attackID == 1 || attackID == 3)
+                    {
+                        statsA.escapedSelfKilledSelf++;
+                    }
+                    // 偶数ID機体
+                    else if (attackID == 2 || attackID == 4)
+                    {
+                        statsB.escapedSelfKilledSelf++;
+                    }
+                    else
+                    {
+                        Debug.Log("プレイヤーID周りに不具合");
+                    }
+                }
+            }
+            
         }
         // 不成立
         else 
         { 
         }
+
+        // 別の場所に書きましょう。
+        actionLogCSV.UpdateData(isKilled, isEscape, taskAssigneeID_Player, attackID);
+    }
+
+    // 責任の割り当て
+    // taskAssigneeID_Player(責任者)
+    public void AddTaskAssignee(int taskAssigneeID_Player) 
+    {
+        // 責任割り当て数(プレイヤーの責任の数)
+        statsTotal. taskAssigneeCount++;
+        // 奇数ID機体
+        if (taskAssigneeID_Player == 1 || taskAssigneeID_Player == 3)
+        {
+            statsA.taskAssigneeCount++;
+        }
+        // 偶数ID機体
+        else if (taskAssigneeID_Player == 2 || taskAssigneeID_Player == 4) 
+        {
+            statsB.taskAssigneeCount++;
+        }
+        else
+        {
+            Debug.Log("プレイヤーID周りに不具合");
+        }
+    }
+
+    public void CountEnemy() 
+    { 
+        enemyCount++;
     }
 }

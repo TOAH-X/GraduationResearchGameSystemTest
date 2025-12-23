@@ -246,6 +246,7 @@ public class EnemyBase : MonoBehaviour
 }
 */
 
+using DG.Tweening;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -268,6 +269,9 @@ public class EnemyBase : MonoBehaviour
     [SerializeField] GameObject bulletPrefab;
     [Header("弾幕格納先(親)")]
     [SerializeField] GameObject bulletParentObj;
+
+    private Vector2  initialScale;
+
     private float timer = 0f;
 
     private float lifeTimer = 0f;
@@ -281,6 +285,8 @@ public class EnemyBase : MonoBehaviour
     Vector2 currentPos;                             // 現在の位置
     Vector2 lastPos;                                // 1フレーム前の位置
 
+    private bool isCount = false;                   // 生成して最初のフレームでtrue、敵の生成数をカウントするため
+
     // 画面外の範囲
     float minX = -10.0f;
     float maxX = 10.0f;
@@ -290,6 +296,7 @@ public class EnemyBase : MonoBehaviour
     void Start()
     {
         // 既存 Start 処理（必要なら残す）
+        initialScale = transform.localScale;
     }
 
     void FixedUpdate()
@@ -297,10 +304,21 @@ public class EnemyBase : MonoBehaviour
         lifeTimer += Time.fixedDeltaTime;
         timer += Time.fixedDeltaTime;
 
+        // 生成されたかどうか
+        if (isCount == false) 
+        {
+            // 生成された数のカウント
+            ActionLogController.Instance.CountEnemy();
+
+            isCount = true;
+        } 
+
         // 責任者ID取得
         if (taskAssigneeID_Local == 0) 
         {
             GetTaskAssigneeID();
+            // 責任者のカウント
+            ActionLogController.Instance.AddTaskAssignee(taskAssigneeID_Player);
         }
 
         // 撃ち漏らし取得
@@ -393,6 +411,15 @@ public class EnemyBase : MonoBehaviour
         else if (enemyID == 6) moveDirection = new Vector3(0f, -0.25f);
         else if (enemyID == 7) moveDirection = new Vector3(0.2f, -0.4f);
         else if (enemyID == 8) moveDirection = new Vector3(-0.2f, -0.4f);
+
+        if (moveDirection.x >= 0)
+        {
+            this.transform.localScale = new Vector2(initialScale.x, initialScale.y);
+        }
+        else 
+        {
+            this.transform.localScale = new Vector2(-1.0f * initialScale.x, initialScale.y);
+        }
 
         transform.position += (Vector3)(moveDirection * moveSpeed * Time.fixedDeltaTime);
     }
@@ -513,6 +540,7 @@ public class EnemyBase : MonoBehaviour
         taskAssigneeID_Player = 0;
         taskAssigneeCountFrame = 0;
         isEscape = false;
+        isCount = false;
     }
 
     // LaunchBullet は既存のものをそのまま利用

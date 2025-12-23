@@ -80,6 +80,7 @@ public class PlayerMoveController : MonoBehaviour
         Vector3 resetPos;
 
         // 最初に登場する場合
+        /*
         if (isStart == true)
         {
             float posX = this.transform.position.x;
@@ -91,7 +92,12 @@ public class PlayerMoveController : MonoBehaviour
         {
             startPos = new Vector3(0, -3.0f);           // 開始位置
             resetPos = new Vector3(0, -6.0f);           // 画面外位置
-        }
+        }*/
+
+        float noisePosX = UnityEngine.Random.Range(-4.0f, 4.0f);
+        float posX = noisePosX;
+        startPos = new Vector3(posX, -3.0f);        // 開始位置
+        resetPos = new Vector3(posX, -6.0f);        // 画面外位置
 
         playerSpriteControllerScript.UpdateCenterSprite();  // 中央差分に上書き
 
