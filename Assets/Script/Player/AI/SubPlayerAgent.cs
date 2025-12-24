@@ -6,6 +6,7 @@ using Unity.MLAgents.Actuators;
 using UnityEngine.SceneManagement;
 using System.Threading;
 using Unity.MLAgents.Policies;
+using System.Data;
 
 public class SubPlayerAgent : Agent
 {
@@ -64,7 +65,9 @@ public class SubPlayerAgent : Agent
 
     // SubPlayer用
     // Player位置座標
-    [SerializeField] GameObject playerObj;
+    [SerializeField] GameObject partnerPlayerObj;           // 僚機
+
+    [SerializeField] GameObject playerParentObj;
 
     private void Awake()
     {
@@ -74,7 +77,24 @@ public class SubPlayerAgent : Agent
     // Start is called before the first frame update
     void Start()
     {
+        // 僚機を取得
+        foreach (Transform child in playerParentObj.transform)
+        {
+            if (child.gameObject.activeSelf)
+            {
+                if (child.gameObject.GetComponent<PlayerBase>().PlayerID != playerBaseScript.PlayerID)
+                {
+                    partnerPlayerObj = child.gameObject;
+                    Debug.Log("アクティブな子オブジェクト: " + child.name);
+                }
+            }
+        }
 
+        // PlayerIDの合計が偶数の場合はバグが起きるので防止
+        if ((this.gameObject.GetComponent<PlayerBase>().PlayerID + partnerPlayerObj.GetComponentInParent<PlayerBase>().PlayerID) % 2 == 0) 
+        {
+            Debug.LogError("プレイヤーとサブプレイヤーの組み合わせが無効");
+        }
     }
 
     // Update is called once per frame
@@ -108,8 +128,8 @@ public class SubPlayerAgent : Agent
         vectorSensor.AddObservation(transform.position.y);
 
         // プレイヤーの位置の取得
-        vectorSensor.AddObservation(playerObj.transform.position.x - transform.position.x);
-        vectorSensor.AddObservation(playerObj.transform.position.y - transform.position.y);
+        vectorSensor.AddObservation(partnerPlayerObj.transform.position.x - transform.position.x);
+        vectorSensor.AddObservation(partnerPlayerObj.transform.position.y - transform.position.y);
 
         /*
         // 敵取得

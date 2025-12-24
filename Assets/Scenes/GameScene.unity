@@ -665,7 +665,8 @@ MonoBehaviour:
   bulletInactivePos: {x: -100, y: -100}
   enemyTrackCount: 25
   enemyInactivePos: {x: -100, y: -100}
-  playerObj: {fileID: 526268563}
+  partnerPlayerObj: {fileID: 0}
+  playerParentObj: {fileID: 1724695562}
 --- !u!114 &210556208
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1471,7 +1472,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &526268564
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2709,7 +2710,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1022352612
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2798,7 +2799,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerName: SubPlayer
-  playerID: 2
+  playerID: 3
   playerType: SubPlayer
   currentHp: 10
   playerMoveController: {fileID: 1022352619}
@@ -2817,7 +2818,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   shotPrefab: {fileID: 7898888502785738670, guid: ba50c24ab7bc74e45aa9a35c9b8e4917, type: 3}
-  playerID: 2
+  playerID: 3
   rewardManager: {fileID: 1022352625}
   playerBaseScript: {fileID: 1022352617}
   shotParentObj: {fileID: 1764550024}
@@ -2976,7 +2977,8 @@ MonoBehaviour:
   bulletInactivePos: {x: -100, y: -100}
   enemyTrackCount: 25
   enemyInactivePos: {x: -100, y: -100}
-  playerObj: {fileID: 526268563}
+  partnerPlayerObj: {fileID: 0}
+  playerParentObj: {fileID: 1724695562}
 --- !u!114 &1022352625
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3744,7 +3746,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &1703502157
 MonoBehaviour:
   m_ObjectHideFlags: 0
