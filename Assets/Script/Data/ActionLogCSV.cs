@@ -56,6 +56,16 @@ public class ActionLogCSV : MonoBehaviour
     // èëÇ´çûÇ›(step,time,hp,reward,state)
     public void UpdateData(ActionDataGroup statsTotal, ActionDataGroup statsA, ActionDataGroup statsB)
     {
+        if (string.IsNullOrEmpty(logFilePath))
+        {
+            logFilePath = Path.Combine(Application.persistentDataPath, fileName + "StatsLog.csv");
+        }
+
+        if (!File.Exists(logFilePath))
+        {
+            File.WriteAllText(logFilePath, "JST,isKilled,isEscape,taskAssigneeID_Player,attackID\n");
+        }
+
         string jst = GetCurrentJST();
         //stepCounter += 1 * 1000;
         string line =

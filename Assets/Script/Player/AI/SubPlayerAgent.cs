@@ -31,7 +31,7 @@ public class SubPlayerAgent : Agent
     [SerializeField] RewardManager rewardManager;
     [SerializeField] GameManager gameManager;
 
-    BehaviorParameters behaviorParameters;
+    [SerializeField] BehaviorParameters behaviorParameters;
 
     private bool isExported = false;                                        // CSVを出力済みか(EndGameが呼ばれたかどうかで判別するので厳密ではない)
 
@@ -107,6 +107,9 @@ public class SubPlayerAgent : Agent
     // ゲームオブジェクト生成時に呼ばれる
     public override void Initialize()
     {
+        base.Initialize();
+        behaviorParameters = GetComponent<BehaviorParameters>();
+
         this.rb2D = GetComponent<Rigidbody2D>();
     }
 
@@ -785,6 +788,7 @@ public class SubPlayerAgent : Agent
         // HPが0になったとき、もしくは60秒が経過したとき
         if (playerBaseScript.CurrentHP <= 0 || gameTimer >= 60.0f)
         {
+            /*
             // ゲーム終了を通知
             gameManager.EndGame();
 
@@ -793,6 +797,8 @@ public class SubPlayerAgent : Agent
 
             gameTimer = 0;
             SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+            */
+            gameManager.RequestSafeDelayedReset();
         }
         gameTimer += Time.fixedDeltaTime;
 

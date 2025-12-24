@@ -38,6 +38,20 @@ public class LearningLogCSV : MonoBehaviour
     // 書き込み(step,time,hp,reward,state)
     public void UpdateData(int step, float time, float hp, string state)
     {
+        // パスが未設定ならその場で作る（絶対にNullを回避する）
+        if (string.IsNullOrEmpty(logFilePath))
+        {
+            string pName = (playerBase != null) ? playerBase.PlayerName : "UnknownPlayer";
+            // dataPathよりも書き込み権限が安定している persistentDataPath を推奨
+            logFilePath = Path.Combine(Application.persistentDataPath, pName + "StatsLog.csv");
+        }
+
+        // ヘッダーがない（ファイルがない）場合は作成
+        if (!File.Exists(logFilePath))
+        {
+            File.WriteAllText(logFilePath, "JST,Step,Time,HP,reward,AttackReward,KillReward,SurvivalReward,GrazePenalty,HitPenalty,PunishPenalty,GraceReward,State\n");
+        }
+
         string jst = GetCurrentJST();
         stepCounter += 1 * 1000;
         string line =
@@ -54,7 +68,16 @@ public class LearningLogCSV : MonoBehaviour
             $"{rewardManager.GetRewardCount(RewardType.PunishPenalty)}," +
             $"{rewardManager.GetRewardCount(RewardType.GraceReward)}," +
             $"{state}\n";
-        File.AppendAllText(logFilePath, line);
+
+        try
+        {
+            // 書き込み
+            File.AppendAllText(logFilePath, line);
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"CSV書き込み失敗: {e.Message}");
+        }
     }
 
     // 日本の現在時間の取得
