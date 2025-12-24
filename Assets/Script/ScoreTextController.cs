@@ -3,8 +3,11 @@ using TMPro;
 
 public class ScoreTextController : MonoBehaviour
 {
-    [Header("スコアテキスト")]
-    [SerializeField] TextMeshProUGUI scoreText;
+    [Header("ScoreTextA")]
+    [SerializeField] TextMeshProUGUI scoreTextA;
+    [Header("ScoreTextB")]
+    [SerializeField] TextMeshProUGUI scoreTextB;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -20,7 +23,10 @@ public class ScoreTextController : MonoBehaviour
     // テキストのアップデート
     public void UpdateText() 
     {
-        scoreText.text = "TotalScore:" + ScoreSystemController.Instance.TotalScore
+        scoreTextA.text = "TotalScore:" + ScoreSystemController.Instance.TotalScore
+            + "\nPlayer1Score:" + ScoreSystemController.Instance.Player1Score
+            + "\nPlayer2Score:" + ScoreSystemController.Instance.Player2Score;
+        scoreTextB.text = "TotalScore:" + ScoreSystemController.Instance.TotalScore
             + "\nPlayer1Score:" + ScoreSystemController.Instance.Player1Score
             + "\nPlayer2Score:" + ScoreSystemController.Instance.Player2Score;
     }

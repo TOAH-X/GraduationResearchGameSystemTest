@@ -359,9 +359,13 @@ public class EnemyBase : MonoBehaviour
     public int Damage(int damage, int attackID)
     {
         currentHp -= damage;
+
+        // スコア等の処理、攻撃
+        ScoreSystemController.Instance.UpdateScore(1, attackID);
+
         if (currentHp <= 0)
         {
-            // スコア等の処理（既存通り）
+            // スコア等の処理、撃破
             ScoreSystemController.Instance.UpdateScore(2, attackID);
 
             // エフェクト・音

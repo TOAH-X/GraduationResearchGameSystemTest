@@ -50,7 +50,8 @@ public class ScoreSystemController : MonoBehaviour
         }
         totalScore += score;
 
-        if (id == 1) 
+        // 奇数プレイヤー(A)
+        if (id == 1 || id == 3)
         {
             player1Score += score;
 
@@ -66,7 +67,8 @@ public class ScoreSystemController : MonoBehaviour
                 rewardManagerScript.AddReward(RewardType.KillReward);
             }*/
         }
-        else if (id == 2) 
+        // 偶数プレイヤー(B)
+        else if (id == 2 || id == 4)  
         {
             player2Score += score;
 
