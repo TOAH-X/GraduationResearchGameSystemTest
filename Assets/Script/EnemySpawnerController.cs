@@ -859,7 +859,7 @@ public class EnemySpawnerController : MonoBehaviour
             int patternLeft = Random.Range(1, 6); // 1..5
             EnemyPoolManager.Instance.StartGroupSpawn(patternLeft * 2 - 1, 5, 0.2f, initialDelay_PatternLeft);
             int patternRight = Random.Range(1, 6); // 1..5
-            EnemyPoolManager.Instance.StartGroupSpawn(patternRight * 2, 5, 0.2f, initialDelay_PatternLeft);
+            EnemyPoolManager.Instance.StartGroupSpawn(patternLeft * 2, 5, 0.2f, initialDelay_PatternRight);
             timer = 0f;
         }
     }

@@ -554,7 +554,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &210556202
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -660,7 +660,7 @@ MonoBehaviour:
   currentStep: 0
   learningLogCSVScript: {fileID: 210556202}
   rewardManager: {fileID: 210556206}
-  player: {fileID: 210556215}
+  gameManager: {fileID: 915512735}
   bulletTrackCount: 30
   bulletInactivePos: {x: -100, y: -100}
   enemyTrackCount: 25
@@ -713,7 +713,7 @@ MonoBehaviour:
   playerName: SubPlayer_Another
   playerID: 4
   playerType: SubPlayer
-  currentHp: 10
+  currentHp: 2
   playerMoveController: {fileID: 210556211}
   invincibilityControllerScript: {fileID: 210556204}
   rewardManager: {fileID: 210556206}
@@ -750,7 +750,7 @@ MonoBehaviour:
   slowSpeedRate: 0.5
   playerSpriteControllerScript: {fileID: 210556203}
   playerBaseScript: {fileID: 210556209}
-  isMove: 1
+  isMove: 0
 --- !u!58 &210556212
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -1472,7 +1472,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &526268564
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1574,7 +1574,7 @@ MonoBehaviour:
   playerName: Player
   playerID: 1
   playerType: Player
-  currentHp: 10
+  currentHp: 2
   playerMoveController: {fileID: 526268565}
   invincibilityControllerScript: {fileID: 526268575}
   rewardManager: {fileID: 526268578}
@@ -1639,7 +1639,7 @@ MonoBehaviour:
     hasUpgradedBrainParametersWithActionSpec: 1
   m_Model: {fileID: 5022602860645237092, guid: aef245a89f8a2044aa6bb011516b3735, type: 3}
   m_InferenceDevice: 0
-  m_BehaviorType: 2
+  m_BehaviorType: 1
   m_BehaviorName: Player
   TeamId: 0
   m_UseChildSensors: 1
@@ -1673,7 +1673,7 @@ MonoBehaviour:
   currentStep: 0
   learningLogCSVScript: {fileID: 526268579}
   rewardManager: {fileID: 526268578}
-  player: {fileID: 526268577}
+  gameManager: {fileID: 915512735}
   bulletTrackCount: 30
   bulletInactivePos: {x: -100, y: -100}
   enemyTrackCount: 25
@@ -2274,6 +2274,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   simulationSpeed: 1
+  playerObj: {fileID: 0}
+  playerAnotherObj: {fileID: 0}
+  subPlayerObj: {fileID: 0}
+  subPlayerAnotherObj: {fileID: 0}
+  playerAgent_Player: {fileID: 0}
+  playerAgent_PlayerAnother: {fileID: 0}
+  subPlayerAgent_SubPlayer: {fileID: 0}
+  subPlayerAgent_SubPlayerAnother: {fileID: 0}
 --- !u!1 &920481899
 GameObject:
   m_ObjectHideFlags: 0
@@ -2801,7 +2809,7 @@ MonoBehaviour:
   playerName: SubPlayer
   playerID: 3
   playerType: SubPlayer
-  currentHp: 10
+  currentHp: 2
   playerMoveController: {fileID: 1022352619}
   invincibilityControllerScript: {fileID: 1022352613}
   rewardManager: {fileID: 1022352625}
@@ -2972,7 +2980,7 @@ MonoBehaviour:
   currentStep: 0
   learningLogCSVScript: {fileID: 1022352626}
   rewardManager: {fileID: 1022352625}
-  player: {fileID: 1022352623}
+  gameManager: {fileID: 915512735}
   bulletTrackCount: 30
   bulletInactivePos: {x: -100, y: -100}
   enemyTrackCount: 25
@@ -3746,7 +3754,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1703502157
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3832,7 +3840,7 @@ MonoBehaviour:
   currentStep: 0
   learningLogCSVScript: {fileID: 1703502157}
   rewardManager: {fileID: 1703502162}
-  player: {fileID: 1703502170}
+  gameManager: {fileID: 915512735}
   bulletTrackCount: 30
   bulletInactivePos: {x: -100, y: -100}
   enemyTrackCount: 25
@@ -3903,7 +3911,7 @@ MonoBehaviour:
   playerName: Player_Another
   playerID: 2
   playerType: Player
-  currentHp: 10
+  currentHp: 2
   playerMoveController: {fileID: 1703502166}
   invincibilityControllerScript: {fileID: 1703502159}
   rewardManager: {fileID: 1703502162}
@@ -3940,7 +3948,7 @@ MonoBehaviour:
   slowSpeedRate: 0.5
   playerSpriteControllerScript: {fileID: 1703502158}
   playerBaseScript: {fileID: 1703502164}
-  isMove: 1
+  isMove: 0
 --- !u!58 &1703502167
 CircleCollider2D:
   m_ObjectHideFlags: 0

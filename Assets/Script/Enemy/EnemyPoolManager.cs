@@ -457,10 +457,10 @@ public class EnemyPoolManager : MonoBehaviour
                         SpawnEnemyAt(8, new Vector3(5, 5));
                         break;
                     case 9:
-                        SpawnEnemyAt(7, new Vector3(-2, 5));
+                        SpawnEnemyAt(9, new Vector3(-2, 5));
                         break;
                     case 10:
-                        SpawnEnemyAt(8, new Vector3(2, 5));
+                        SpawnEnemyAt(10, new Vector3(2, 5));
                         break;
                 }
 

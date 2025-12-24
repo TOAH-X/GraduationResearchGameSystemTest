@@ -31,6 +31,8 @@ public class PlayerAgent : Agent
 
     BehaviorParameters behaviorParameters;
 
+    private bool isExported = false;                                        // CSVを出力済みか(EndGameが呼ばれたかどうかで判別するので厳密ではない)
+
     // 追加
     //[Header("基準となるプレイヤー")]
     //[SerializeField] private Transform player;
@@ -70,8 +72,7 @@ public class PlayerAgent : Agent
         // 学習中のみ(利き手現象の対策)
         if (behaviorParameters.BehaviorType == BehaviorType.Default)
         {
-            float noisePosX = UnityEngine.Random.Range(-4.0f, 4.0f);
-            this.transform.position = new Vector2(noisePosX, 0);
+            playerMoveControllerScript.isDefaultBehavior = true;
         }
     }
 
@@ -739,7 +740,9 @@ public class PlayerAgent : Agent
         }
         */
         // 開始時間から30秒経ったとき
-        if (gameTimer >= 30.0f) 
+        //if (gameTimer >= 30.0f) 
+        // HPが0になったとき、もしくは60秒が経過したとき
+        if (playerBaseScript.CurrentHP <= 0 || gameTimer >= 60.0f)  
         {
             // ゲーム終了を通知
             gameManager.EndGame();
@@ -781,27 +784,32 @@ public class PlayerAgent : Agent
     // ゲーム終了時(ログなどを取る)
     public void EndGame() 
     {
-        currentStep += 1000;
-
-        // CSVにHP・報酬・状態を出力
-        learningLogCSVScript.UpdateData(currentStep, gameTimer, playerBaseScript.CurrentHP, "Training");
-
-        // Tensorに出力(学習中のみ)
-        if (behaviorParameters.BehaviorType == BehaviorType.Default)
+        if (isExported == false) 
         {
-            Academy.Instance.StatsRecorder.Add("Player/GameTimer", gameTimer);
-            Academy.Instance.StatsRecorder.Add("Player/CurrentHP", playerBaseScript.CurrentHP);
-            Academy.Instance.StatsRecorder.Add("Player/RewardSum", rewardManager.RewardSum);
-            Academy.Instance.StatsRecorder.Add("Player/AttackReward", rewardManager.GetRewardCount(RewardType.AttackReward));
-            Academy.Instance.StatsRecorder.Add("Player/KillReward", rewardManager.GetRewardCount(RewardType.KillReward));
-            Academy.Instance.StatsRecorder.Add("Player/SurvivalReward", rewardManager.GetRewardCount(RewardType.SurvivalReward));
-            Academy.Instance.StatsRecorder.Add("Player/GrazePenalty", rewardManager.GetRewardCount(RewardType.GrazePenalty));
-            Academy.Instance.StatsRecorder.Add("Player/HitPenalty", rewardManager.GetRewardCount(RewardType.HitPenalty));
-            Academy.Instance.StatsRecorder.Add("Player/PunishPenalty", rewardManager.GetRewardCount(RewardType.PunishPenalty));
-            Academy.Instance.StatsRecorder.Add("Player/GraceReward", rewardManager.GetRewardCount(RewardType.GraceReward));
-        }
+            currentStep += 1000;
 
-        // アクションログに出力
-        ActionLogController.Instance.ExportData();
+            // CSVにHP・報酬・状態を出力
+            learningLogCSVScript.UpdateData(currentStep, gameTimer, playerBaseScript.CurrentHP, "Training");
+
+            // Tensorに出力(学習中のみ)
+            if (behaviorParameters.BehaviorType == BehaviorType.Default)
+            {
+                Academy.Instance.StatsRecorder.Add("Player/GameTimer", gameTimer);
+                Academy.Instance.StatsRecorder.Add("Player/CurrentHP", playerBaseScript.CurrentHP);
+                Academy.Instance.StatsRecorder.Add("Player/RewardSum", rewardManager.RewardSum);
+                Academy.Instance.StatsRecorder.Add("Player/AttackReward", rewardManager.GetRewardCount(RewardType.AttackReward));
+                Academy.Instance.StatsRecorder.Add("Player/KillReward", rewardManager.GetRewardCount(RewardType.KillReward));
+                Academy.Instance.StatsRecorder.Add("Player/SurvivalReward", rewardManager.GetRewardCount(RewardType.SurvivalReward));
+                Academy.Instance.StatsRecorder.Add("Player/GrazePenalty", rewardManager.GetRewardCount(RewardType.GrazePenalty));
+                Academy.Instance.StatsRecorder.Add("Player/HitPenalty", rewardManager.GetRewardCount(RewardType.HitPenalty));
+                Academy.Instance.StatsRecorder.Add("Player/PunishPenalty", rewardManager.GetRewardCount(RewardType.PunishPenalty));
+                Academy.Instance.StatsRecorder.Add("Player/GraceReward", rewardManager.GetRewardCount(RewardType.GraceReward));
+            }
+
+            // アクションログに出力
+            ActionLogController.Instance.ExportData();
+
+            isExported = true;
+        }
     }
 }

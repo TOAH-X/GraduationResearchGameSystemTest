@@ -33,6 +33,8 @@ public class SubPlayerAgent : Agent
 
     BehaviorParameters behaviorParameters;
 
+    private bool isExported = false;                                        // CSVを出力済みか(EndGameが呼ばれたかどうかで判別するので厳密ではない)
+
     // 追加
     //[Header("基準となるプレイヤー")]
     //[SerializeField] private Transform player;
@@ -74,6 +76,12 @@ public class SubPlayerAgent : Agent
     private void Awake()
     {
         behaviorParameters = GetComponent<BehaviorParameters>();
+
+        // 学習中のみ(利き手現象の対策)
+        if (behaviorParameters.BehaviorType == BehaviorType.Default)
+        {
+            playerMoveControllerScript.isDefaultBehavior = true;
+        }
     }
 
     // Start is called before the first frame update
@@ -773,7 +781,9 @@ public class SubPlayerAgent : Agent
         }
         */
         // 開始時間から30秒経ったとき
-        if (gameTimer >= 30.0f)
+        // if (gameTimer >= 30.0f)
+        // HPが0になったとき、もしくは60秒が経過したとき
+        if (playerBaseScript.CurrentHP <= 0 || gameTimer >= 60.0f)
         {
             // ゲーム終了を通知
             gameManager.EndGame();
@@ -815,28 +825,33 @@ public class SubPlayerAgent : Agent
     // ゲーム終了時(ログなどを取る)
     public void EndGame()
     {
-        currentStep += 1000;
-
-        // CSVにHP・報酬・状態を出力
-        learningLogCSVScript.UpdateData(currentStep, gameTimer, playerBaseScript.CurrentHP, "Training");
-
-        // Tensorに出力(学習中のみ)
-        if (behaviorParameters.BehaviorType == BehaviorType.Default)
+        if (isExported == false) 
         {
-            Academy.Instance.StatsRecorder.Add("SubPlayer/GameTimer", gameTimer);
-            Academy.Instance.StatsRecorder.Add("SubPlayer/CurrentHP", playerBaseScript.CurrentHP);
-            Academy.Instance.StatsRecorder.Add("SubPlayer/RewardSum", rewardManager.RewardSum);
-            Academy.Instance.StatsRecorder.Add("SubPlayer/AttackReward", rewardManager.GetRewardCount(RewardType.AttackReward));
-            Academy.Instance.StatsRecorder.Add("SubPlayer/SurvivalReward", rewardManager.GetRewardCount(RewardType.KillReward));
-            Academy.Instance.StatsRecorder.Add("SubPlayer/GrazePenalty", rewardManager.GetRewardCount(RewardType.SurvivalReward));
-            Academy.Instance.StatsRecorder.Add("SubPlayer/GrazePenalty", rewardManager.GetRewardCount(RewardType.GrazePenalty));
-            Academy.Instance.StatsRecorder.Add("SubPlayer/HitPenalty", rewardManager.GetRewardCount(RewardType.HitPenalty));
-            Academy.Instance.StatsRecorder.Add("SubPlayer/PunishPenalty", rewardManager.GetRewardCount(RewardType.PunishPenalty));
-            Academy.Instance.StatsRecorder.Add("SubPlayer/GraceReward", rewardManager.GetRewardCount(RewardType.GraceReward));
-        }
+            currentStep += 1000;
 
-        // アクションログに出力
-        ActionLogController.Instance.ExportData();
+            // CSVにHP・報酬・状態を出力
+            learningLogCSVScript.UpdateData(currentStep, gameTimer, playerBaseScript.CurrentHP, "Training");
+
+            // Tensorに出力(学習中のみ)
+            if (behaviorParameters.BehaviorType == BehaviorType.Default)
+            {
+                Academy.Instance.StatsRecorder.Add("SubPlayer/GameTimer", gameTimer);
+                Academy.Instance.StatsRecorder.Add("SubPlayer/CurrentHP", playerBaseScript.CurrentHP);
+                Academy.Instance.StatsRecorder.Add("SubPlayer/RewardSum", rewardManager.RewardSum);
+                Academy.Instance.StatsRecorder.Add("SubPlayer/AttackReward", rewardManager.GetRewardCount(RewardType.AttackReward));
+                Academy.Instance.StatsRecorder.Add("SubPlayer/SurvivalReward", rewardManager.GetRewardCount(RewardType.KillReward));
+                Academy.Instance.StatsRecorder.Add("SubPlayer/GrazePenalty", rewardManager.GetRewardCount(RewardType.SurvivalReward));
+                Academy.Instance.StatsRecorder.Add("SubPlayer/GrazePenalty", rewardManager.GetRewardCount(RewardType.GrazePenalty));
+                Academy.Instance.StatsRecorder.Add("SubPlayer/HitPenalty", rewardManager.GetRewardCount(RewardType.HitPenalty));
+                Academy.Instance.StatsRecorder.Add("SubPlayer/PunishPenalty", rewardManager.GetRewardCount(RewardType.PunishPenalty));
+                Academy.Instance.StatsRecorder.Add("SubPlayer/GraceReward", rewardManager.GetRewardCount(RewardType.GraceReward));
+            }
+
+            // アクションログに出力
+            ActionLogController.Instance.ExportData();
+
+            isExported = true;
+        }
     }
 
     // 僚機の取得

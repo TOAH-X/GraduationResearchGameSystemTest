@@ -116,6 +116,13 @@ public class ScoreSystemController : MonoBehaviour
             return;
         }
         Instance = this;
+
+        // 親オブジェクトがいる場合、切り離してルート階層に移動させる(DontDestroyOnLoadの警告対策)
+        if (transform.parent != null)
+        {
+            transform.SetParent(null);
+        }
+
         DontDestroyOnLoad(gameObject); // シーン切り替え時に消えない
     }
 }
