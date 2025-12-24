@@ -415,6 +415,8 @@ public class EnemyBase : MonoBehaviour
         else if (enemyID == 6) moveDirection = new Vector3(0f, -0.25f);
         else if (enemyID == 7) moveDirection = new Vector3(0.2f, -0.4f);
         else if (enemyID == 8) moveDirection = new Vector3(-0.2f, -0.4f);
+        else if (enemyID == 9) moveDirection = new Vector3(0f, -0.25f);
+        else if (enemyID == 10) moveDirection = new Vector3(0f, -0.25f);
 
         if (moveDirection.x >= 0)
         {

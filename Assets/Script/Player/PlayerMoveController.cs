@@ -74,6 +74,9 @@ public class PlayerMoveController : MonoBehaviour
     // 復帰移動(登場含む)
     public async UniTaskVoid RestartAsync(bool isStart, CancellationToken token)
     {
+        // 開始時に自分がすでにいなければ終了
+        if (this == null || playerBaseScript == null) return;
+
         playerBaseScript.IsRestart = true;
 
         Vector3 startPos;
@@ -114,6 +117,9 @@ public class PlayerMoveController : MonoBehaviour
                 await UniTask.Yield(PlayerLoopTiming.FixedUpdate, token); // FixedUpdateタイミングで動かす
                 elapsed += Time.fixedDeltaTime;
 
+                // --- 重要：復帰直後に自分が生きているか確認 ---
+                if (this == null) return;
+
                 float t = Mathf.Clamp01(elapsed / duration);
                 transform.position = Vector3.Lerp(resetPos, startPos, t);
             }
@@ -124,6 +130,7 @@ public class PlayerMoveController : MonoBehaviour
         catch (System.OperationCanceledException)
         {
             Debug.Log("Move canceled.");
+            return;
         }
 
         playerBaseScript.IsRestart = false;

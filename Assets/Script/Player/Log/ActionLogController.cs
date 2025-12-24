@@ -91,10 +91,10 @@ public class ActionLogController : SafeSingleton<ActionLogController>
     // o—ÍBActionLogCSV‚É“n‚·B
     public void ExportData() 
     {
-        //actionLogCSV.UpdateData(isKilled, isEscape, taskAssigneeID_Player, attackID);
+        actionLogCSV.UpdateData(statsTotal, statsA, statsB);
     }
 
-    // Œ‚‚¿˜R‚ç‚µ•â•
+    // Œ‚‚¿˜R‚ç‚µ•â•ŠÖŒW
     // isKilled(“|‚³‚ê‚½‚Ì‚©),isEscape(Œ‚‚¿˜R‚ç‚µ‚ª”­¶‚µ‚½‚©),taskAssigneeID_Player(Ó”CÒ),attackID(UŒ‚Ò),true/false(‹¦’²¬—§‚©)
     public void AddIsEscapeData(bool isKilled, bool isEscape, int taskAssigneeID_Player, int attackID)
     {
@@ -228,9 +228,6 @@ public class ActionLogController : SafeSingleton<ActionLogController>
         else 
         { 
         }
-
-        // •Ê‚ÌêŠ‚É‘‚«‚Ü‚µ‚å‚¤B
-        actionLogCSV.UpdateData(isKilled, isEscape, taskAssigneeID_Player, attackID);
     }
 
     // Ó”C‚ÌŠ„‚è“–‚Ä
@@ -255,6 +252,7 @@ public class ActionLogController : SafeSingleton<ActionLogController>
         }
     }
 
+    // “G‚Ì¶¬”ƒJƒEƒ“ƒg
     public void CountEnemy() 
     { 
         enemyCount++;

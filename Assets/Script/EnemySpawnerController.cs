@@ -842,8 +842,24 @@ public class EnemySpawnerController : MonoBehaviour
 
         if (timer >= 3.0f)
         {
-            int pattern = Random.Range(1, 5); // 1..4
-            EnemyPoolManager.Instance.StartGroupSpawn(pattern, 5, 0.2f);
+            // 遅延時間
+            float initialDelay_PatternLeft = 0f;
+            float initialDelay_PatternRight = 0f;
+            int delayPattern = Random.Range(1, 3);
+            if (delayPattern == 1) 
+            {
+                initialDelay_PatternLeft += 0.5f;
+            }
+            else if (delayPattern == 2) 
+            {
+                initialDelay_PatternRight += 0.5f;
+            }
+            
+            // 奇数が左、偶数が右
+            int patternLeft = Random.Range(1, 6); // 1..5
+            EnemyPoolManager.Instance.StartGroupSpawn(patternLeft * 2 - 1, 5, 0.2f, initialDelay_PatternLeft);
+            int patternRight = Random.Range(1, 6); // 1..5
+            EnemyPoolManager.Instance.StartGroupSpawn(patternRight * 2, 5, 0.2f, initialDelay_PatternLeft);
             timer = 0f;
         }
     }

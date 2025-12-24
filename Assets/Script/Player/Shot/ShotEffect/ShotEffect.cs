@@ -39,11 +39,14 @@ public class ShotEffect : MonoBehaviour
         // 4. 全ての処理が完了した後、オブジェクトを破棄する関数を呼び出す
         sequence.OnComplete(() => {
             // ここで破棄関数を呼び出します
-            DestroyObject();
+            if (this != null && gameObject != null)
+            {
+                DestroyObject();
+            }
         });
 
         // 安全性のためSetTargetを設定
-        sequence.SetTarget(gameObject);
+        sequence.SetLink(gameObject);
     }
 
     /// <summary>

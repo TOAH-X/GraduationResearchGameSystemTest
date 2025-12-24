@@ -416,10 +416,16 @@ public class EnemyPoolManager : MonoBehaviour
     }
 
 
-    public async UniTask GroupSpawnPattern(int patternId, int enemySpawnCount, float enemySpawnInterval, CancellationToken token)
+    public async UniTask GroupSpawnPattern(int patternId, int enemySpawnCount, float enemySpawnInterval, float initialDelay, CancellationToken token)
     {
         try
         {
+            // ★追加：生成を開始する前に、指定された秒数だけ待つ（左右のズレを作る）
+            if (initialDelay > 0)
+            {
+                await UniTask.Delay(TimeSpan.FromSeconds(initialDelay), cancellationToken: token);
+            }
+
             for (int i = 0; i < enemySpawnCount; i++)
             {
                 token.ThrowIfCancellationRequested();
@@ -428,19 +434,33 @@ public class EnemyPoolManager : MonoBehaviour
                 {
                     case 1:
                         SpawnEnemyAt(1, new Vector3(-10, 5));
-                        SpawnEnemyAt(2, new Vector3(10, 5));
                         break;
                     case 2:
-                        SpawnEnemyAt(3, new Vector3(-10, -3));
-                        SpawnEnemyAt(4, new Vector3(10, -3));
+                        SpawnEnemyAt(2, new Vector3(10, 5));
                         break;
                     case 3:
-                        SpawnEnemyAt(5, new Vector3(-4, 5));
-                        SpawnEnemyAt(6, new Vector3(4, 5));
+                        SpawnEnemyAt(3, new Vector3(-10, -3));
                         break;
                     case 4:
+                        SpawnEnemyAt(4, new Vector3(10, -3));
+                        break;
+                    case 5:
+                        SpawnEnemyAt(5, new Vector3(-4, 5));
+                        break;
+                    case 6:
+                        SpawnEnemyAt(6, new Vector3(4, 5));
+                        break;
+                    case 7:
                         SpawnEnemyAt(7, new Vector3(-5, 5));
+                        break;
+                    case 8:
                         SpawnEnemyAt(8, new Vector3(5, 5));
+                        break;
+                    case 9:
+                        SpawnEnemyAt(7, new Vector3(-2, 5));
+                        break;
+                    case 10:
+                        SpawnEnemyAt(8, new Vector3(2, 5));
                         break;
                 }
 
@@ -454,28 +474,15 @@ public class EnemyPoolManager : MonoBehaviour
         {
             Debug.LogError($"[EnemyPoolManager] GroupSpawnPattern error: {ex}");
         }
-        finally
-        {
-            if (cts != null && cts.Token == token)
-            {
-                cts.Dispose();
-                cts = null;
-            }
-        }
     }
 
-    public void StartGroupSpawn(int patternId, int enemySpawnCount = 5, float interval = 0.2f)
+    public void StartGroupSpawn(int patternId, int enemySpawnCount, float interval, float initialDelay)
     {
-        if (cts != null)
-        {
-            cts.Cancel();
-            cts.Dispose();
-            cts = null;
-        }
+        // マネージャーが破棄された時に止まる共通のトークンを取得
+        var token = this.GetCancellationTokenOnDestroy();
 
-        cts = new CancellationTokenSource();
-        var token = cts.Token;
-        GroupSpawnPattern(patternId, enemySpawnCount, interval, token).Forget();
+        // 前の処理をキャンセルせず、新しいタスクを並列で開始する
+        GroupSpawnPattern(patternId, enemySpawnCount, interval, initialDelay, token).Forget();
     }
 
     public void ResetPool()

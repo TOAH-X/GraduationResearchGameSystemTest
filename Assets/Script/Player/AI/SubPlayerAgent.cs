@@ -7,6 +7,7 @@ using UnityEngine.SceneManagement;
 using System.Threading;
 using Unity.MLAgents.Policies;
 using System.Data;
+using DG.Tweening.Core.Easing;
 
 public class SubPlayerAgent : Agent
 {
@@ -28,12 +29,13 @@ public class SubPlayerAgent : Agent
     [SerializeField] private LearningLogCSV learningLogCSVScript;           // LearningLogスクリプト
 
     [SerializeField] RewardManager rewardManager;
+    [SerializeField] GameManager gameManager;
 
     BehaviorParameters behaviorParameters;
 
     // 追加
-    [Header("基準となるプレイヤー")]
-    [SerializeField] private Transform player;
+    //[Header("基準となるプレイヤー")]
+    //[SerializeField] private Transform player;
 
     [Header("追跡する弾の最大数")]
     [SerializeField] private int bulletTrackCount = 30;
@@ -78,17 +80,7 @@ public class SubPlayerAgent : Agent
     void Start()
     {
         // 僚機を取得
-        foreach (Transform child in playerParentObj.transform)
-        {
-            if (child.gameObject.activeSelf)
-            {
-                if (child.gameObject.GetComponent<PlayerBase>().PlayerID != playerBaseScript.PlayerID)
-                {
-                    partnerPlayerObj = child.gameObject;
-                    Debug.Log("アクティブな子オブジェクト: " + child.name);
-                }
-            }
-        }
+        GetPartnerPlayer();
 
         // PlayerIDの合計が偶数の場合はバグが起きるので防止
         if ((this.gameObject.GetComponent<PlayerBase>().PlayerID + partnerPlayerObj.GetComponentInParent<PlayerBase>().PlayerID) % 2 == 0) 
@@ -120,16 +112,52 @@ public class SubPlayerAgent : Agent
     // 観察取得時に呼ばれる
     public override void CollectObservations(VectorSensor vectorSensor)//posかも？
     {
+        if (this == null || this.transform.position == null)  
+        {
+            return;
+        }
+
+        // 情報欠落(エラー。埋める用)
+        bool isBulletMissing = false;
+        bool isEnemyMissing = false;
+        bool isPartnerMissing = false;
+
+        // 僚機の取得
+        if (partnerPlayerObj == null)
+        {
+            GetPartnerPlayer();
+        }
+
         // 1*2(サブプレイヤー)+1*2(プレイヤー)+25*2*2(敵)+30*2*2(弾)=224
-        if (bulletParent == null || enemyParent == null || player == null) return;
+        if (bulletParent == null) 
+        {
+            isBulletMissing = true;
+        }
+        if (enemyParent == null) 
+        {
+            isEnemyMissing = true;
+        }
+        if (partnerPlayerObj == null) 
+        { 
+            isPartnerMissing = true;
+        }
 
         // 自身の位置を取得
         vectorSensor.AddObservation(transform.position.x);
         vectorSensor.AddObservation(transform.position.y);
 
-        // プレイヤーの位置の取得
-        vectorSensor.AddObservation(partnerPlayerObj.transform.position.x - transform.position.x);
-        vectorSensor.AddObservation(partnerPlayerObj.transform.position.y - transform.position.y);
+
+        // パートナープレイヤー(僚機)の位置の取得
+        if (isPartnerMissing == false)
+        {
+            vectorSensor.AddObservation(partnerPlayerObj.transform.position.x - transform.position.x);
+            vectorSensor.AddObservation(partnerPlayerObj.transform.position.y - transform.position.y);
+        }
+        else 
+        {
+            vectorSensor.AddObservation(0f);
+            vectorSensor.AddObservation(0f);
+        }
 
         /*
         // 敵取得
@@ -340,11 +368,14 @@ public class SubPlayerAgent : Agent
         */
         // --- アクティブな敵を取得 ---
         List<Transform> activeEnemies = new List<Transform>();
-        for (int i = 0; i < enemyParent.childCount; i++)
+        if (isBulletMissing == false) 
         {
-            var t = enemyParent.GetChild(i);
-            if (t != null && t.gameObject.activeSelf)
-                activeEnemies.Add(t);
+            for (int i = 0; i < enemyParent.childCount; i++)
+            {
+                var t = enemyParent.GetChild(i);
+                if (t != null && t.gameObject.activeSelf)
+                    activeEnemies.Add(t);
+            }
         }
 
         // --- 履歴更新（順序に依存しない） ---
@@ -381,8 +412,8 @@ public class SubPlayerAgent : Agent
         // --- プレイヤーに近い順に並び替え（観測専用） ---
         activeEnemies.Sort((a, b) =>
         {
-            float da = (a.position - player.position).sqrMagnitude;
-            float db = (b.position - player.position).sqrMagnitude;
+            float da = (a.position - this.transform.position).sqrMagnitude;
+            float db = (b.position - this.transform.position).sqrMagnitude;
             return da.CompareTo(db);
         });
 
@@ -405,18 +436,37 @@ public class SubPlayerAgent : Agent
         }
 
         // --- 敵の観測登録 ---
-        foreach (var (now, prev1, prev2) in enemyTrackedPositions)
+        if (isEnemyMissing == false)
         {
-            Vector2 relNow = now - (Vector2)player.position;
-            Vector2 relPrev1 = prev1 - (Vector2)player.position;
-            Vector2 relPrev2 = prev2 - (Vector2)player.position;
+            foreach (var (now, prev1, prev2) in enemyTrackedPositions)
+            {
+                Vector2 relNow = now - (Vector2)this.transform.position;
+                Vector2 relPrev1 = prev1 - (Vector2)this.transform.position;
+                Vector2 relPrev2 = prev2 - (Vector2)this.transform.position;
 
-            vectorSensor.AddObservation(relNow.x);
-            vectorSensor.AddObservation(relNow.y);
-            vectorSensor.AddObservation(relPrev1.x);
-            vectorSensor.AddObservation(relPrev1.y);
-            // vectorSensor.AddObservation(relPrev2.x);
-            // vectorSensor.AddObservation(relPrev2.y);
+                vectorSensor.AddObservation(relNow.x);
+                vectorSensor.AddObservation(relNow.y);
+                vectorSensor.AddObservation(relPrev1.x);
+                vectorSensor.AddObservation(relPrev1.y);
+                // vectorSensor.AddObservation(relPrev2.x);
+                // vectorSensor.AddObservation(relPrev2.y);
+            }
+        }
+        else 
+        {
+            foreach (var (now, prev1, prev2) in enemyTrackedPositions)
+            {
+                Vector2 relNow = (Vector2)this.transform.position;
+                Vector2 relPrev1 = (Vector2)this.transform.position;
+                Vector2 relPrev2 = (Vector2)this.transform.position;
+
+                vectorSensor.AddObservation(0f);
+                vectorSensor.AddObservation(0f);
+                vectorSensor.AddObservation(0f);
+                vectorSensor.AddObservation(0f);
+                // vectorSensor.AddObservation(relPrev2.x);
+                // vectorSensor.AddObservation(relPrev2.y);
+            }
         }
 
         // =========================
@@ -425,11 +475,14 @@ public class SubPlayerAgent : Agent
 
         // --- アクティブな弾を取得 ---
         List<Transform> activeBullets = new List<Transform>();
-        for (int i = 0; i < bulletParent.childCount; i++)
+        if (isBulletMissing == false) 
         {
-            var t = bulletParent.GetChild(i);
-            if (t != null && t.gameObject.activeSelf)
-                activeBullets.Add(t);
+            for (int i = 0; i < bulletParent.childCount; i++)
+            {
+                var t = bulletParent.GetChild(i);
+                if (t != null && t.gameObject.activeSelf)
+                    activeBullets.Add(t);
+            }
         }
 
         // --- 履歴更新 ---
@@ -466,8 +519,8 @@ public class SubPlayerAgent : Agent
         // --- プレイヤーに近い順 ---
         activeBullets.Sort((a, b) =>
         {
-            float da = (a.position - player.position).sqrMagnitude;
-            float db = (b.position - player.position).sqrMagnitude;
+            float da = (a.position - this.transform.position).sqrMagnitude;
+            float db = (b.position - this.transform.position).sqrMagnitude;
             return da.CompareTo(db);
         });
 
@@ -490,18 +543,37 @@ public class SubPlayerAgent : Agent
         }
 
         // --- 弾の観測登録 ---
-        foreach (var (now, prev1, prev2) in bulletTrackedPositions)
+        if (isBulletMissing == false)
         {
-            Vector2 relNow = now - (Vector2)player.position;
-            Vector2 relPrev1 = prev1 - (Vector2)player.position;
-            Vector2 relPrev2 = prev2 - (Vector2)player.position;
+            foreach (var (now, prev1, prev2) in bulletTrackedPositions)
+            {
+                Vector2 relNow = now - (Vector2)this.transform.position;
+                Vector2 relPrev1 = prev1 - (Vector2)this.transform.position;
+                Vector2 relPrev2 = prev2 - (Vector2)this.transform.position;
 
-            vectorSensor.AddObservation(relNow.x);
-            vectorSensor.AddObservation(relNow.y);
-            vectorSensor.AddObservation(relPrev1.x);
-            vectorSensor.AddObservation(relPrev1.y);
-            // vectorSensor.AddObservation(relPrev2.x);
-            // vectorSensor.AddObservation(relPrev2.y);
+                vectorSensor.AddObservation(relNow.x);
+                vectorSensor.AddObservation(relNow.y);
+                vectorSensor.AddObservation(relPrev1.x);
+                vectorSensor.AddObservation(relPrev1.y);
+                // vectorSensor.AddObservation(relPrev2.x);
+                // vectorSensor.AddObservation(relPrev2.y);
+            }
+        }
+        else 
+        {
+            foreach (var (now, prev1, prev2) in bulletTrackedPositions)
+            {
+                Vector2 relNow = (Vector2)this.transform.position;
+                Vector2 relPrev1 = (Vector2)this.transform.position;
+                Vector2 relPrev2 = (Vector2)this.transform.position;
+
+                vectorSensor.AddObservation(0f);
+                vectorSensor.AddObservation(0f);
+                vectorSensor.AddObservation(0f);
+                vectorSensor.AddObservation(0f);
+                // vectorSensor.AddObservation(relPrev2.x);
+                // vectorSensor.AddObservation(relPrev2.y);
+            }
         }
 
         /*
@@ -703,29 +775,10 @@ public class SubPlayerAgent : Agent
         // 開始時間から30秒経ったとき
         if (gameTimer >= 30.0f)
         {
-            currentStep += 1000;
+            // ゲーム終了を通知
+            gameManager.EndGame();
 
-            // CSVにHP・報酬・状態を出力
-            learningLogCSVScript.UpdateData(currentStep, gameTimer, playerBaseScript.CurrentHP, "Training");
-
-            // Tensorに出力(学習中のみ)
-            if (behaviorParameters.BehaviorType == BehaviorType.Default)
-            {
-                Academy.Instance.StatsRecorder.Add("SubPlayer/GameTimer", gameTimer);
-                Academy.Instance.StatsRecorder.Add("SubPlayer/CurrentHP", playerBaseScript.CurrentHP);
-                Academy.Instance.StatsRecorder.Add("SubPlayer/RewardSum", rewardManager.RewardSum);
-                Academy.Instance.StatsRecorder.Add("SubPlayer/AttackReward", rewardManager.GetRewardCount(RewardType.AttackReward));
-                Academy.Instance.StatsRecorder.Add("SubPlayer/SurvivalReward", rewardManager.GetRewardCount(RewardType.KillReward));
-                Academy.Instance.StatsRecorder.Add("SubPlayer/GrazePenalty", rewardManager.GetRewardCount(RewardType.SurvivalReward));
-                Academy.Instance.StatsRecorder.Add("SubPlayer/GrazePenalty", rewardManager.GetRewardCount(RewardType.GrazePenalty));
-                Academy.Instance.StatsRecorder.Add("SubPlayer/HitPenalty", rewardManager.GetRewardCount(RewardType.HitPenalty));
-                Academy.Instance.StatsRecorder.Add("SubPlayer/PunishPenalty", rewardManager.GetRewardCount(RewardType.PunishPenalty));
-                Academy.Instance.StatsRecorder.Add("SubPlayer/GraceReward", rewardManager.GetRewardCount(RewardType.GraceReward));
-            }
-
-            // アクションログに出力
-            ActionLogController.Instance.ExportData();
-
+            // エピソードの終了
             EndEpisode();
 
             gameTimer = 0;
@@ -757,5 +810,48 @@ public class SubPlayerAgent : Agent
         actionsOut[2] = Input.GetKey(KeyCode.Z) ? 1f : -1f; // trueは1、falseは-1を出力する。
         // 低速モード
         //actionsOut[3] = Input.GetKey(KeyCode.LeftShift) ? 1f : -1f; // trueは1、falseは-1を出力する。
+    }
+
+    // ゲーム終了時(ログなどを取る)
+    public void EndGame()
+    {
+        currentStep += 1000;
+
+        // CSVにHP・報酬・状態を出力
+        learningLogCSVScript.UpdateData(currentStep, gameTimer, playerBaseScript.CurrentHP, "Training");
+
+        // Tensorに出力(学習中のみ)
+        if (behaviorParameters.BehaviorType == BehaviorType.Default)
+        {
+            Academy.Instance.StatsRecorder.Add("SubPlayer/GameTimer", gameTimer);
+            Academy.Instance.StatsRecorder.Add("SubPlayer/CurrentHP", playerBaseScript.CurrentHP);
+            Academy.Instance.StatsRecorder.Add("SubPlayer/RewardSum", rewardManager.RewardSum);
+            Academy.Instance.StatsRecorder.Add("SubPlayer/AttackReward", rewardManager.GetRewardCount(RewardType.AttackReward));
+            Academy.Instance.StatsRecorder.Add("SubPlayer/SurvivalReward", rewardManager.GetRewardCount(RewardType.KillReward));
+            Academy.Instance.StatsRecorder.Add("SubPlayer/GrazePenalty", rewardManager.GetRewardCount(RewardType.SurvivalReward));
+            Academy.Instance.StatsRecorder.Add("SubPlayer/GrazePenalty", rewardManager.GetRewardCount(RewardType.GrazePenalty));
+            Academy.Instance.StatsRecorder.Add("SubPlayer/HitPenalty", rewardManager.GetRewardCount(RewardType.HitPenalty));
+            Academy.Instance.StatsRecorder.Add("SubPlayer/PunishPenalty", rewardManager.GetRewardCount(RewardType.PunishPenalty));
+            Academy.Instance.StatsRecorder.Add("SubPlayer/GraceReward", rewardManager.GetRewardCount(RewardType.GraceReward));
+        }
+
+        // アクションログに出力
+        ActionLogController.Instance.ExportData();
+    }
+
+    // 僚機の取得
+    public void GetPartnerPlayer() 
+    {
+        foreach (Transform child in playerParentObj.transform)
+        {
+            if (child.gameObject.activeSelf)
+            {
+                if (child.gameObject.GetComponent<PlayerBase>().PlayerID != playerBaseScript.PlayerID)
+                {
+                    partnerPlayerObj = child.gameObject;
+                    Debug.Log("アクティブな子オブジェクト: " + child.name);
+                }
+            }
+        }
     }
 }

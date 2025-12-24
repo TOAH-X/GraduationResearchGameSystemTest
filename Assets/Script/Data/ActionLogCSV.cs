@@ -54,16 +54,16 @@ public class ActionLogCSV : MonoBehaviour
     */
 
     // ‘‚«‚İ(step,time,hp,reward,state)
-    public void UpdateData(bool isKilled, bool isEscape, int taskAssigneeID_Player, int attackID)
+    public void UpdateData(ActionDataGroup statsTotal, ActionDataGroup statsA, ActionDataGroup statsB)
     {
         string jst = GetCurrentJST();
         //stepCounter += 1 * 1000;
         string line =
             $"{jst}," +
-            $"{isKilled}," +
-            $"{isEscape}," +
-            $"{taskAssigneeID_Player}," +
-            $"{attackID}\n";
+            //$"{isKilled}," +
+            //$"{isEscape}," +
+            //$"{taskAssigneeID_Player}," +
+            $"{jst}\n";
         File.AppendAllText(logFilePath, line);
     }
 
@@ -80,6 +80,6 @@ public class ActionLogCSV : MonoBehaviour
 
         return jstTime.ToString("yyyy/MM/dd HH:mm:ss");
     }
-}
 
-// ‘‚«‚İ‚½‚¢“à—e...Œ‚”j”AŒ‚‚¿˜R‚ç‚µ•â•AA
+    // ‘‚«‚İ‚½‚¢“à—e...Œ‚”j”AŒ‚‚¿˜R‚ç‚µ•â•
+}
