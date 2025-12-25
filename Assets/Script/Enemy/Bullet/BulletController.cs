@@ -63,7 +63,7 @@ public class BulletController : MonoBehaviour
         // 試験的(必ずリファクタリングを行うこと)
         if (other.gameObject.name=="Graze")
         {
-            Debug.Log("Graze");
+            //Debug.Log("Graze");
             other.GetComponent<GrazeController>().AddReward();
         }
     }

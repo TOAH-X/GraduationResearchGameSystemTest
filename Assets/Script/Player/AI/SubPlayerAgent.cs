@@ -3,11 +3,7 @@ using System.Collections.Generic;
 using Unity.MLAgents;
 using Unity.MLAgents.Sensors;
 using Unity.MLAgents.Actuators;
-using UnityEngine.SceneManagement;
-using System.Threading;
 using Unity.MLAgents.Policies;
-using System.Data;
-using DG.Tweening.Core.Easing;
 
 public class SubPlayerAgent : Agent
 {

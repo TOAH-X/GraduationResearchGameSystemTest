@@ -1,6 +1,4 @@
-using Unity.MLAgents;
 using UnityEngine;
-using static UnityEditor.PlayerSettings;
 
 public class ShotController : MonoBehaviour
 {

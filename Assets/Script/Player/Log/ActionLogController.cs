@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 [System.Serializable] 
@@ -113,10 +111,6 @@ public class ActionLogController : SafeSingleton<ActionLogController>
             {
                 statsB.killedCount++;
             }
-            else
-            {
-                Debug.Log("プレイヤーID周りに不具合");
-            }
 
             // 自身の責任が付いた敵を倒した数(サブ手法)
             if (taskAssigneeID_Player == attackID)
@@ -132,10 +126,6 @@ public class ActionLogController : SafeSingleton<ActionLogController>
                 {
                     statsB.taskAssigneeKilldedCount++;
                 }
-                else
-                {
-                    Debug.Log("プレイヤーID周りに不具合");
-                }
             }
             // 自身の責任が付いていない敵を倒した数(サブ手法)
             else if (taskAssigneeID_Player != attackID) 
@@ -150,10 +140,6 @@ public class ActionLogController : SafeSingleton<ActionLogController>
                 else if (attackID == 2 || attackID == 4)
                 {
                     statsB.nonTaskAssigneeKilldedCount++;
-                }
-                else
-                {
-                    Debug.Log("プレイヤーID周りに不具合");
                 }
             }
 
@@ -174,10 +160,6 @@ public class ActionLogController : SafeSingleton<ActionLogController>
             {
                 statsB.escapedCount++;
             }
-            else
-            {
-                Debug.Log("プレイヤーID周りに不具合");
-            }
 
             if (isKilled == true) 
             {
@@ -196,10 +178,6 @@ public class ActionLogController : SafeSingleton<ActionLogController>
                     {
                         statsB.escapedPartnerKilledSelf++;
                     }
-                    else
-                    {
-                        Debug.Log("プレイヤーID周りに不具合");
-                    }
                 }
                 // 協調行動不成立
                 else
@@ -215,10 +193,6 @@ public class ActionLogController : SafeSingleton<ActionLogController>
                     else if (attackID == 2 || attackID == 4)
                     {
                         statsB.escapedSelfKilledSelf++;
-                    }
-                    else
-                    {
-                        Debug.Log("プレイヤーID周りに不具合");
                     }
                 }
             }
@@ -245,10 +219,6 @@ public class ActionLogController : SafeSingleton<ActionLogController>
         else if (taskAssigneeID_Player == 2 || taskAssigneeID_Player == 4) 
         {
             statsB.taskAssigneeCount++;
-        }
-        else
-        {
-            Debug.Log("プレイヤーID周りに不具合");
         }
     }
 

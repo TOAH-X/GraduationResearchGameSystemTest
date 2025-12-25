@@ -694,9 +694,9 @@ MonoBehaviour:
     VectorActionDescriptions: []
     VectorActionSpaceType: 1
     hasUpgradedBrainParametersWithActionSpec: 1
-  m_Model: {fileID: 0}
+  m_Model: {fileID: 5022602860645237092, guid: 9d5a10c6a84e9ba48aaa04f62b85581b, type: 3}
   m_InferenceDevice: 0
-  m_BehaviorType: 0
+  m_BehaviorType: 2
   m_BehaviorName: SubPlayer
   TeamId: 0
   m_UseChildSensors: 1
@@ -1315,7 +1315,7 @@ MonoBehaviour:
   m_ReferencePixelsPerUnit: 100
   m_ScaleFactor: 1
   m_ReferenceResolution: {x: 1920, y: 1080}
-  m_ScreenMatchMode: 0
+  m_ScreenMatchMode: 1
   m_MatchWidthOrHeight: 0
   m_PhysicalUnit: 3
   m_FallbackScreenDPI: 96
@@ -1511,7 +1511,7 @@ MonoBehaviour:
   slowSpeedRate: 0.5
   playerSpriteControllerScript: {fileID: 526268576}
   playerBaseScript: {fileID: 526268568}
-  isMove: 1
+  isMove: 0
 --- !u!212 &526268566
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -1642,9 +1642,9 @@ MonoBehaviour:
     VectorActionDescriptions: []
     VectorActionSpaceType: 1
     hasUpgradedBrainParametersWithActionSpec: 1
-  m_Model: {fileID: 5022602860645237092, guid: aef245a89f8a2044aa6bb011516b3735, type: 3}
+  m_Model: {fileID: 0}
   m_InferenceDevice: 0
-  m_BehaviorType: 1
+  m_BehaviorType: 0
   m_BehaviorName: Player
   TeamId: 0
   m_UseChildSensors: 1

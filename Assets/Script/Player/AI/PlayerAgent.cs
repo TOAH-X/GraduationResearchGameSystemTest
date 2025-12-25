@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using Unity.MLAgents;
 using Unity.MLAgents.Sensors;
 using Unity.MLAgents.Actuators;
-using UnityEngine.SceneManagement;
-using System.Threading;
 using Unity.MLAgents.Policies;
 
 public class PlayerAgent : Agent

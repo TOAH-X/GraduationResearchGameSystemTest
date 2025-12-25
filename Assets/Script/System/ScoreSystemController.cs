@@ -1,7 +1,4 @@
-using System.Collections;
-using UnityEditor.UIElements;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public class ScoreSystemController : MonoBehaviour
 {

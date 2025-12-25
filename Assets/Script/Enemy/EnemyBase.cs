@@ -246,7 +246,6 @@ public class EnemyBase : MonoBehaviour
 }
 */
 
-using DG.Tweening;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -447,7 +446,7 @@ public class EnemyBase : MonoBehaviour
 
         if (activePlayersList.Count != 2)
         {
-            Debug.Log("Playerが" + activePlayersList.Count + "体いる状態。");
+            //Debug.Log("Playerが" + activePlayersList.Count + "体いる状態。");
             taskAssigneeID_Local = -1;
         }
         else
@@ -472,19 +471,19 @@ public class EnemyBase : MonoBehaviour
             {
                 // ローカルID
                 taskAssigneeID_Local = 1;
-                Debug.Log("taskAssigneeID_Local==" + taskAssigneeID_Local);
+                //Debug.Log("taskAssigneeID_Local==" + taskAssigneeID_Local);
                 // プレイヤーID
                 taskAssigneeID_Player = activePlayersList[0].PlayerID;
-                Debug.Log("taskAssigneeID_Player==" + taskAssigneeID_Player);
+                //Debug.Log("taskAssigneeID_Player==" + taskAssigneeID_Player);
             }
             else
             {
                 // ローカルID
                 taskAssigneeID_Local = 2;
-                Debug.Log("taskAssigneeID_Local==" + taskAssigneeID_Local);
+                //Debug.Log("taskAssigneeID_Local==" + taskAssigneeID_Local);
                 // プレイヤーID
                 taskAssigneeID_Player = activePlayersList[1].PlayerID;
-                Debug.Log("taskAssigneeID_Player==" + taskAssigneeID_Player);
+                //Debug.Log("taskAssigneeID_Player==" + taskAssigneeID_Player);
             }
         }
     }
@@ -531,7 +530,7 @@ public class EnemyBase : MonoBehaviour
         {
             // ドット積が正 = 敵が判定ラインを越えてプレイヤーの後ろに回った
             isEscape = true;
-            Debug.Log("【撃ち漏らし発生】: " + activePlayersList[taskAssigneeID_Local - 1].name + " を敵が通過。");
+            //Debug.Log("【撃ち漏らし発生】: " + activePlayersList[taskAssigneeID_Local - 1].name + " を敵が通過。");
         }
     }
 
