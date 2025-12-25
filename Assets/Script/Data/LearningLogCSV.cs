@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.IO;
 using System;
+using Unity.MLAgents;
 
 public class LearningLogCSV : MonoBehaviour
 {
@@ -14,6 +15,9 @@ public class LearningLogCSV : MonoBehaviour
 
     void Awake()
     {
+        // 学習関係が動いているときは止める(多重起動で故障を防ぐため)
+        if (Academy.Instance.IsCommunicatorOn == true) return;
+
         fileName = playerBase.PlayerName;
         logFilePath = Path.Combine(Application.dataPath, fileName + "StatsLog.csv");
 
@@ -38,8 +42,11 @@ public class LearningLogCSV : MonoBehaviour
     // 書き込み(step,time,hp,reward,state)
     public void UpdateData(int step, float time, float hp, string state)
     {
+        // 学習関係が動いているときは止める(多重起動で故障を防ぐため)
+        if (Academy.Instance.IsCommunicatorOn == true) return;
+
         // パスが未設定ならその場で作る（絶対にNullを回避する）
-        if (string.IsNullOrEmpty(logFilePath))
+        if (string.IsNullOrEmpty(logFilePath)) 
         {
             string pName = (playerBase != null) ? playerBase.PlayerName : "UnknownPlayer";
             // dataPathよりも書き込み権限が安定している persistentDataPath を推奨
@@ -88,8 +95,6 @@ public class LearningLogCSV : MonoBehaviour
 
         // JSTはUTC+9時間なので、9時間を加算する
         DateTime jstTime = utcNow.AddHours(9);
-
-        Debug.Log("現在の日本時間 (簡易版): " + jstTime.ToString("yyyy/MM/dd HH:mm:ss"));
 
         return jstTime.ToString("yyyy/MM/dd HH:mm:ss");
     }

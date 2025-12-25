@@ -20,7 +20,6 @@ public class ActionLogCSV : MonoBehaviour
             //File.WriteAllText(logFilePath, "JST,\n");
             File.WriteAllText(logFilePath, "JST,isKilled,isEscape,taskAssigneeID_Player,attackID\n");
         }
-
     }
 
     // Update is called once per frame
@@ -85,8 +84,6 @@ public class ActionLogCSV : MonoBehaviour
 
         // JSTÇÕUTC+9éûä‘Ç»ÇÃÇ≈ÅA9éûä‘Çâ¡éZÇ∑ÇÈ
         DateTime jstTime = utcNow.AddHours(9);
-
-        Debug.Log("åªç›ÇÃì˙ñ{éûä‘ (ä»à’î≈): " + jstTime.ToString("yyyy/MM/dd HH:mm:ss"));
 
         return jstTime.ToString("yyyy/MM/dd HH:mm:ss");
     }
