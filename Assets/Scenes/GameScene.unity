@@ -152,7 +152,7 @@ Transform:
   m_GameObject: {fileID: 36150038}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.5, y: 0.5, z: 1}
+  m_LocalScale: {x: 0.2, y: 0.2, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1703502170}
@@ -554,7 +554,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &210556202
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -668,6 +668,9 @@ MonoBehaviour:
   enemyInactivePos: {x: -100, y: -100}
   partnerPlayerObj: {fileID: 0}
   playerParentObj: {fileID: 1724695562}
+  statsBorderX: 5
+  statsBorderY: 3
+  statsNamePrefix: Player
 --- !u!114 &210556208
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -887,7 +890,7 @@ Transform:
   m_GameObject: {fileID: 256296976}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.5, y: 0.5, z: 1}
+  m_LocalScale: {x: 0.2, y: 0.2, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 210556215}
@@ -1017,7 +1020,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &261061837
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1069,7 +1072,7 @@ MonoBehaviour:
   moveSpeed: 6
   slowSpeedRate: 0.5
   playerSpriteControllerScript: {fileID: 526268576}
-  playerBaseScript: {fileID: 0}
+  playerBaseScript: {fileID: 261061837}
   isMove: 1
 --- !u!58 &261061840
 CircleCollider2D:
@@ -1473,7 +1476,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &526268564
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1507,7 +1510,7 @@ MonoBehaviour:
   slowSpeedRate: 0.5
   playerSpriteControllerScript: {fileID: 526268576}
   playerBaseScript: {fileID: 526268568}
-  isMove: 0
+  isMove: 1
 --- !u!212 &526268566
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -1680,6 +1683,9 @@ MonoBehaviour:
   bulletInactivePos: {x: -100, y: -100}
   enemyTrackCount: 25
   enemyInactivePos: {x: -100, y: -100}
+  statsBorderX: 5
+  statsBorderY: 3
+  statsNamePrefix: Player
 --- !u!114 &526268574
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1804,7 +1810,7 @@ Transform:
   m_GameObject: {fileID: 571245874}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.5, y: 0.5, z: 1}
+  m_LocalScale: {x: 0.2, y: 0.2, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1022352623}
@@ -2313,7 +2319,7 @@ Transform:
   m_GameObject: {fileID: 920481899}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.5, y: 0.5, z: 1}
+  m_LocalScale: {x: 0.2, y: 0.2, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 526268577}
@@ -2391,7 +2397,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: -4
   m_Sprite: {fileID: -2413806693520163455, guid: a86470a33a6bf42c4b3595704624658b, type: 3}
-  m_Color: {r: 0, g: 0.34390402, b: 1, a: 0}
+  m_Color: {r: 0, g: 0.34390402, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -2990,6 +2996,9 @@ MonoBehaviour:
   enemyInactivePos: {x: -100, y: -100}
   partnerPlayerObj: {fileID: 0}
   playerParentObj: {fileID: 1724695562}
+  statsBorderX: 5
+  statsBorderY: 3
+  statsNamePrefix: Player
 --- !u!114 &1022352625
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3849,6 +3858,9 @@ MonoBehaviour:
   bulletInactivePos: {x: -100, y: -100}
   enemyTrackCount: 25
   enemyInactivePos: {x: -100, y: -100}
+  statsBorderX: 5
+  statsBorderY: 3
+  statsNamePrefix: Player
 --- !u!114 &1703502162
 MonoBehaviour:
   m_ObjectHideFlags: 0

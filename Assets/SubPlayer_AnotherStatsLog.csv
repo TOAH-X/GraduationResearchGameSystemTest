@@ -1,2 +1,6 @@
 JST,Step,Time,HP,reward,AttackReward,KillReward,SurvivalReward,GrazePenalty,HitPenalty,PunishPenalty,GraceReward,State
 2025/12/25 02:14:49,1000,8.58,2.0,3.990,0,0,429,3,0,0,0,Training
+2025/12/25 02:25:54,1000,18.72,1.0,140.460,84,20,936,9,1,0,0,Training
+2025/12/25 02:26:04,1000,9.64,0.0,33.330,28,7,483,5,2,0,0,Training
+2025/12/25 02:26:18,1000,14.38,0.0,56.300,40,10,720,9,2,0,0,Training
+2025/12/25 02:26:36,1000,17.26,0.0,101.740,67,16,864,4,2,0,0,Training

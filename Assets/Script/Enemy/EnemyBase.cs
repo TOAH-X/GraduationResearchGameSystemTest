@@ -405,7 +405,7 @@ public class EnemyBase : MonoBehaviour
     // 移動（既存のロジックを保持）
     public void Move()
     {
-        float moveSpeed = 10.0f;
+        float moveSpeed = 7.5f;
         Vector3 moveDirection = Vector3.zero;
         if (enemyID == 1) moveDirection = new Vector3(0.5f, -0.25f);
         else if (enemyID == 2) moveDirection = new Vector3(-0.5f, -0.25f);

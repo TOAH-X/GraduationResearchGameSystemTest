@@ -22,6 +22,8 @@ public class GameManager : MonoBehaviour
 
     private bool isResetting = false;       // 二重リセット防止用
 
+    
+
     void Awake()
     {
         // 学習開始時に時間スケールを設定する
@@ -46,6 +48,9 @@ public class GameManager : MonoBehaviour
     // ゲーム終了時処理、可能ならデリゲートに書き換えること
     public void EndGame() 
     {
+        // アクションログに出力
+        ActionLogController.Instance.ExportData();
+
         if (playerObj != null)
         {
             playerAgent_Player.EndGame();
@@ -70,65 +75,6 @@ public class GameManager : MonoBehaviour
         if (isResetting) return; // 既にリセット処理中なら無視
         StartCoroutine(SafeResetCoroutine());
     }
-
-    /*
-    // ログを出して、通信を待ってからリロードするコルーチン
-    IEnumerator SafeResetCoroutine()
-    {
-        isResetting = true;
-
-        // 1. ログ出力（各AgentのEndGameを呼ぶ）
-        EndGame();
-
-        // 2. ML-Agentsにエピソード終了を通知（全員分呼ぶのが安全）
-        if (playerAgent_Player != null) playerAgent_Player.EndEpisode();
-        if (playerAgent_PlayerAnother != null) playerAgent_PlayerAnother.EndEpisode();
-        if (subPlayerAgent_SubPlayer != null) subPlayerAgent_SubPlayer.EndEpisode();
-        if (subPlayerAgent_SubPlayerAnother != null) subPlayerAgent_SubPlayerAnother.EndEpisode();
-
-        // 3. データの送信完了まで1フレーム待つ（ここが最重要！）
-        yield return new WaitForFixedUpdate();
-
-        // 4. シーンをリロード
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
-    }
-    */
-
-    /*
-    IEnumerator SafeResetCoroutine()
-    {
-        isResetting = true;
-        Debug.Log("【GameManager】リセットシーケンスを開始します...");
-
-        // 1. ログ出力（ここが一番エラーが出やすい箇所）
-        // try-catchで囲むことで、ログ出力に失敗してもリロードだけは必ず行わせる
-        try
-        {
-            EndGame();
-            Debug.Log("【GameManager】EndGame（ログ出力）完了");
-        }
-        catch (System.Exception e)
-        {
-            Debug.LogError("【エラー】ログ出力中に例外が発生しましたが、リセットを続行します。\n詳細: " + e.Message + "\n" + e.StackTrace);
-        }
-
-        // 2. ML-Agentsにエピソード終了を通知
-        // ここも念のため個別チェックを入れる
-        if (playerAgent_Player != null) playerAgent_Player.EndEpisode();
-        if (playerAgent_PlayerAnother != null) playerAgent_PlayerAnother.EndEpisode();
-        if (subPlayerAgent_SubPlayer != null) subPlayerAgent_SubPlayer.EndEpisode();
-        if (subPlayerAgent_SubPlayerAnother != null) subPlayerAgent_SubPlayerAnother.EndEpisode();
-
-        Debug.Log("【GameManager】EndEpisode通知完了。通信待機(WaitForFixedUpdate)に入ります。");
-
-        // 3. データの送信完了まで1フレーム待つ
-        yield return new WaitForFixedUpdate();
-
-        // 4. シーンをリロード
-        Debug.Log("【GameManager】シーンをリロードします。");
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
-    }
-    */
 
     IEnumerator SafeResetCoroutine()
     {
