@@ -293,6 +293,8 @@ public class EnemyBase : MonoBehaviour
     float minY = -6.0f;
     float maxY = 6.0f;
 
+    private int bulletLaunchCounter = 0;            // 弾幕を発射した回数
+
     void Start()
     {
         // 既存 Start 処理（必要なら残す）
@@ -334,14 +336,18 @@ public class EnemyBase : MonoBehaviour
         // 移動処理
         Move();
         
-        if (timer >= 1.0f)
+        if (timer >= 0.75f)
         {
+            // 発射は3回まで(下で発射すると難易度が跳ね上がるため)
+            if (bulletLaunchCounter >= 3) return;
+
             float num = Random.Range(0.0f, 360.0f);
             for (int i = 0; i < 4; i++)
             {
                 LaunchBullet(Vector3.zero, 2f, i * 360f / 4f + num);
             }
             timer = 0f;
+            bulletLaunchCounter++;
         }
 
         // 画面外チェック（コメントアウト可）
@@ -417,6 +423,8 @@ public class EnemyBase : MonoBehaviour
         else if (enemyID == 8) moveDirection = new Vector3(-0.2f, -0.4f);
         else if (enemyID == 9) moveDirection = new Vector3(0f, -0.25f);
         else if (enemyID == 10) moveDirection = new Vector3(0f, -0.25f);
+        else if (enemyID == 11) moveDirection = new Vector3(0f, -0.25f);
+        else if (enemyID == 12) moveDirection = new Vector3(0f, -0.25f);
 
         if (moveDirection.x >= 0)
         {
@@ -547,6 +555,7 @@ public class EnemyBase : MonoBehaviour
         taskAssigneeCountFrame = 0;
         isEscape = false;
         isCount = false;
+        bulletLaunchCounter = 0;
     }
 
     // LaunchBullet は既存のものをそのまま利用

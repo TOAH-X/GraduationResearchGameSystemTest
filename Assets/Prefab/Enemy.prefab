@@ -160,7 +160,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   enemyID: 0
-  maxHp: 5
+  maxHp: 6
   currentHp: 0
   bulletPrefab: {fileID: 3126628179048461705, guid: 1c44efa81616b0b40b3250bd0b906ce2, type: 3}
   bulletParentObj: {fileID: 0}

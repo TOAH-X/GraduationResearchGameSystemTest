@@ -60,7 +60,6 @@ public class LearningLogCSV : MonoBehaviour
         }
 
         string jst = GetCurrentJST();
-        stepCounter += 1 * 1000;
         string line =
             $"{jst}," +
             $"{stepCounter}," +

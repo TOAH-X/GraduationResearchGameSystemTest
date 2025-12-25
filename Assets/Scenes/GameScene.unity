@@ -671,6 +671,7 @@ MonoBehaviour:
   statsBorderX: 5
   statsBorderY: 3
   statsNamePrefix: Player
+  spreadThreshold: 4
 --- !u!114 &210556208
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -750,7 +751,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 775e671624e16724abc3e72e7ccae595, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 6
+  moveSpeed: 5
   slowSpeedRate: 0.5
   playerSpriteControllerScript: {fileID: 210556203}
   playerBaseScript: {fileID: 210556209}
@@ -1020,7 +1021,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &261061837
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1069,7 +1070,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 775e671624e16724abc3e72e7ccae595, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 6
+  moveSpeed: 5
   slowSpeedRate: 0.5
   playerSpriteControllerScript: {fileID: 526268576}
   playerBaseScript: {fileID: 261061837}
@@ -1476,7 +1477,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &526268564
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1506,7 +1507,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 775e671624e16724abc3e72e7ccae595, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 6
+  moveSpeed: 5
   slowSpeedRate: 0.5
   playerSpriteControllerScript: {fileID: 526268576}
   playerBaseScript: {fileID: 526268568}
@@ -2850,7 +2851,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 775e671624e16724abc3e72e7ccae595, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 6
+  moveSpeed: 5
   slowSpeedRate: 0.5
   playerSpriteControllerScript: {fileID: 1022352612}
   playerBaseScript: {fileID: 1022352617}
@@ -2999,6 +3000,7 @@ MonoBehaviour:
   statsBorderX: 5
   statsBorderY: 3
   statsNamePrefix: Player
+  spreadThreshold: 4
 --- !u!114 &1022352625
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3960,7 +3962,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 775e671624e16724abc3e72e7ccae595, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 6
+  moveSpeed: 5
   slowSpeedRate: 0.5
   playerSpriteControllerScript: {fileID: 1703502158}
   playerBaseScript: {fileID: 1703502164}

@@ -52,8 +52,9 @@ public class ActionLogCSV : MonoBehaviour
     }
     */
 
+    // JST,îÌå±é“ID,ActionDataGroup(Total,A,B)
     // èëÇ´çûÇ›(step,time,hp,reward,state)
-    public void UpdateData(ActionDataGroup statsTotal, ActionDataGroup statsA, ActionDataGroup statsB)
+    public void UpdateData(ActionDataGroup t, ActionDataGroup a, ActionDataGroup b)
     {
         if (string.IsNullOrEmpty(logFilePath))
         {
@@ -62,16 +63,23 @@ public class ActionLogCSV : MonoBehaviour
 
         if (!File.Exists(logFilePath))
         {
-            File.WriteAllText(logFilePath, "JST,isKilled,isEscape,taskAssigneeID_Player,attackID\n");
+            File.WriteAllText(logFilePath, "JST," +
+                "TotalKilledCount,TotalTaskAssigneeCount,TotalTaskAssigneeKilldedCount,TotalNonTaskAssigneeKilldedCount,TotalEscapedCount,TotalEscapedPartnerKilledSelf,TotalEscapedSelfKilledSelf," +
+                "AKilledCount,ATaskAssigneeCount,ATaskAssigneeKilldedCount,ANonTaskAssigneeKilldedCount,AEscapedCount,AEscapedPartnerKilledSelf,AEscapedSelfKilledSelf," +
+                "BKilledCount,BTaskAssigneeCount,BTaskAssigneeKilldedCount,BNonTaskAssigneeKilldedCount,BEscapedCount,BEscapedPartnerKilledSelf,BEscapedSelfKilledSelf," +
+                "attackID\n") ;
         }
 
         string jst = GetCurrentJST();
         //stepCounter += 1 * 1000;
         string line =
             $"{jst}," +
-            //$"{isKilled}," +
-            //$"{isEscape}," +
-            //$"{taskAssigneeID_Player}," +
+            // Total
+            $"{t.killedCount},{t.taskAssigneeCount},{t.taskAssigneeKilldedCount},{t.nonTaskAssigneeKilldedCount},{t.escapedCount},{t.escapedPartnerKilledSelf},{t.escapedSelfKilledSelf}," +
+            // Group A
+            $"{a.killedCount},{a.taskAssigneeCount},{a.taskAssigneeKilldedCount},{a.nonTaskAssigneeKilldedCount},{a.escapedCount},{a.escapedPartnerKilledSelf},{a.escapedSelfKilledSelf}," +
+            // Group B
+            $"{b.killedCount},{b.taskAssigneeCount},{b.taskAssigneeKilldedCount},{b.nonTaskAssigneeKilldedCount},{b.escapedCount},{b.escapedPartnerKilledSelf},{b.escapedSelfKilledSelf}," +
             $"{jst}\n";
         File.AppendAllText(logFilePath, line);
     }

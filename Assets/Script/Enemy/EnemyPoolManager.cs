@@ -433,16 +433,16 @@ public class EnemyPoolManager : MonoBehaviour
                 switch (patternId)
                 {
                     case 1:
-                        SpawnEnemyAt(1, new Vector3(-10, 5));
+                        SpawnEnemyAt(1, new Vector3(-8, 5));
                         break;
                     case 2:
-                        SpawnEnemyAt(2, new Vector3(10, 5));
+                        SpawnEnemyAt(2, new Vector3(8, 5));
                         break;
                     case 3:
-                        SpawnEnemyAt(3, new Vector3(-10, -3));
+                        SpawnEnemyAt(3, new Vector3(-8, -1));
                         break;
                     case 4:
-                        SpawnEnemyAt(4, new Vector3(10, -3));
+                        SpawnEnemyAt(4, new Vector3(8, -1));
                         break;
                     case 5:
                         SpawnEnemyAt(5, new Vector3(-4, 5));
@@ -461,6 +461,12 @@ public class EnemyPoolManager : MonoBehaviour
                         break;
                     case 10:
                         SpawnEnemyAt(10, new Vector3(2, 5));
+                        break;
+                    case 11:
+                        SpawnEnemyAt(11, new Vector3(-((float)i * (5 / (float)enemySpawnCount) + 1.0f) * 1.0f, 5));
+                        break;
+                    case 12:
+                        SpawnEnemyAt(12, new Vector3(((float)i * (5 / (float)enemySpawnCount) + 1.0f) * 1.0f, 5));
                         break;
                 }
 

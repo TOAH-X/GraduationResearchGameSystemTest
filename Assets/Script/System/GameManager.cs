@@ -22,8 +22,6 @@ public class GameManager : MonoBehaviour
 
     private bool isResetting = false;       // 二重リセット防止用
 
-    
-
     void Awake()
     {
         // 学習開始時に時間スケールを設定する
@@ -48,9 +46,30 @@ public class GameManager : MonoBehaviour
     // ゲーム終了時処理、可能ならデリゲートに書き換えること
     public void EndGame() 
     {
+        // 値の取得
+        if (playerObj != null)
+        {
+            playerAgent_Player.EndGame();
+        }
+        if (playerAnotherObj != null)
+        {
+            playerAgent_PlayerAnother.EndGame();
+        }
+        if (subPlayerObj != null)
+        {
+            subPlayerAgent_SubPlayer.EndGame();
+        }
+        if (subPlayerAnotherObj != null)
+        {
+            subPlayerAgent_SubPlayerAnother.EndGame();
+        }
+
+
+
         // アクションログに出力
         ActionLogController.Instance.ExportData();
 
+        // EndGameの通知
         if (playerObj != null)
         {
             playerAgent_Player.EndGame();

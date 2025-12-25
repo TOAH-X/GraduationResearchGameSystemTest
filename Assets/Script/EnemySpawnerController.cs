@@ -840,7 +840,7 @@ public class EnemySpawnerController : MonoBehaviour
     {
         timer += Time.fixedDeltaTime;
 
-        if (timer >= 3.0f)
+        if (timer >= 2.5f)
         {
             // 遅延時間
             float initialDelay_PatternLeft = 0f;
@@ -856,9 +856,9 @@ public class EnemySpawnerController : MonoBehaviour
             }
             
             // 奇数が左、偶数が右
-            int patternLeft = Random.Range(1, 6); // 1..5
+            int patternLeft = Random.Range(1, 7); // 1..6
             EnemyPoolManager.Instance.StartGroupSpawn(patternLeft * 2 - 1, 5, 0.2f, initialDelay_PatternLeft);
-            int patternRight = Random.Range(1, 6); // 1..5
+            int patternRight = Random.Range(1, 7); // 1..6
             EnemyPoolManager.Instance.StartGroupSpawn(patternLeft * 2, 5, 0.2f, initialDelay_PatternRight);
             timer = 0f;
         }
