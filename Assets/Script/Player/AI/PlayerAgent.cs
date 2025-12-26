@@ -7,11 +7,10 @@ using Unity.MLAgents.Policies;
 
 public class PlayerAgent : Agent
 {
-    Rigidbody2D rb2D;
-
     [SerializeField] PlayerBase playerBaseScript;                           // PlayerBaseスクリプト
     [SerializeField] PlayerMoveController playerMoveControllerScript;       // PlayerMoveControllerスクリプト
     [SerializeField] PlayerShotController playerShotControllerScript;       // PlayerShotControllerスクリプト
+    [SerializeField] GameObject playerParentObj;
 
     [SerializeField] Transform bulletParent;                                // BulletParentのTransform
     [SerializeField] Transform enemyParent;                                 // EnemyParentのTransform 
@@ -30,6 +29,8 @@ public class PlayerAgent : Agent
     [SerializeField] BehaviorParameters behaviorParameters;
 
     private bool isExported = false;                                        // CSVを出力済みか(EndGameが呼ばれたかどうかで判別するので厳密ではない)
+
+    private int targetPlayerID = -1;
 
     // 追加
     //[Header("基準となるプレイヤー")]
@@ -76,34 +77,31 @@ public class PlayerAgent : Agent
     private void Awake()
     {
         behaviorParameters = GetComponent<BehaviorParameters>();
-
-        // 学習中のみ(利き手現象の対策)
-        if (behaviorParameters.BehaviorType == BehaviorType.Default)
-        {
-            playerMoveControllerScript.isDefaultBehavior = true;
-        }
     }
 
     // Start is called before the first frame update
     void Start()
     {
-        
+
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+
     }
 
     private void FixedUpdate()
     {
-        // 自分の位置を取得
-        Vector3 pos = transform.position;
+        // プレイヤーがいるか確認
+        if (!TryAcquireReferences()) return;
+
+        // プレイヤーの位置を変数に入れる
+        Vector3 playerPos = playerBaseScript.transform.position;
 
         // どのマスにいるか判定 (0:左/下, 1:中, 2:右/上)
-        int xIndex = (pos.x < -statsBorderX) ? 0 : (pos.x > statsBorderX ? 2 : 1);
-        int yIndex = (pos.y < -statsBorderY) ? 0 : (pos.y > statsBorderY ? 2 : 1);
+        int xIndex = (playerPos.x < -statsBorderX) ? 0 : (playerPos.x > statsBorderX ? 2 : 1);
+        int yIndex = (playerPos.y < -statsBorderY) ? 0 : (playerPos.y > statsBorderY ? 2 : 1);
 
         // カウントアップ
         _gridCounts[xIndex, yIndex]++;
@@ -112,27 +110,29 @@ public class PlayerAgent : Agent
 
 
     // ゲームオブジェクト生成時に呼ばれる
-    public override void Initialize() 
+    public override void Initialize()
     {
         base.Initialize();
-        behaviorParameters = GetComponent<BehaviorParameters>();
 
-        this.rb2D = GetComponent<Rigidbody2D>();
+        DontDestroyOnLoad(this.gameObject);
+
+        behaviorParameters = GetComponent<BehaviorParameters>();
     }
 
     // エピソード開始時に呼ばれる
-    public override void OnEpisodeBegin() 
+    public override void OnEpisodeBegin()
     {
-        
+
     }
-    
+
     // 観察取得時に呼ばれる
     public override void CollectObservations(VectorSensor vectorSensor)//posかも？
     {
-        if (this == null || this.transform.position == null)
-        {
-            return;
-        }
+        // プレイヤーがいるか確認
+        if (!TryAcquireReferences()) return;
+
+        // プレイヤーの位置を変数に入れる
+        Vector3 playerPos = playerBaseScript.transform.position;
 
         // 情報欠落(エラー。埋める用)
         bool isBulletMissing = false;
@@ -149,12 +149,12 @@ public class PlayerAgent : Agent
         }
 
         // 自身の位置を取得
-        vectorSensor.AddObservation(transform.position.x);
-        vectorSensor.AddObservation(transform.position.y);
+        vectorSensor.AddObservation(playerPos.x);
+        vectorSensor.AddObservation(playerPos.y);
 
         // --- アクティブな敵を取得 ---
         List<Transform> activeEnemies = new List<Transform>();
-        if (isEnemyMissing == false) 
+        if (isEnemyMissing == false)
         {
             for (int i = 0; i < enemyParent.childCount; i++)
             {
@@ -198,8 +198,8 @@ public class PlayerAgent : Agent
         // --- プレイヤーに近い順に並び替え（観測専用） ---
         activeEnemies.Sort((a, b) =>
         {
-            float da = (a.position - this.transform.position).sqrMagnitude;
-            float db = (b.position - this.transform.position).sqrMagnitude;
+            float da = (a.position - playerPos).sqrMagnitude;
+            float db = (b.position - playerPos).sqrMagnitude;
             return da.CompareTo(db);
         });
 
@@ -226,9 +226,9 @@ public class PlayerAgent : Agent
         {
             foreach (var (now, prev1, prev2) in enemyTrackedPositions)
             {
-                Vector2 relNow = now - (Vector2)this.transform.position;
-                Vector2 relPrev1 = prev1 - (Vector2)this.transform.position;
-                Vector2 relPrev2 = prev2 - (Vector2)this.transform.position;
+                Vector2 relNow = now - (Vector2)playerPos;
+                Vector2 relPrev1 = prev1 - (Vector2)playerPos;
+                Vector2 relPrev2 = prev2 - (Vector2)playerPos;
 
                 vectorSensor.AddObservation(relNow.x);
                 vectorSensor.AddObservation(relNow.y);
@@ -242,9 +242,9 @@ public class PlayerAgent : Agent
         {
             foreach (var (now, prev1, prev2) in enemyTrackedPositions)
             {
-                Vector2 relNow = (Vector2)this.transform.position;
-                Vector2 relPrev1 = (Vector2)this.transform.position;
-                Vector2 relPrev2 = (Vector2)this.transform.position;
+                Vector2 relNow = (Vector2)playerPos;
+                Vector2 relPrev1 = (Vector2)playerPos;
+                Vector2 relPrev2 = (Vector2)playerPos;
 
                 vectorSensor.AddObservation(0f);
                 vectorSensor.AddObservation(0f);
@@ -261,7 +261,7 @@ public class PlayerAgent : Agent
 
         // --- アクティブな弾を取得 ---
         List<Transform> activeBullets = new List<Transform>();
-        if (isBulletMissing == false) 
+        if (isBulletMissing == false)
         {
             for (int i = 0; i < bulletParent.childCount; i++)
             {
@@ -305,8 +305,8 @@ public class PlayerAgent : Agent
         // --- プレイヤーに近い順 ---
         activeBullets.Sort((a, b) =>
         {
-            float da = (a.position - this.transform.position).sqrMagnitude;
-            float db = (b.position - this.transform.position).sqrMagnitude;
+            float da = (a.position - playerPos).sqrMagnitude;
+            float db = (b.position - playerPos).sqrMagnitude;
             return da.CompareTo(db);
         });
 
@@ -333,9 +333,9 @@ public class PlayerAgent : Agent
         {
             foreach (var (now, prev1, prev2) in bulletTrackedPositions)
             {
-                Vector2 relNow = now - (Vector2)this.transform.position;
-                Vector2 relPrev1 = prev1 - (Vector2)this.transform.position;
-                Vector2 relPrev2 = prev2 - (Vector2)this.transform.position;
+                Vector2 relNow = now - (Vector2)playerPos;
+                Vector2 relPrev1 = prev1 - (Vector2)playerPos;
+                Vector2 relPrev2 = prev2 - (Vector2)playerPos;
 
                 vectorSensor.AddObservation(relNow.x);
                 vectorSensor.AddObservation(relNow.y);
@@ -349,9 +349,9 @@ public class PlayerAgent : Agent
         {
             foreach (var (now, prev1, prev2) in bulletTrackedPositions)
             {
-                Vector2 relNow = (Vector2)this.transform.position;
-                Vector2 relPrev1 = (Vector2)this.transform.position;
-                Vector2 relPrev2 = (Vector2)this.transform.position;
+                Vector2 relNow = (Vector2)playerPos;
+                Vector2 relPrev1 = (Vector2)playerPos;
+                Vector2 relPrev2 = (Vector2)playerPos;
 
                 vectorSensor.AddObservation(0f);
                 vectorSensor.AddObservation(0f);
@@ -364,7 +364,7 @@ public class PlayerAgent : Agent
     }
 
     // 行動決定時に呼ばれる
-    public override void OnActionReceived(ActionBuffers actionBuffers) 
+    public override void OnActionReceived(ActionBuffers actionBuffers)
     {
         // 低速モードも実装すること
 
@@ -383,7 +383,7 @@ public class PlayerAgent : Agent
             isShot = true;
         }
         else
-        { 
+        {
             isShot = false;
         }
         isShot = true;                                          // 後で絶対消せ(ショット常に出る化モード)
@@ -410,7 +410,7 @@ public class PlayerAgent : Agent
         // 開始時間から30秒経ったとき
         //if (gameTimer >= 30.0f) 
         // HPが0になったとき、もしくは60秒が経過したとき
-        if (playerBaseScript.CurrentHP <= 0 || gameTimer >= 60.0f)  
+        if (playerBaseScript.CurrentHP <= 0 || gameTimer >= 60.0f)
         {
             /*
             // ゲーム終了を通知
@@ -440,7 +440,7 @@ public class PlayerAgent : Agent
     }
 
     // ヒューリスティックモード
-    public override void Heuristic(in ActionBuffers actionBuffers) 
+    public override void Heuristic(in ActionBuffers actionBuffers)
     {
         var actionsOut = actionBuffers.ContinuousActions;
         // 移動
@@ -453,9 +453,9 @@ public class PlayerAgent : Agent
     }
 
     // ゲーム終了時(ログなどを取る)
-    public void EndGame() 
+    public void EndGame()
     {
-        if (isExported == false) 
+        if (isExported == false)
         {
             currentStep = Academy.Instance.StepCount;
 
@@ -523,5 +523,100 @@ public class PlayerAgent : Agent
 
             isExported = true;
         }
+    }
+
+    // シーンを跨ぐ用：毎回呼ぶ「リンク再接続」処理
+    private bool TryAcquireReferences()
+    {
+        // 1. プレイヤーの生存確認・ID整合性チェック
+        if (playerBaseScript != null && playerBaseScript.gameObject != null)
+        {
+            // 違うIDのプレイヤーを操作してしまっていたらリセット
+            if (targetPlayerID != -1 && playerBaseScript.PlayerID != targetPlayerID)
+            {
+                playerBaseScript = null;
+            }
+            else
+            {
+                return true; // 正常にリンクされているので終了
+            }
+        }
+
+        // プレイヤーの特定（ID重視）
+        GameObject parentObj = GameObject.Find("PlayerParent");
+        if (parentObj == null) return false; // まだロードされていない
+
+        // 親オブジェクトの参照も更新しておく（GetPartnerPlayerで使うため）
+        playerParentObj = parentObj;
+
+        // 親の子供の中からPlayerBaseをすべて取得（非アクティブ含む）
+        PlayerBase foundPlayer = null;
+        PlayerBase[] allPlayers = parentObj.GetComponentsInChildren<PlayerBase>(true);
+
+        foreach (var p in allPlayers)
+        {
+            // 【初回】IDがまだ決まっていない時
+            if (targetPlayerID == -1)
+            {
+                // 最初からアクティブになっている機体を「自分の機体」と決める
+                if (p.gameObject.activeInHierarchy)
+                {
+                    targetPlayerID = p.PlayerID; // IDを登録！
+                    foundPlayer = p;
+                    break;
+                }
+            }
+            // 【2回目以降】記憶したIDと同じ機体を探す
+            else
+            {
+                if (p.PlayerID == targetPlayerID)
+                {
+                    foundPlayer = p;
+                    break;
+                }
+            }
+        }
+
+        // 見つからなければ今回は見送り
+        if (foundPlayer == null) return false;
+
+        // 3. コンポーネントのリンクと初期化（ここが抜けていました！）
+        playerBaseScript = foundPlayer;
+        playerMoveControllerScript = foundPlayer.GetComponent<PlayerMoveController>();
+        playerShotControllerScript = foundPlayer.GetComponent<PlayerShotController>();
+
+        // 学習中のみ(利き手現象の対策)
+        if (behaviorParameters.BehaviorType == BehaviorType.Default)
+        {
+            playerMoveControllerScript.isDefaultBehavior = true;
+        }
+
+        // 4. マネージャー類の再取得
+        if (rewardManagerScript == null)
+            rewardManagerScript = FindObjectOfType<RewardManager>();
+
+        if (gameManager == null)
+            gameManager = FindObjectOfType<GameManager>();
+
+        if (learningLogCSVScript == null)
+            learningLogCSVScript = FindObjectOfType<LearningLogCSV>();
+
+        // 弾や敵の親
+        if (bulletParent == null)
+        {
+            GameObject bp = GameObject.Find("BulletParent");
+            if (bp != null) bulletParent = bp.transform;
+        }
+        if (enemyParent == null)
+        {
+            GameObject ep = GameObject.Find("EnemyParent");
+            if (ep != null) enemyParent = ep.transform;
+        }
+
+        // 履歴のリセット（シーン遷移直後なのでクリア）
+        bulletHistory.Clear();
+        enemyHistory.Clear();
+
+        return true; // 接続成功
     }
 }

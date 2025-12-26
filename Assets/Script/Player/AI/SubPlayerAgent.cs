@@ -7,8 +7,6 @@ using Unity.MLAgents.Policies;
 
 public class SubPlayerAgent : Agent
 {
-    Rigidbody2D rb2D;
-
     [SerializeField] PlayerBase playerBaseScript;                           // PlayerBaseスクリプト
     [SerializeField] PlayerMoveController playerMoveControllerScript;       // PlayerMoveControllerスクリプト
     [SerializeField] PlayerShotController playerShotControllerScript;       // PlayerShotControllerスクリプト
@@ -30,6 +28,8 @@ public class SubPlayerAgent : Agent
     [SerializeField] BehaviorParameters behaviorParameters;
 
     private bool isExported = false;                                        // CSVを出力済みか(EndGameが呼ばれたかどうかで判別するので厳密ではない)
+
+    private int targetPlayerID = -1;
 
     // 追加
     //[Header("基準となるプレイヤー")]
@@ -84,12 +84,6 @@ public class SubPlayerAgent : Agent
     private void Awake()
     {
         behaviorParameters = GetComponent<BehaviorParameters>();
-
-        // 学習中のみ(利き手現象の対策)
-        if (behaviorParameters.BehaviorType == BehaviorType.Default)
-        {
-            playerMoveControllerScript.isDefaultBehavior = true;
-        }
     }
 
     // Start is called before the first frame update
@@ -113,12 +107,15 @@ public class SubPlayerAgent : Agent
 
     private void FixedUpdate()
     {
-        // 自分の位置を取得
-        Vector3 pos = transform.position;
+        // プレイヤーがいるか確認
+        if (!TryAcquireReferences()) return;
+
+        // プレイヤーの位置を変数に入れる
+        Vector3 playerPos = playerBaseScript.transform.position;
 
         // どのマスにいるか判定 (0:左/下, 1:中, 2:右/上)
-        int xIndex = (pos.x < -statsBorderX) ? 0 : (pos.x > statsBorderX ? 2 : 1);
-        int yIndex = (pos.y < -statsBorderY) ? 0 : (pos.y > statsBorderY ? 2 : 1);
+        int xIndex = (playerPos.x < -statsBorderX) ? 0 : (playerPos.x > statsBorderX ? 2 : 1);
+        int yIndex = (playerPos.y < -statsBorderY) ? 0 : (playerPos.y > statsBorderY ? 2 : 1);
 
         // カウントアップ
         _gridCounts[xIndex, yIndex]++;
@@ -136,8 +133,8 @@ public class SubPlayerAgent : Agent
 
             // 1. 位置情報のグリッド集計
             // 座標を 0.0~1.0 に正規化 (-statsBorderX ~ +statsBorderX を想定)
-            float normX = Mathf.InverseLerp(-statsBorderX, statsBorderX, transform.position.x);
-            float normY = Mathf.InverseLerp(-statsBorderY, statsBorderY, transform.position.y);
+            float normX = Mathf.InverseLerp(-statsBorderX, statsBorderX, playerPos.x);
+            float normY = Mathf.InverseLerp(-statsBorderY, statsBorderY, playerPos.y);
 
             // 0~2 のインデックスに変換
             int gridX = Mathf.FloorToInt(Mathf.Clamp(normX * 3f, 0, 2.99f));
@@ -147,14 +144,14 @@ public class SubPlayerAgent : Agent
 
             // 2. 僚機との関係性集計
             // A. 距離の積算
-            float dist = Vector3.Distance(this.transform.position, partnerPlayerObj.transform.position);
+            float dist = Vector3.Distance(playerPos, partnerPlayerObj.transform.position);
             _cumulativeDistance += dist;
 
             // B. 展開率 (Spread) の判定
             // 自分のエリア判定 (-1:左, 0:中, 1:右)
             int myArea = 0;
-            if (transform.position.x < -spreadThreshold) myArea = -1;
-            else if (transform.position.x > spreadThreshold) myArea = 1;
+            if (playerPos.x < -spreadThreshold) myArea = -1;
+            else if (playerPos.x > spreadThreshold) myArea = 1;
 
             // 僚機のエリア判定
             int subArea = 0;
@@ -176,9 +173,10 @@ public class SubPlayerAgent : Agent
     public override void Initialize()
     {
         base.Initialize();
-        behaviorParameters = GetComponent<BehaviorParameters>();
 
-        this.rb2D = GetComponent<Rigidbody2D>();
+        DontDestroyOnLoad(this.gameObject);
+
+        behaviorParameters = GetComponent<BehaviorParameters>();
     }
 
     // エピソード開始時に呼ばれる
@@ -191,10 +189,11 @@ public class SubPlayerAgent : Agent
     // 観察取得時に呼ばれる
     public override void CollectObservations(VectorSensor vectorSensor)//posかも？
     {
-        if (this == null || this.transform.position == null)  
-        {
-            return;
-        }
+        // プレイヤーがいるか確認
+        if (!TryAcquireReferences()) return;
+
+        // プレイヤーの位置を変数に入れる
+        Vector3 playerPos = playerBaseScript.transform.position;
 
         // 情報欠落(エラー。埋める用)
         bool isBulletMissing = false;
@@ -222,15 +221,15 @@ public class SubPlayerAgent : Agent
         }
 
         // 自身の位置を取得
-        vectorSensor.AddObservation(transform.position.x);
-        vectorSensor.AddObservation(transform.position.y);
+        vectorSensor.AddObservation(playerPos.x);
+        vectorSensor.AddObservation(playerPos.y);
 
 
         // パートナープレイヤー(僚機)の位置の取得
         if (isPartnerMissing == false)
         {
-            vectorSensor.AddObservation(partnerPlayerObj.transform.position.x - transform.position.x);
-            vectorSensor.AddObservation(partnerPlayerObj.transform.position.y - transform.position.y);
+            vectorSensor.AddObservation(partnerPlayerObj.transform.position.x - playerPos.x);
+            vectorSensor.AddObservation(partnerPlayerObj.transform.position.y - playerPos.y);
         }
         else 
         {
@@ -284,8 +283,8 @@ public class SubPlayerAgent : Agent
         // --- プレイヤーに近い順に並び替え（観測専用） ---
         activeEnemies.Sort((a, b) =>
         {
-            float da = (a.position - this.transform.position).sqrMagnitude;
-            float db = (b.position - this.transform.position).sqrMagnitude;
+            float da = (a.position - playerPos).sqrMagnitude;
+            float db = (b.position - playerPos).sqrMagnitude;
             return da.CompareTo(db);
         });
 
@@ -312,9 +311,9 @@ public class SubPlayerAgent : Agent
         {
             foreach (var (now, prev1, prev2) in enemyTrackedPositions)
             {
-                Vector2 relNow = now - (Vector2)this.transform.position;
-                Vector2 relPrev1 = prev1 - (Vector2)this.transform.position;
-                Vector2 relPrev2 = prev2 - (Vector2)this.transform.position;
+                Vector2 relNow = now - (Vector2)playerPos;
+                Vector2 relPrev1 = prev1 - (Vector2)playerPos;
+                Vector2 relPrev2 = prev2 - (Vector2)playerPos;
 
                 vectorSensor.AddObservation(relNow.x);
                 vectorSensor.AddObservation(relNow.y);
@@ -328,9 +327,9 @@ public class SubPlayerAgent : Agent
         {
             foreach (var (now, prev1, prev2) in enemyTrackedPositions)
             {
-                Vector2 relNow = (Vector2)this.transform.position;
-                Vector2 relPrev1 = (Vector2)this.transform.position;
-                Vector2 relPrev2 = (Vector2)this.transform.position;
+                Vector2 relNow = (Vector2)playerPos;
+                Vector2 relPrev1 = (Vector2)playerPos;
+                Vector2 relPrev2 = (Vector2)playerPos;
 
                 vectorSensor.AddObservation(0f);
                 vectorSensor.AddObservation(0f);
@@ -391,8 +390,8 @@ public class SubPlayerAgent : Agent
         // --- プレイヤーに近い順 ---
         activeBullets.Sort((a, b) =>
         {
-            float da = (a.position - this.transform.position).sqrMagnitude;
-            float db = (b.position - this.transform.position).sqrMagnitude;
+            float da = (a.position - playerPos).sqrMagnitude;
+            float db = (b.position - playerPos).sqrMagnitude;
             return da.CompareTo(db);
         });
 
@@ -419,9 +418,9 @@ public class SubPlayerAgent : Agent
         {
             foreach (var (now, prev1, prev2) in bulletTrackedPositions)
             {
-                Vector2 relNow = now - (Vector2)this.transform.position;
-                Vector2 relPrev1 = prev1 - (Vector2)this.transform.position;
-                Vector2 relPrev2 = prev2 - (Vector2)this.transform.position;
+                Vector2 relNow = now - (Vector2)playerPos;
+                Vector2 relPrev1 = prev1 - (Vector2)playerPos;
+                Vector2 relPrev2 = prev2 - (Vector2)playerPos;
 
                 vectorSensor.AddObservation(relNow.x);
                 vectorSensor.AddObservation(relNow.y);
@@ -435,9 +434,9 @@ public class SubPlayerAgent : Agent
         {
             foreach (var (now, prev1, prev2) in bulletTrackedPositions)
             {
-                Vector2 relNow = (Vector2)this.transform.position;
-                Vector2 relPrev1 = (Vector2)this.transform.position;
-                Vector2 relPrev2 = (Vector2)this.transform.position;
+                Vector2 relNow = (Vector2)playerPos;
+                Vector2 relPrev1 = (Vector2)playerPos;
+                Vector2 relPrev2 = (Vector2)playerPos;
 
                 vectorSensor.AddObservation(0f);
                 vectorSensor.AddObservation(0f);
@@ -629,19 +628,125 @@ public class SubPlayerAgent : Agent
         }
     }
 
-    // 僚機の取得
-    public void GetPartnerPlayer() 
+    // 僚機の取得（親オブジェクトが更新されている前提）
+    public void GetPartnerPlayer()
     {
+        // 親が取れていないなら探す
+        if (playerParentObj == null)
+        {
+            playerParentObj = GameObject.Find("PlayerParent");
+        }
+
+        if (playerParentObj == null) return;
+
         foreach (Transform child in playerParentObj.transform)
         {
             if (child.gameObject.activeSelf)
             {
-                if (child.gameObject.GetComponent<PlayerBase>().PlayerID != playerBaseScript.PlayerID)
+                // 自分自身のIDとは違うIDを持つ機体を探す
+                // (playerBaseScriptがnullの場合は比較できないのでチェック)
+                if (playerBaseScript != null && child.gameObject.GetComponent<PlayerBase>().PlayerID != playerBaseScript.PlayerID)
                 {
                     partnerPlayerObj = child.gameObject;
-                    Debug.Log("アクティブな子オブジェクト: " + child.name);
+                    // Debug.Log("僚機を取得しました: " + child.name);
+                    return; // 見つかったら終了
                 }
             }
         }
+    }
+
+    // シーンを跨ぐ用：毎回呼ぶ「リンク再接続」処理
+    private bool TryAcquireReferences()
+    {
+        // 1. プレイヤーの生存確認・ID整合性チェック
+        if (playerBaseScript != null && playerBaseScript.gameObject != null)
+        {
+            // 違うIDのプレイヤーを操作してしまっていたらリセット
+            if (targetPlayerID != -1 && playerBaseScript.PlayerID != targetPlayerID)
+            {
+                playerBaseScript = null;
+            }
+            else
+            {
+                return true; // 正常にリンクされているので終了
+            }
+        }
+
+        // プレイヤーの特定（ID重視）
+        GameObject parentObj = GameObject.Find("PlayerParent");
+        if (parentObj == null) return false; // まだロードされていない
+
+        // 親オブジェクトの参照も更新しておく（GetPartnerPlayerで使うため）
+        playerParentObj = parentObj;
+
+        // 親の子供の中からPlayerBaseをすべて取得（非アクティブ含む）
+        PlayerBase foundPlayer = null;
+        PlayerBase[] allPlayers = parentObj.GetComponentsInChildren<PlayerBase>(true);
+
+        foreach (var p in allPlayers)
+        {
+            // 【初回】IDがまだ決まっていない時
+            if (targetPlayerID == -1)
+            {
+                // 最初からアクティブになっている機体を「自分の機体」と決める
+                if (p.gameObject.activeInHierarchy)
+                {
+                    targetPlayerID = p.PlayerID; // IDを登録！
+                    foundPlayer = p;
+                    break;
+                }
+            }
+            // 【2回目以降】記憶したIDと同じ機体を探す
+            else
+            {
+                if (p.PlayerID == targetPlayerID)
+                {
+                    foundPlayer = p;
+                    break;
+                }
+            }
+        }
+
+        // 見つからなければ今回は見送り
+        if (foundPlayer == null) return false;
+
+        // 3. コンポーネントのリンクと初期化（ここが抜けていました！）
+        playerBaseScript = foundPlayer;
+        playerMoveControllerScript = foundPlayer.GetComponent<PlayerMoveController>();
+        playerShotControllerScript = foundPlayer.GetComponent<PlayerShotController>();
+
+        // 学習中のみ(利き手現象の対策)
+        if (behaviorParameters.BehaviorType == BehaviorType.Default)
+        {
+            playerMoveControllerScript.isDefaultBehavior = true;
+        }
+
+        // 4. マネージャー類の再取得
+        if (rewardManagerScript == null)
+            rewardManagerScript = FindObjectOfType<RewardManager>();
+
+        if (gameManager == null)
+            gameManager = FindObjectOfType<GameManager>();
+
+        if (learningLogCSVScript == null)
+            learningLogCSVScript = FindObjectOfType<LearningLogCSV>();
+
+        // 弾や敵の親
+        if (bulletParent == null)
+        {
+            GameObject bp = GameObject.Find("BulletParent");
+            if (bp != null) bulletParent = bp.transform;
+        }
+        if (enemyParent == null)
+        {
+            GameObject ep = GameObject.Find("EnemyParent");
+            if (ep != null) enemyParent = ep.transform;
+        }
+
+        // 履歴のリセット（シーン遷移直後なのでクリア）
+        bulletHistory.Clear();
+        enemyHistory.Clear();
+
+        return true; // 接続成功
     }
 }

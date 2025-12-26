@@ -25,3 +25,6 @@ MonoBehaviour:
   - name: "\uFF1F\uFF1F\uFF1F"
     message: "\u64CD\u4F5C\u65B9\u6CD5\u306F\u4EE5\u4E0B\u306E\u901A\u308A\u3067\u3059\u3002\n\u5341\u5B57\u30AD\u30FC\uFF1A\u5DE6\u53F3\u79FB\u52D5\n\u5DE6Shift\uFF1A\u4F4E\u901F\u79FB\u52D5"
     characterImage: {fileID: 21300000, guid: cc44e3934beb0214a846555cc68a9aff, type: 3}
+  - name: "\uFF1F\uFF1F\uFF1F"
+    message: "\u30A2\u30F3\u30B1\u30FC\u30C8\u306E\u56DE\u7B54\u3082\u4F75\u305B\u3066\u3088\u308D\u3057\u304F\u304A\u9858\u3044\u3057\u307E\u3059\u3002"
+    characterImage: {fileID: 21300000, guid: cc44e3934beb0214a846555cc68a9aff, type: 3}
