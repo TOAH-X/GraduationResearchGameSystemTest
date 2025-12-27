@@ -1642,9 +1642,9 @@ MonoBehaviour:
     VectorActionDescriptions: []
     VectorActionSpaceType: 1
     hasUpgradedBrainParametersWithActionSpec: 1
-  m_Model: {fileID: 0}
+  m_Model: {fileID: 5022602860645237092, guid: 9c7d385b443c0c24592548f531a8f8ce, type: 3}
   m_InferenceDevice: 0
-  m_BehaviorType: 0
+  m_BehaviorType: 1
   m_BehaviorName: Player
   TeamId: 0
   m_UseChildSensors: 1
@@ -1670,6 +1670,7 @@ MonoBehaviour:
   playerBaseScript: {fileID: 526268568}
   playerMoveControllerScript: {fileID: 526268565}
   playerShotControllerScript: {fileID: 526268564}
+  playerParentObj: {fileID: 0}
   bulletParent: {fileID: 878227807}
   enemyParent: {fileID: 1864019613}
   isLimitedCollectObservations: 1
@@ -2855,7 +2856,7 @@ MonoBehaviour:
   slowSpeedRate: 0.5
   playerSpriteControllerScript: {fileID: 1022352612}
   playerBaseScript: {fileID: 1022352617}
-  isMove: 0
+  isMove: 1
 --- !u!58 &1022352620
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -3846,6 +3847,7 @@ MonoBehaviour:
   playerBaseScript: {fileID: 1703502164}
   playerMoveControllerScript: {fileID: 1703502166}
   playerShotControllerScript: {fileID: 1703502165}
+  playerParentObj: {fileID: 0}
   bulletParent: {fileID: 878227807}
   enemyParent: {fileID: 1864019613}
   isLimitedCollectObservations: 1
@@ -4253,7 +4255,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bulletPrefab: {fileID: 3126628179048461705, guid: 1c44efa81616b0b40b3250bd0b906ce2, type: 3}
-  poolSize: 230
+  poolSize: 2300
   bulletParentObj: {fileID: 878227806}
 --- !u!4 &1830381019
 Transform:

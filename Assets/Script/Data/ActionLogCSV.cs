@@ -53,7 +53,7 @@ public class ActionLogCSV : MonoBehaviour
     }
     */
 
-    // JST,被験者ID,*ステージID,*プレイヤーID(人間),ActionDataGroup(Total,A,B)
+    // JST,被験者ID,*ステージID,*プレイヤーID(人間),*ActionDataGroup(Total,A,B)←IDを出力(タイプ含)
     // 書き込み(step,time,hp,reward,state)
     public void UpdateData(ActionDataGroup t, ActionDataGroup a, ActionDataGroup b)
     {
