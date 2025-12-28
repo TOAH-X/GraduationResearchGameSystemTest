@@ -31,6 +31,8 @@ public class SubPlayerAgent : Agent
 
     private int targetPlayerID = -1;
 
+    public string BehaviorTypeName { get; set; } = "none";
+
     // 追加
     //[Header("基準となるプレイヤー")]
     //[SerializeField] private Transform player;
@@ -177,6 +179,24 @@ public class SubPlayerAgent : Agent
         DontDestroyOnLoad(this.gameObject);
 
         behaviorParameters = GetComponent<BehaviorParameters>();
+
+        // 状態取得
+        if (behaviorParameters.BehaviorType == BehaviorType.Default)
+        {
+            BehaviorTypeName = "Default";
+        }
+        else if (behaviorParameters.BehaviorType == BehaviorType.HeuristicOnly)
+        {
+            BehaviorTypeName = "Heuristic";
+        }
+        else if (behaviorParameters.BehaviorType == BehaviorType.InferenceOnly)
+        {
+            BehaviorTypeName = "Inference";
+        }
+        else
+        {
+            BehaviorTypeName = "none";
+        }
     }
 
     // エピソード開始時に呼ばれる

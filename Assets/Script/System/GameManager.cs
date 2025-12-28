@@ -1,4 +1,5 @@
 using System.Collections;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -6,6 +7,8 @@ public class GameManager : MonoBehaviour
 {
     [Header("倍速")]
     [SerializeField] float simulationSpeed = 1f;
+    [Header("ステージID")]      // -1：エラー、0：チュートリアル、1：被支援エージェント、2：支援エージェント
+    [SerializeField] int stageID = -1;
 
     // ゲーム終了用
     [SerializeField] GameObject playerObj;
@@ -19,6 +22,12 @@ public class GameManager : MonoBehaviour
     [SerializeField] SubPlayerAgent subPlayerAgent_SubPlayerAnother;
 
     private bool isResetting = false;       // 二重リセット防止用
+
+    [SerializeField] PlayerBase playerBase_Player;
+    [SerializeField] PlayerBase playerBase_PlayerAnother;
+    [SerializeField] PlayerBase playerBase_SubPlayer;
+    [SerializeField] PlayerBase playerBase_SubPlayerAnother;
+
 
     void Awake()
     {
@@ -45,24 +54,37 @@ public class GameManager : MonoBehaviour
     public void EndGame() 
     {
         // 値の取得
-        if (playerObj != null)
+        if (playerObj.activeSelf == true)
         {
+            ActionLogController.Instance.ActionLog_PlayerID_A = 1;
+            ActionLogController.Instance.ActionLog_CurrentHP_A = playerBase_Player.CurrentHP;
+            ActionLogController.Instance.ActionLog_BehaviorTypeName_A = playerAgent_Player.BehaviorTypeName;
             playerAgent_Player.EndGame();
         }
-        if (playerAnotherObj != null)
+        if (playerAnotherObj.activeSelf == true)
         {
+            ActionLogController.Instance.ActionLog_PlayerID_B = 2;
+            ActionLogController.Instance.ActionLog_CurrentHP_B = playerBase_PlayerAnother.CurrentHP;
+            ActionLogController.Instance.ActionLog_BehaviorTypeName_B = playerAgent_PlayerAnother.BehaviorTypeName;
             playerAgent_PlayerAnother.EndGame();
         }
-        if (subPlayerObj != null)
+        if (subPlayerObj.activeSelf == true)
         {
+            ActionLogController.Instance.ActionLog_PlayerID_A = 3;
+            ActionLogController.Instance.ActionLog_CurrentHP_A = playerBase_SubPlayer.CurrentHP;
+            ActionLogController.Instance.ActionLog_BehaviorTypeName_A = subPlayerAgent_SubPlayer.BehaviorTypeName;
             subPlayerAgent_SubPlayer.EndGame();
         }
-        if (subPlayerAnotherObj != null)
+        if (subPlayerAnotherObj.activeSelf == true)
         {
+            ActionLogController.Instance.ActionLog_PlayerID_B = 4;
+            ActionLogController.Instance.ActionLog_CurrentHP_B = playerBase_SubPlayerAnother.CurrentHP;
+            ActionLogController.Instance.ActionLog_BehaviorTypeName_B = subPlayerAgent_SubPlayerAnother.BehaviorTypeName;
             subPlayerAgent_SubPlayerAnother.EndGame();
         }
 
-
+        // 情報の収集
+        ActionLogController.Instance.ActionLog_StageID = stageID;
 
         // アクションログに出力
         ActionLogController.Instance.ExportData();

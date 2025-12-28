@@ -27,6 +27,22 @@ public class ActionLogController : SafeSingleton<ActionLogController>
     public ActionDataGroup statsA;
     public ActionDataGroup statsB;
 
+    //ステージID
+    public int ActionLog_StageID { get; set; } = -1;
+
+    // PlayerID(奇数機体)
+    public int ActionLog_PlayerID_A { get; set; } = 0;
+    // PlayerID(偶数機体)
+    public int ActionLog_PlayerID_B { get; set; } = 0;
+    // CurrentHP(奇数機体)
+    public int ActionLog_CurrentHP_A { get; set; } = 0;
+    // CurrentHP(偶数機体)
+    public int ActionLog_CurrentHP_B { get; set; } = 0;
+    // 学習タイプ(奇数機体)
+    public string ActionLog_BehaviorTypeName_A { get; set; } = "";
+    // 学習タイプ(偶数機体)
+    public string ActionLog_BehaviorTypeName_B { get; set; } = "";
+
     /*
     // プレイヤーが敵を倒した数(倒したプレイヤー)
     [SerializeField] private int killedCount = 0;
