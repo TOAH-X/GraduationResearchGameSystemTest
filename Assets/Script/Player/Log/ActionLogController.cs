@@ -42,6 +42,12 @@ public class ActionLogController : SafeSingleton<ActionLogController>
     public string ActionLog_BehaviorTypeName_A { get; set; } = "";
     // 学習タイプ(偶数機体)
     public string ActionLog_BehaviorTypeName_B { get; set; } = "";
+    // ゲーム内スコア(総合)
+    public int ActionLog_Score_Total { get; set; } = 0;
+    // ゲーム内スコア(奇数機体)
+    public int ActionLog_Score_A { get; set; } = 0;
+    // ゲーム内スコア(偶数機体)
+    public int ActionLog_Score_B { get; set; } = 0;
 
     /*
     // プレイヤーが敵を倒した数(倒したプレイヤー)

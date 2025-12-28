@@ -85,6 +85,9 @@ public class GameManager : MonoBehaviour
 
         // 情報の収集
         ActionLogController.Instance.ActionLog_StageID = stageID;
+        ActionLogController.Instance.ActionLog_Score_Total = ScoreSystemController.Instance.TotalScore;
+        ActionLogController.Instance.ActionLog_Score_A = ScoreSystemController.Instance.Player1Score;
+        ActionLogController.Instance.ActionLog_Score_B = ScoreSystemController.Instance.Player2Score;
 
         // アクションログに出力
         ActionLogController.Instance.ExportData();

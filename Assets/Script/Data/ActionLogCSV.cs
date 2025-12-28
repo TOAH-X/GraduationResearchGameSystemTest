@@ -14,16 +14,18 @@ public class ActionLogCSV : MonoBehaviour
 
         if (!File.Exists(logFilePath))
         {
-            //File.WriteAllText(logFilePath, "JST,\n");
-            File.WriteAllText(logFilePath, "JST,SubjectID," +
+            File.WriteAllText(logFilePath, "JST,SubjectID,StageID," +
+                "Total_Score," +
                 "TotalKilledCount,TotalTaskAssigneeCount,TotalTaskAssigneeKilldedCount,TotalNonTaskAssigneeKilldedCount,TotalEscapedCount,TotalEscapedPartnerKilledSelf,TotalEscapedSelfKilledSelf," +
                 "A_ID," +
                 "A_BehaviorTypeName," +
                 "A_CurrentHP," +
+                "A_Score," +
                 "AKilledCount,ATaskAssigneeCount,ATaskAssigneeKilldedCount,ANonTaskAssigneeKilldedCount,AEscapedCount,AEscapedPartnerKilledSelf,AEscapedSelfKilledSelf," +
                 "B_ID," +
                 "B_BehaviorTypeName," +
                 "B_CurrentHP," +
+                "B_Score," +
                 "BKilledCount,BTaskAssigneeCount,BTaskAssigneeKilldedCount,BNonTaskAssigneeKilldedCount,BEscapedCount,BEscapedPartnerKilledSelf,BEscapedSelfKilledSelf," +
                 "\n");
         }
@@ -59,7 +61,7 @@ public class ActionLogCSV : MonoBehaviour
     }
     */
 
-    // JST,被験者ID,ステージID,プレイヤーID,学習タイプ,CurrentHP,*報酬関係,*各スコア,ActionDataGroup(Total,A,B)※より充実させること,
+    // JST,被験者ID,ステージID,プレイヤーID,学習タイプ,CurrentHP,*報酬関係(左右情報込),各スコア,ActionDataGroup(Total,A,B)※より充実させること,
     // 書き込み(step,time,hp,reward,state)
     public void UpdateData(ActionDataGroup t, ActionDataGroup a, ActionDataGroup b)
     {
@@ -71,14 +73,17 @@ public class ActionLogCSV : MonoBehaviour
         if (!File.Exists(logFilePath))
         {
             File.WriteAllText(logFilePath, "JST,SubjectID,StageID," +
+                "Total_Score," +
                 "TotalKilledCount,TotalTaskAssigneeCount,TotalTaskAssigneeKilldedCount,TotalNonTaskAssigneeKilldedCount,TotalEscapedCount,TotalEscapedPartnerKilledSelf,TotalEscapedSelfKilledSelf," +
                 "A_ID," +
                 "A_BehaviorTypeName," +
                 "A_CurrentHP," +
+                "A_Score," +
                 "AKilledCount,ATaskAssigneeCount,ATaskAssigneeKilldedCount,ANonTaskAssigneeKilldedCount,AEscapedCount,AEscapedPartnerKilledSelf,AEscapedSelfKilledSelf," +
                 "B_ID," +
                 "B_BehaviorTypeName," +
                 "B_CurrentHP," +
+                "B_Score," +
                 "BKilledCount,BTaskAssigneeCount,BTaskAssigneeKilldedCount,BNonTaskAssigneeKilldedCount,BEscapedCount,BEscapedPartnerKilledSelf,BEscapedSelfKilledSelf," +
                 "\n");
         }
@@ -90,16 +95,19 @@ public class ActionLogCSV : MonoBehaviour
             $"{SubjectManager.Instance.SubjectID}," +
             $"{ActionLogController.Instance.ActionLog_StageID}," +
             // Total
+            $"{ActionLogController.Instance.ActionLog_Score_Total}," +
             $"{t.killedCount},{t.taskAssigneeCount},{t.taskAssigneeKilldedCount},{t.nonTaskAssigneeKilldedCount},{t.escapedCount},{t.escapedPartnerKilledSelf},{t.escapedSelfKilledSelf}," +
             // A
             $"{ActionLogController.Instance.ActionLog_PlayerID_A}," +
             $"{ActionLogController.Instance.ActionLog_BehaviorTypeName_A}," +
             $"{ActionLogController.Instance.ActionLog_CurrentHP_A}," +
+            $"{ActionLogController.Instance.ActionLog_Score_A}," +
             $"{a.killedCount},{a.taskAssigneeCount},{a.taskAssigneeKilldedCount},{a.nonTaskAssigneeKilldedCount},{a.escapedCount},{a.escapedPartnerKilledSelf},{a.escapedSelfKilledSelf}," +
             // B
             $"{ActionLogController.Instance.ActionLog_PlayerID_B}," +
             $"{ActionLogController.Instance.ActionLog_BehaviorTypeName_B}," +
             $"{ActionLogController.Instance.ActionLog_CurrentHP_B}," +
+            $"{ActionLogController.Instance.ActionLog_Score_B}," +
             $"{b.killedCount},{b.taskAssigneeCount},{b.taskAssigneeKilldedCount},{b.nonTaskAssigneeKilldedCount},{b.escapedCount},{b.escapedPartnerKilledSelf},{b.escapedSelfKilledSelf}," +
             $"{jst}\n";
         File.AppendAllText(logFilePath, line);

@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class ScoreSystemController : MonoBehaviour
 {
@@ -25,7 +26,6 @@ public class ScoreSystemController : MonoBehaviour
     {
         
     }
-
 
     /// <summary>
     /// スコア更新(加算)
@@ -121,5 +121,31 @@ public class ScoreSystemController : MonoBehaviour
         }
 
         DontDestroyOnLoad(gameObject); // シーン切り替え時に消えない
+    }
+
+    // --- 追加：リロード時に初期化するための処理 ---
+    // リセット
+    public void ResetScores()
+    {
+        totalScore = 0;
+        player1Score = 0;
+        player2Score = 0;
+    }
+    private void OnEnable()
+    {
+        // シーンが読み込まれたときに実行されるイベントにメソッドを登録
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    private void OnDisable()
+    {
+        // オブジェクトが削除されるときは登録を解除（メモリリーク防止）
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+    // シーンが読み込まれた際に呼ばれる
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        ResetScores();
     }
 }
