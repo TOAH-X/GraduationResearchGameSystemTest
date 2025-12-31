@@ -5,6 +5,8 @@ using System.Collections;
 
 public class DialogManager : MonoBehaviour
 {
+    [SerializeField] SceneController sceneController;
+
     public TextMeshProUGUI nameText;
     public TextMeshProUGUI messageText;
     public Image characterIcon;
@@ -14,15 +16,50 @@ public class DialogManager : MonoBehaviour
     private bool isTyping = false;
     private bool cancelTyping = false;
 
-    [SerializeField] private DialogData startDialogData;        // 最初のセリフ群
+    [SerializeField] private DialogData startDialogData;        // 説明+チュートリアル会話
+    [SerializeField] private DialogData play1DialogData;        // 協力プレイ1の会話
+    [SerializeField] private DialogData play2DialogData;        // 協力プレイ2の会話
+    [SerializeField] private DialogData finishDialogData;       // 終わりの会話
 
     private void Start()
     {
-        // 再生
-        if (startDialogData != null)
+        // チュートリアル前の会話
+        if (StageManager.Instance.PhaseID == 1)
         {
-            StartDialog(startDialogData);
+            // 再生
+            if (startDialogData != null)
+            {
+                StartDialog(startDialogData);
+            }
         }
+        // 1回目協力プレイ前の会話
+        else if (StageManager.Instance.PhaseID == 2)
+        {
+            // 再生
+            if (play1DialogData != null)
+            {
+                StartDialog(play1DialogData);
+            }
+        }
+        // 2回目協力プレイ前の会話
+        else if (StageManager.Instance.PhaseID == 3)
+        {
+            // 再生
+            if (play2DialogData != null)
+            {
+                StartDialog(play2DialogData);
+            }
+        }
+        // 終了後の会話
+        else if (StageManager.Instance.PhaseID == 4)
+        {
+            // 再生
+            if (finishDialogData != null)
+            {
+                StartDialog(finishDialogData);
+            }
+        }
+
     }
 
     public void StartDialog(DialogData data)
@@ -84,9 +121,59 @@ public class DialogManager : MonoBehaviour
         isTyping = false;
     }
 
+    // 会話終了時
     void EndDialog()
     {
         // 会話終了時の処理（UIを消すなど）
         gameObject.SetActive(false);
+
+        // 進捗レベルを進める
+        string targetScene = "GameScene";
+        if (StageManager.Instance.PhaseID == 1)
+        {
+            // チュートリアル
+            StageManager.Instance.PhaseID = 2;
+            targetScene = "TutorialScene";
+        }
+        else if (StageManager.Instance.PhaseID == 2)
+        {
+            // 協力プレイ1回目
+            StageManager.Instance.PhaseID = 3;
+            if (SubjectManager.Instance.SubjectID % 2 == 1)  
+            {
+                targetScene = "A_Scene";
+            }
+            else 
+            {
+                targetScene = "B_Scene";
+            }
+        }
+        else if (StageManager.Instance.PhaseID == 3)
+        {
+            // 協力プレイ2回目
+            StageManager.Instance.PhaseID = 4;
+            if (SubjectManager.Instance.SubjectID % 2 == 0)
+            {
+                targetScene = "A_Scene";
+            }
+            else
+            {
+                targetScene = "B_Scene";
+            }
+        }
+        else if (StageManager.Instance.PhaseID == 4)
+        {
+            // 終了
+            StageManager.Instance.PhaseID = 5;
+            targetScene = "TitleScene";
+        }
+        else 
+        {
+            targetScene = "GameScene";
+            StageManager.Instance.PhaseID = 0;
+        }
+
+        // 遷移
+        sceneController.ChangeScene(targetScene);
     }
 }

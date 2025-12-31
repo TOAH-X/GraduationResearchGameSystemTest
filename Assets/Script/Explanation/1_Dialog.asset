@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: 1_Dialog
   m_EditorClassIdentifier: 
   lines:
-  - name: "\uFF1F\uFF1F\uFF1F"
-    message: "\u30B2\u30FC\u30E0\u306F\u6163\u308C\u307E\u3057\u305F\u304B\uFF1F"
-    characterImage: {fileID: 21300000, guid: fd8e762af595b6c428cafc055c9f8e98, type: 3}
-  - name: "\uFF1F\uFF1F\uFF1F"
-    message: "\u7D9A\u3044\u3066\u3001\u5B9F\u9A131\u306B\u79FB\u308A\u307E\u3059\u3002\n\u6B21\u304B\u3089\u306F\u652F\u63F4\u6A5F\u4F53\u3068\u5354\u529B\u3057\u3066\u904A\u3093\u3067\u3082\u3042\u308A\u307E\u3059\u3002\n\u305F\u3060\u3057\u3001\u652F\u63F4\u6A5F\u4F53\u306B\u9060\u616E\u3057\u306A\u304F\u3066\u3082\u5927\u4E08\u592B\u3067\u3059\u3002"
-    characterImage: {fileID: 21300000, guid: fd8e762af595b6c428cafc055c9f8e98, type: 3}
+  - name: "\u7814\u7A76\u54E1"
+    message: "\u30B2\u30FC\u30E0\u306B\u306F\u6163\u308C\u305F\u304B\uFF1F"
+    characterImage: {fileID: 21300000, guid: 40ec1316624a5824386338c691cd8034, type: 3}
+  - name: "\u7814\u7A76\u54E1"
+    message: "\u6B21\u306F\u652F\u63F4\u6A5F\u4F53\u3068\u5354\u529B\u3057\u3066\u6575\u3092\u5012\u3057\u3066\u6B32\u3057\u3044\u3002\n\u652F\u63F4\u6A5F\u4F53\u306B\u9060\u616E\u3059\u308B\u5FC5\u8981\u306F\u306A\u3044\u3002"
+    characterImage: {fileID: 21300000, guid: 40ec1316624a5824386338c691cd8034, type: 3}

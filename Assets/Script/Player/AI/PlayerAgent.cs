@@ -429,21 +429,45 @@ public class PlayerAgent : Agent
         */
         // 開始時間から30秒経ったとき
         //if (gameTimer >= 30.0f) 
-        // HPが0になったとき、もしくは60秒が経過したとき
-        if (playerBaseScript.CurrentHP <= 0 || gameTimer >= 60.0f)
+        // 学習時
+        if (gameManager.StageID == 0) 
         {
-            /*
-            // ゲーム終了を通知
-            gameManager.EndGame();
+            // HPが0になったとき、もしくは60秒が経過したとき
+            if (playerBaseScript.CurrentHP <= 0 || gameTimer >= 60.0f)
+            {
+                /*
+                // ゲーム終了を通知
+                gameManager.EndGame();
 
-            // エピソードの終了
-            EndEpisode();
+                // エピソードの終了
+                EndEpisode();
 
-            gameTimer = 0;
-            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
-            */
-            gameManager.RequestSafeDelayedReset();
+                gameTimer = 0;
+                SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+                */
+                gameManager.RequestSafeDelayedReset();
+            }
         }
+        // プレイ時
+        else 
+        {
+            // 60秒が経過したとき
+            if (gameTimer >= 10.0f)
+            {
+                /*
+                // ゲーム終了を通知
+                gameManager.EndGame();
+
+                // エピソードの終了
+                EndEpisode();
+
+                gameTimer = 0;
+                SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+                */
+                gameManager.RequestSafeDelayedReset();
+            }
+        }
+        
         gameTimer += Time.fixedDeltaTime;
 
         // 手動評価ボタン(後で消すこと)

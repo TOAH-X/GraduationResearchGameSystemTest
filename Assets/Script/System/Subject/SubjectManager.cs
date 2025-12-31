@@ -89,9 +89,9 @@ public class SubjectManager : SafeSingleton<SubjectManager>
         string status = (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
                         ? "<color=red>入力有効</color>" : "Shiftで入力開始";
 
-        GUI.Box(new Rect(10, 10, 200, 60), "Subject ID Manager");
-        GUI.Label(new Rect(20, 30, 180, 20), $"状態: {status}");
-        GUI.Label(new Rect(20, 50, 180, 20), $"現在のバッファ: {inputBuffer}");
+        GUI.Box(new Rect(10, 10 + 1000, 200, 60), "Subject ID Manager");
+        GUI.Label(new Rect(20, 30 + 1000, 180, 20), $"状態: {status}");
+        GUI.Label(new Rect(20, 50 + 1000, 180, 20), $"現在のバッファ: {inputBuffer}");
     }
 
     public int SubjectID

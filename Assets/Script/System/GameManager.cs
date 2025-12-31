@@ -7,8 +7,9 @@ public class GameManager : MonoBehaviour
 {
     [Header("倍速")]
     [SerializeField] float simulationSpeed = 1f;
-    [Header("ステージID")]      // -1：エラー、0：チュートリアル、1：被支援エージェント、2：支援エージェント
+    [Header("ステージID")]      // -1：エラー、0：学習環境、1：チュートリアル、2：被支援エージェント、3：支援エージェント
     [SerializeField] int stageID = -1;
+    public int StageID => stageID;
 
     // ゲーム終了用
     [SerializeField] GameObject playerObj;
@@ -136,8 +137,18 @@ public class GameManager : MonoBehaviour
         // 3. 確実に1フレーム待つ
         yield return new WaitForFixedUpdate();
 
-        Debug.Log("リロード実行");
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        Debug.Log("シーン遷移実行");
+        
+        if (StageID <= 0)
+        {
+            // 学習時、エラー時はリロード
+            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        }
+        else 
+        {
+            // 正規は会話画面へ
+            SceneManager.LoadScene("StartScene");
+        }
     }
 
     private void SafeEndEpisode(Unity.MLAgents.Agent agent)

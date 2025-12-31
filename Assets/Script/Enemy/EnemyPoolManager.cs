@@ -515,6 +515,21 @@ public class EnemyPoolManager : MonoBehaviour
     // ★ 全ての敵をその子として再アタッチする
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
+        // ★追加：会話シーン（名前は適宜合わせてください）なら自分を消して終了
+        if (scene.name == "StartScene" || scene.name == "TitleScene")
+        {
+            // プール内の敵を物理的に削除
+            foreach (var item in pool)
+            {
+                if (item.obj != null) Destroy(item.obj);
+            }
+            pool.Clear();
+
+            // 自分自身（Manager）を削除
+            Destroy(this.gameObject);
+            return;
+        }
+
         // --- EnemyParent の再取得または作成 ---
         GameObject parent = GameObject.Find("EnemyParent");
 

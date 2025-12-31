@@ -4,7 +4,7 @@ using UnityEngine;
 public struct DialogLine
 {
     public string name;           // 名前
-    [TextArea(3, 10)]
+    [TextArea(5, 10)]
     public string message;        // 内容
     public Sprite characterImage; // 立ち絵（表情差分はここでSpriteを差し替える）
 }
