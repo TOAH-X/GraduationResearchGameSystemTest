@@ -658,7 +658,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3a5c9d521e5ef4759a8246a07d52221e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  DecisionPeriod: 1
+  DecisionPeriod: 3
   TakeActionsBetweenDecisions: 1
 --- !u!114 &210556206
 MonoBehaviour:
@@ -695,7 +695,7 @@ MonoBehaviour:
   agentParameters:
     maxStep: 0
   hasUpgradedFromAgentParameters: 1
-  MaxStep: 100
+  MaxStep: 1000
   playerBaseScript: {fileID: 210556209}
   playerMoveControllerScript: {fileID: 210556211}
   playerShotControllerScript: {fileID: 210556210}
@@ -709,14 +709,10 @@ MonoBehaviour:
   rewardManager: {fileID: 210556206}
   gameManager: {fileID: 915512735}
   behaviorParameters: {fileID: 210556208}
-  bulletTrackCount: 30
   bulletInactivePos: {x: -100, y: -100}
-  enemyTrackCount: 25
   enemyInactivePos: {x: -100, y: -100}
   partnerPlayerObj: {fileID: 0}
   playerParentObj: {fileID: 1724695562}
-  statsBorderX: 5
-  statsBorderY: 3
   statsNamePrefix: SubPlayer
   spreadThreshold: 4
 --- !u!114 &210556208
@@ -732,7 +728,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_BrainParameters:
-    VectorObservationSize: 224
+    VectorObservationSize: 144
     NumStackedVectorObservations: 1
     m_ActionSpec:
       m_NumContinuousActions: 3
@@ -1680,7 +1676,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_BrainParameters:
-    VectorObservationSize: 222
+    VectorObservationSize: 142
     NumStackedVectorObservations: 1
     m_ActionSpec:
       m_NumContinuousActions: 3
@@ -1713,7 +1709,7 @@ MonoBehaviour:
   agentParameters:
     maxStep: 0
   hasUpgradedFromAgentParameters: 1
-  MaxStep: 100
+  MaxStep: 1000
   playerBaseScript: {fileID: 526268568}
   playerMoveControllerScript: {fileID: 526268565}
   playerShotControllerScript: {fileID: 526268564}
@@ -1728,12 +1724,8 @@ MonoBehaviour:
   rewardManager: {fileID: 526268578}
   gameManager: {fileID: 915512735}
   behaviorParameters: {fileID: 526268572}
-  bulletTrackCount: 30
   bulletInactivePos: {x: -100, y: -100}
-  enemyTrackCount: 25
   enemyInactivePos: {x: -100, y: -100}
-  statsBorderX: 5
-  statsBorderY: 3
   statsNamePrefix: Player
 --- !u!114 &526268574
 MonoBehaviour:
@@ -1747,7 +1739,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3a5c9d521e5ef4759a8246a07d52221e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  DecisionPeriod: 1
+  DecisionPeriod: 3
   TakeActionsBetweenDecisions: 1
 --- !u!114 &526268575
 MonoBehaviour:
@@ -2907,7 +2899,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3a5c9d521e5ef4759a8246a07d52221e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  DecisionPeriod: 1
+  DecisionPeriod: 3
   TakeActionsBetweenDecisions: 1
 --- !u!114 &1022352616
 MonoBehaviour:
@@ -2922,7 +2914,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_BrainParameters:
-    VectorObservationSize: 224
+    VectorObservationSize: 144
     NumStackedVectorObservations: 1
     m_ActionSpec:
       m_NumContinuousActions: 3
@@ -3114,7 +3106,7 @@ MonoBehaviour:
   agentParameters:
     maxStep: 0
   hasUpgradedFromAgentParameters: 1
-  MaxStep: 100
+  MaxStep: 1000
   playerBaseScript: {fileID: 1022352617}
   playerMoveControllerScript: {fileID: 1022352619}
   playerShotControllerScript: {fileID: 1022352618}
@@ -3128,14 +3120,10 @@ MonoBehaviour:
   rewardManager: {fileID: 1022352625}
   gameManager: {fileID: 915512735}
   behaviorParameters: {fileID: 1022352616}
-  bulletTrackCount: 30
   bulletInactivePos: {x: -100, y: -100}
-  enemyTrackCount: 25
   enemyInactivePos: {x: -100, y: -100}
   partnerPlayerObj: {fileID: 0}
   playerParentObj: {fileID: 1724695562}
-  statsBorderX: 5
-  statsBorderY: 3
   statsNamePrefix: SubPlayer
   spreadThreshold: 4
 --- !u!114 &1022352625
@@ -3336,6 +3324,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   actionLogCSV: {fileID: 1179311036}
   statsTotal:
+    attackedCount: 0
     killedCount: 0
     taskAssigneeCount: 0
     taskAssigneeKilldedCount: 0
@@ -3344,6 +3333,7 @@ MonoBehaviour:
     escapedPartnerKilledSelf: 0
     escapedSelfKilledSelf: 0
   statsA:
+    attackedCount: 0
     killedCount: 0
     taskAssigneeCount: 0
     taskAssigneeKilldedCount: 0
@@ -3352,6 +3342,7 @@ MonoBehaviour:
     escapedPartnerKilledSelf: 0
     escapedSelfKilledSelf: 0
   statsB:
+    attackedCount: 0
     killedCount: 0
     taskAssigneeCount: 0
     taskAssigneeKilldedCount: 0
@@ -4046,7 +4037,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3a5c9d521e5ef4759a8246a07d52221e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  DecisionPeriod: 1
+  DecisionPeriod: 3
   TakeActionsBetweenDecisions: 1
 --- !u!114 &1703502161
 MonoBehaviour:
@@ -4063,7 +4054,7 @@ MonoBehaviour:
   agentParameters:
     maxStep: 0
   hasUpgradedFromAgentParameters: 1
-  MaxStep: 100
+  MaxStep: 1000
   playerBaseScript: {fileID: 1703502164}
   playerMoveControllerScript: {fileID: 1703502166}
   playerShotControllerScript: {fileID: 1703502165}
@@ -4078,12 +4069,8 @@ MonoBehaviour:
   rewardManager: {fileID: 1703502162}
   gameManager: {fileID: 915512735}
   behaviorParameters: {fileID: 1703502163}
-  bulletTrackCount: 30
   bulletInactivePos: {x: -100, y: -100}
-  enemyTrackCount: 25
   enemyInactivePos: {x: -100, y: -100}
-  statsBorderX: 5
-  statsBorderY: 3
   statsNamePrefix: Player
 --- !u!114 &1703502162
 MonoBehaviour:
@@ -4118,7 +4105,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_BrainParameters:
-    VectorObservationSize: 222
+    VectorObservationSize: 142
     NumStackedVectorObservations: 1
     m_ActionSpec:
       m_NumContinuousActions: 3

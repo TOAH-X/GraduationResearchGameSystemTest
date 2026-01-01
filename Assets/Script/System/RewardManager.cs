@@ -16,8 +16,8 @@ public class RewardManager : MonoBehaviour
     [SerializeField] float killReward = 5f;
     [Header("•ñVF‘Ï‹v")]        //0.01
     [SerializeField] float survivalReward = 0.01f;
-    [Header("•ñV(•‰)F—©‚é")]    //-1
-    [SerializeField] float grazePenalty = -1f;
+    [Header("•ñV(•‰)F—©‚é")]    //-0.1
+    [SerializeField] float grazePenalty = -0.1f;
     [Header("•ñV(•‰)F”í’e")]    //-10
     [SerializeField] float hitPenalty = -10f;
     [Header("•ñV(•‰)F“V”±")]    //-50

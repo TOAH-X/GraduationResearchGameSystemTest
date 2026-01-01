@@ -3,6 +3,8 @@ using UnityEngine;
 [System.Serializable] 
 public struct ActionDataGroup
 {
+    // プレイヤーが敵を攻撃した数
+    public int attackedCount;
     // プレイヤーが敵を倒した数(倒したプレイヤー)
     public int killedCount;
     // 責任割り当て数(プレイヤーの責任の数)
@@ -27,9 +29,12 @@ public class ActionLogController : SafeSingleton<ActionLogController>
     public ActionDataGroup statsA;
     public ActionDataGroup statsB;
 
+    public ActionDataGroup StatsTotal => statsTotal;
+    public ActionDataGroup StatsA => statsA;
+    public ActionDataGroup StatsB => statsB;
+
     //ステージID
     public int ActionLog_StageID { get; set; } = -1;
-
     // PlayerID(奇数機体)
     public int ActionLog_PlayerID_A { get; set; } = 0;
     // PlayerID(偶数機体)
@@ -112,6 +117,9 @@ public class ActionLogController : SafeSingleton<ActionLogController>
     public void ExportData() 
     {
         actionLogCSV.UpdateData(statsTotal, statsA, statsB);
+
+        // 初期化
+        ResetAllStats();
     }
 
     // 撃ち漏らし補助関係
@@ -248,5 +256,31 @@ public class ActionLogController : SafeSingleton<ActionLogController>
     public void CountEnemy() 
     { 
         enemyCount++;
+    }
+
+    public int EnemyCount
+    {
+        get { return enemyCount; }
+        set { enemyCount = value; }
+    }
+
+    public void ResetAllStats()
+    {
+        // 構造体（struct）を new することで、中身の int は全て 0 に戻ります
+        statsTotal = new ActionDataGroup();
+        statsA = new ActionDataGroup();
+        statsB = new ActionDataGroup();
+
+        // システム系変数のリセット
+        enemyCount = 0;
+
+        // スコア・HP情報の初期化（必要に応じて）
+        ActionLog_Score_Total = 0;
+        ActionLog_Score_A = 0;
+        ActionLog_Score_B = 0;
+        ActionLog_CurrentHP_A = 0;
+        ActionLog_CurrentHP_B = 0;
+
+        Debug.Log("ActionLog: エピソード統計をリセットしました。");
     }
 }

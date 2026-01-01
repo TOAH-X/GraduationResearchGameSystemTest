@@ -37,11 +37,11 @@ public class SubPlayerAgent : Agent
     //[Header("基準となるプレイヤー")]
     //[SerializeField] private Transform player;
 
-    [Header("追跡する弾の最大数")]
-    [SerializeField] private int bulletTrackCount = 30;
+    private int bulletTrackCount = 15;                  // 追跡する弾の最大数
+    private int enemyTrackCount = 20;                   // 追跡する敵の最大数
 
     [Header("非アクティブ時のダミー座標")]
-    [SerializeField] private Vector2 bulletInactivePos = new Vector2(-100f, -100f);
+    [SerializeField] private Vector2 bulletInactivePos = new Vector2(0f, 15f);
 
     // 弾の履歴データ（現在・1F前・2F前）
     private readonly Dictionary<Transform, Vector2[]> bulletHistory = new Dictionary<Transform, Vector2[]>();
@@ -49,14 +49,8 @@ public class SubPlayerAgent : Agent
     // ML用など他スクリプトで参照したい場合に使う
     public List<(Vector2 now, Vector2 prev1, Vector2 prev2)> bulletTrackedPositions = new List<(Vector2, Vector2, Vector2)>();
 
-    // 追加
-
-    // 追加
-    [Header("追跡する敵の最大数")]
-    [SerializeField] private int enemyTrackCount = 25;
-
     [Header("非アクティブ時のダミー座標")]
-    [SerializeField] private Vector2 enemyInactivePos = new Vector2(-100f, -100f);
+    [SerializeField] private Vector2 enemyInactivePos = new Vector2(0f, 15f);
 
     // 弾の履歴データ（現在・1F前・2F前）
     private readonly Dictionary<Transform, Vector2[]> enemyHistory = new Dictionary<Transform, Vector2[]>();
@@ -72,8 +66,8 @@ public class SubPlayerAgent : Agent
 
     // 位置情報ログ(機能を移すこと)
     [Header("学習用ログ設定")]
-    [SerializeField] private float statsBorderX = 6.0f;                 // 左右の境界線(12なので)
-    [SerializeField] private float statsBorderY = 5.0f;                 // 上下の境界線(10なので)
+    private float statsBorderX = 2.0f;                 // 左右の境界線(12なので)
+    private float statsBorderY = 1.666f;               // 上下の境界線(10なので)
     [SerializeField] private string statsNamePrefix = "SubPlayer";      // ログの頭につく名前（PlayerやSubPlayerに変更）
     private int[,] _gridCounts = new int[3, 3];                         // 9分割カウント用 [x, y]
     private int _totalStatFrames = 0;                                   // 9分割カウント用 [x, y]
@@ -109,6 +103,27 @@ public class SubPlayerAgent : Agent
 
     private void FixedUpdate()
     {
+        if (!TryAcquireReferences()) return;
+
+        // 現在のワールド座標
+        Vector3 playerPos = playerBaseScript.transform.position;
+
+        // ★修正点A：判定用の「相対座標」を作る
+        Vector3 relativePos = playerPos;
+        if (playerParentObj != null)
+        {
+            relativePos = playerPos - playerParentObj.transform.position;
+        }
+
+        // ★修正点B：判定式の中身を 'playerPos' から 'relativePos' に書き換える
+        // (ここが playerPos のままだと、ログは正しくても判定だけズレて右偏重になります)
+        int xIndex = (relativePos.x < -statsBorderX) ? 0 : (relativePos.x > statsBorderX ? 2 : 1);
+        int yIndex = (relativePos.y < -statsBorderY) ? 0 : (relativePos.y > statsBorderY ? 2 : 1);
+
+        _gridCounts[xIndex, yIndex]++;
+        _totalStatFrames++;
+
+        /*
         // プレイヤーがいるか確認
         if (!TryAcquireReferences()) return;
 
@@ -119,9 +134,24 @@ public class SubPlayerAgent : Agent
         int xIndex = (playerPos.x < -statsBorderX) ? 0 : (playerPos.x > statsBorderX ? 2 : 1);
         int yIndex = (playerPos.y < -statsBorderY) ? 0 : (playerPos.y > statsBorderY ? 2 : 1);
 
+        Debug.Log($"Current Pos X: {playerPos.x}");
+
         // カウントアップ
         _gridCounts[xIndex, yIndex]++;
         _totalStatFrames++;
+        */
+
+        /*
+        // デバッグ用: 現在の判定状況をわかりやすく表示
+        string xName = (xIndex == 0) ? "<color=red>Left</color>" : (xIndex == 2 ? "<color=blue>Right</color>" : "Center");
+        string yName = (yIndex == 0) ? "Bottom" : (yIndex == 2 ? "Top" : "Middle");
+
+        // コンソール出力
+        // RelX: 判定に使われた相対座標
+        // Border: 境界線（これを超えると判定が変わる）
+        // Result: 最終的な判定結果
+        Debug.Log($"[Check] RelX: {relativePos.x:F2} | Border: {statsBorderX} | Result: {xName} ({xIndex})");
+        */
 
         // 学習モード（Default）かつ、僚機がいるときだけ計測する
         if (behaviorParameters.BehaviorType == BehaviorType.Default)
@@ -202,13 +232,14 @@ public class SubPlayerAgent : Agent
     // エピソード開始時に呼ばれる
     public override void OnEpisodeBegin()
     {
-        // リロード
-        //SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        isExported = false;
     }
 
     // 観察取得時に呼ばれる
     public override void CollectObservations(VectorSensor vectorSensor)//posかも？
     {
+        const float velocityScale = 0.5f;               // 観察用の係数、ノイズだと思われないように値を大きくする
+
         // プレイヤーがいるか確認
         if (!TryAcquireReferences()) return;
 
@@ -226,7 +257,7 @@ public class SubPlayerAgent : Agent
             GetPartnerPlayer();
         }
 
-        // 1*2(サブプレイヤー)+1*2(プレイヤー)+25*2*2(敵)+30*2*2(弾)=224
+        // 1*2(サブプレイヤー)+1*2(プレイヤー)+20*2*2(敵)+15*2*2(弾)=144
         if (bulletParent == null) 
         {
             isBulletMissing = true;
@@ -241,15 +272,15 @@ public class SubPlayerAgent : Agent
         }
 
         // 自身の位置を取得
-        vectorSensor.AddObservation(playerPos.x);
-        vectorSensor.AddObservation(playerPos.y);
+        vectorSensor.AddObservation(playerPos.x / 3.0f);
+        vectorSensor.AddObservation(playerPos.y / 2.5f);
 
 
         // パートナープレイヤー(僚機)の位置の取得
         if (isPartnerMissing == false)
         {
-            vectorSensor.AddObservation(partnerPlayerObj.transform.position.x - playerPos.x);
-            vectorSensor.AddObservation(partnerPlayerObj.transform.position.y - playerPos.y);
+            vectorSensor.AddObservation((partnerPlayerObj.transform.position.x - playerPos.x) / 3.0f);
+            vectorSensor.AddObservation((partnerPlayerObj.transform.position.y - playerPos.y) / 2.5f);
         }
         else 
         {
@@ -274,6 +305,7 @@ public class SubPlayerAgent : Agent
         {
             if (!enemyHistory.TryGetValue(enemy, out var h))
             {
+                Vector2 currentPos = enemy.position;
                 h = new Vector2[3]
                 {
                 enemyInactivePos,
@@ -292,8 +324,10 @@ public class SubPlayerAgent : Agent
         List<Transform> enemyRemoveList = new List<Transform>();
         foreach (var kvp in enemyHistory)
         {
-            if (kvp.Key == null)
+            if (kvp.Key == null || !kvp.Key.gameObject.activeSelf)
+            {
                 enemyRemoveList.Add(kvp.Key);
+            }
         }
         foreach (var key in enemyRemoveList)
         {
@@ -332,13 +366,13 @@ public class SubPlayerAgent : Agent
             foreach (var (now, prev1, prev2) in enemyTrackedPositions)
             {
                 Vector2 relNow = now - (Vector2)playerPos;
-                Vector2 relPrev1 = prev1 - (Vector2)playerPos;
-                Vector2 relPrev2 = prev2 - (Vector2)playerPos;
+                Vector2 relPrev1 = (now - prev1) / Time.fixedDeltaTime;
+                Vector2 relPrev2 = (prev1 - prev2) / Time.fixedDeltaTime;
 
-                vectorSensor.AddObservation(relNow.x);
-                vectorSensor.AddObservation(relNow.y);
-                vectorSensor.AddObservation(relPrev1.x);
-                vectorSensor.AddObservation(relPrev1.y);
+                vectorSensor.AddObservation(relNow.x / 3.0f);
+                vectorSensor.AddObservation(relNow.y / 2.5f);
+                vectorSensor.AddObservation(Mathf.Clamp(relPrev1.x / 3.0f * velocityScale, -2f, 2f));
+                vectorSensor.AddObservation(Mathf.Clamp(relPrev1.y / 2.5f * velocityScale, -2f, 2f));
                 // vectorSensor.AddObservation(relPrev2.x);
                 // vectorSensor.AddObservation(relPrev2.y);
             }
@@ -351,8 +385,8 @@ public class SubPlayerAgent : Agent
                 Vector2 relPrev1 = (Vector2)playerPos;
                 Vector2 relPrev2 = (Vector2)playerPos;
 
-                vectorSensor.AddObservation(0f);
-                vectorSensor.AddObservation(0f);
+                vectorSensor.AddObservation(enemyInactivePos.x / 3.0f);
+                vectorSensor.AddObservation(enemyInactivePos.y / 2.5f);
                 vectorSensor.AddObservation(0f);
                 vectorSensor.AddObservation(0f);
                 // vectorSensor.AddObservation(relPrev2.x);
@@ -381,6 +415,7 @@ public class SubPlayerAgent : Agent
         {
             if (!bulletHistory.TryGetValue(bullet, out var h))
             {
+                Vector2 currentPos = bullet.position;
                 h = new Vector2[3]
                 {
                 bulletInactivePos,
@@ -399,8 +434,10 @@ public class SubPlayerAgent : Agent
         List<Transform> bulletRemoveList = new List<Transform>();
         foreach (var kvp in bulletHistory)
         {
-            if (kvp.Key == null)
+            if (kvp.Key == null || !kvp.Key.gameObject.activeSelf) 
+            {
                 bulletRemoveList.Add(kvp.Key);
+            }
         }
         foreach (var key in bulletRemoveList)
         {
@@ -439,13 +476,13 @@ public class SubPlayerAgent : Agent
             foreach (var (now, prev1, prev2) in bulletTrackedPositions)
             {
                 Vector2 relNow = now - (Vector2)playerPos;
-                Vector2 relPrev1 = prev1 - (Vector2)playerPos;
-                Vector2 relPrev2 = prev2 - (Vector2)playerPos;
+                Vector2 relPrev1 = (now - prev1) / Time.fixedDeltaTime;
+                Vector2 relPrev2 = (prev1 - prev2) / Time.fixedDeltaTime;
 
-                vectorSensor.AddObservation(relNow.x);
-                vectorSensor.AddObservation(relNow.y);
-                vectorSensor.AddObservation(relPrev1.x);
-                vectorSensor.AddObservation(relPrev1.y);
+                vectorSensor.AddObservation(relNow.x / 3.0f);
+                vectorSensor.AddObservation(relNow.y / 2.5f);
+                vectorSensor.AddObservation(Mathf.Clamp(relPrev1.x / 3.0f * velocityScale, -2f, 2f));
+                vectorSensor.AddObservation(Mathf.Clamp(relPrev1.y / 2.5f * velocityScale, -2f, 2f));
                 // vectorSensor.AddObservation(relPrev2.x);
                 // vectorSensor.AddObservation(relPrev2.y);
             }
@@ -458,8 +495,8 @@ public class SubPlayerAgent : Agent
                 Vector2 relPrev1 = (Vector2)playerPos;
                 Vector2 relPrev2 = (Vector2)playerPos;
 
-                vectorSensor.AddObservation(0f);
-                vectorSensor.AddObservation(0f);
+                vectorSensor.AddObservation(bulletInactivePos.x / 3.0f);
+                vectorSensor.AddObservation(bulletInactivePos.y / 2.5f);
                 vectorSensor.AddObservation(0f);
                 vectorSensor.AddObservation(0f);
                 // vectorSensor.AddObservation(relPrev2.x);
@@ -537,7 +574,7 @@ public class SubPlayerAgent : Agent
         else
         {
             // 60秒が経過したとき
-            if (gameTimer >= 10.0f)
+            if (gameTimer >= 60.0f)
             {
                 /*
                 // ゲーム終了を通知
@@ -597,12 +634,50 @@ public class SubPlayerAgent : Agent
                 Academy.Instance.StatsRecorder.Add("SubPlayer/CurrentHP", playerBaseScript.CurrentHP);
                 Academy.Instance.StatsRecorder.Add("SubPlayer/RewardSum", rewardManager.RewardSum);
                 Academy.Instance.StatsRecorder.Add("SubPlayer/AttackReward", rewardManager.GetRewardCount(RewardType.AttackReward));
-                Academy.Instance.StatsRecorder.Add("SubPlayer/SurvivalReward", rewardManager.GetRewardCount(RewardType.KillReward));
-                Academy.Instance.StatsRecorder.Add("SubPlayer/GrazePenalty", rewardManager.GetRewardCount(RewardType.SurvivalReward));
+                Academy.Instance.StatsRecorder.Add("SubPlayer/KillReward", rewardManager.GetRewardCount(RewardType.KillReward));
+                Academy.Instance.StatsRecorder.Add("SubPlayer/SurvivalReward", rewardManager.GetRewardCount(RewardType.SurvivalReward));
                 Academy.Instance.StatsRecorder.Add("SubPlayer/GrazePenalty", rewardManager.GetRewardCount(RewardType.GrazePenalty));
                 Academy.Instance.StatsRecorder.Add("SubPlayer/HitPenalty", rewardManager.GetRewardCount(RewardType.HitPenalty));
                 Academy.Instance.StatsRecorder.Add("SubPlayer/PunishPenalty", rewardManager.GetRewardCount(RewardType.PunishPenalty));
                 Academy.Instance.StatsRecorder.Add("SubPlayer/GraceReward", rewardManager.GetRewardCount(RewardType.GraceReward));
+
+                // ActionLog関係
+                // System
+                Academy.Instance.StatsRecorder.Add("SubPlayer/EnemyCount", ActionLogController.Instance.EnemyCount);
+                // Total
+                Academy.Instance.StatsRecorder.Add("SubPlayer/T_Score", ActionLogController.Instance.ActionLog_Score_Total);
+
+                Academy.Instance.StatsRecorder.Add("SubPlayer/T_attackedCount", ActionLogController.Instance.StatsTotal.attackedCount);
+                Academy.Instance.StatsRecorder.Add("SubPlayer/T_killedCount", ActionLogController.Instance.StatsTotal.killedCount);
+                Academy.Instance.StatsRecorder.Add("SubPlayer/T_taskAssigneeCount", ActionLogController.Instance.StatsTotal.taskAssigneeCount);
+                Academy.Instance.StatsRecorder.Add("SubPlayer/T_taskAssigneeKilldedCount", ActionLogController.Instance.StatsTotal.taskAssigneeKilldedCount);
+                Academy.Instance.StatsRecorder.Add("SubPlayer/T_nonTaskAssigneeKilldedCount", ActionLogController.Instance.StatsTotal.nonTaskAssigneeKilldedCount);
+                Academy.Instance.StatsRecorder.Add("SubPlayer/T_escapedCount", ActionLogController.Instance.StatsTotal.escapedCount);
+                Academy.Instance.StatsRecorder.Add("SubPlayer/T_escapedPartnerKilledSelf", ActionLogController.Instance.StatsTotal.escapedPartnerKilledSelf);
+                Academy.Instance.StatsRecorder.Add("SubPlayer/T_escapedSelfKilledSelf", ActionLogController.Instance.StatsTotal.escapedSelfKilledSelf);
+                // A(奇数)
+                Academy.Instance.StatsRecorder.Add("SubPlayer/A_Score", ActionLogController.Instance.ActionLog_Score_A);
+
+                Academy.Instance.StatsRecorder.Add("SubPlayer/A_attackedCount", ActionLogController.Instance.StatsA.attackedCount);
+                Academy.Instance.StatsRecorder.Add("SubPlayer/A_killedCount", ActionLogController.Instance.StatsA.killedCount);
+                Academy.Instance.StatsRecorder.Add("SubPlayer/A_taskAssigneeCount", ActionLogController.Instance.StatsA.taskAssigneeCount);
+                Academy.Instance.StatsRecorder.Add("SubPlayer/A_taskAssigneeKilldedCount", ActionLogController.Instance.StatsA.taskAssigneeKilldedCount);
+                Academy.Instance.StatsRecorder.Add("SubPlayer/A_nonTaskAssigneeKilldedCount", ActionLogController.Instance.StatsA.nonTaskAssigneeKilldedCount);
+                Academy.Instance.StatsRecorder.Add("SubPlayer/A_escapedCount", ActionLogController.Instance.StatsA.escapedCount);
+                Academy.Instance.StatsRecorder.Add("SubPlayer/A_escapedPartnerKilledSelf", ActionLogController.Instance.StatsA.escapedPartnerKilledSelf);
+                Academy.Instance.StatsRecorder.Add("SubPlayer/A_escapedSelfKilledSelf", ActionLogController.Instance.StatsA.escapedSelfKilledSelf);
+                // B(偶数)
+                Academy.Instance.StatsRecorder.Add("SubPlayer/B_Score", ActionLogController.Instance.ActionLog_Score_B);
+
+                Academy.Instance.StatsRecorder.Add("SubPlayer/B_attackedCount", ActionLogController.Instance.StatsB.attackedCount);
+                Academy.Instance.StatsRecorder.Add("SubPlayer/B_killedCount", ActionLogController.Instance.StatsB.killedCount);
+                Academy.Instance.StatsRecorder.Add("SubPlayer/B_taskAssigneeCount", ActionLogController.Instance.StatsB.taskAssigneeCount);
+                Academy.Instance.StatsRecorder.Add("SubPlayer/B_taskAssigneeKilldedCount", ActionLogController.Instance.StatsB.taskAssigneeKilldedCount);
+                Academy.Instance.StatsRecorder.Add("SubPlayer/B_nonTaskAssigneeKilldedCount", ActionLogController.Instance.StatsB.nonTaskAssigneeKilldedCount);
+                Academy.Instance.StatsRecorder.Add("SubPlayer/B_escapedCount", ActionLogController.Instance.StatsB.escapedCount);
+                Academy.Instance.StatsRecorder.Add("SubPlayer/B_escapedPartnerKilledSelf", ActionLogController.Instance.StatsB.escapedPartnerKilledSelf);
+                Academy.Instance.StatsRecorder.Add("SubPlayer/B_escapedSelfKilledSelf", ActionLogController.Instance.StatsB.escapedSelfKilledSelf);
+
 
                 // 0除算防止
                 if (_totalStatFrames > 0)

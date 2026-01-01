@@ -15,18 +15,19 @@ public class ActionLogCSV : MonoBehaviour
         if (!File.Exists(logFilePath))
         {
             File.WriteAllText(logFilePath, "JST,SubjectID,StageID," +
+                "EnemyCount," +
                 "Total_Score," +
-                "TotalKilledCount,TotalTaskAssigneeCount,TotalTaskAssigneeKilldedCount,TotalNonTaskAssigneeKilldedCount,TotalEscapedCount,TotalEscapedPartnerKilledSelf,TotalEscapedSelfKilledSelf," +
+                "TotalAttackedCount,TotalKilledCount,TotalTaskAssigneeCount,TotalTaskAssigneeKilldedCount,TotalNonTaskAssigneeKilldedCount,TotalEscapedCount,TotalEscapedPartnerKilledSelf,TotalEscapedSelfKilledSelf," +
                 "A_ID," +
                 "A_BehaviorTypeName," +
                 "A_CurrentHP," +
                 "A_Score," +
-                "AKilledCount,ATaskAssigneeCount,ATaskAssigneeKilldedCount,ANonTaskAssigneeKilldedCount,AEscapedCount,AEscapedPartnerKilledSelf,AEscapedSelfKilledSelf," +
+                "AAttackedCount,AKilledCount,ATaskAssigneeCount,ATaskAssigneeKilldedCount,ANonTaskAssigneeKilldedCount,AEscapedCount,AEscapedPartnerKilledSelf,AEscapedSelfKilledSelf," +
                 "B_ID," +
                 "B_BehaviorTypeName," +
                 "B_CurrentHP," +
                 "B_Score," +
-                "BKilledCount,BTaskAssigneeCount,BTaskAssigneeKilldedCount,BNonTaskAssigneeKilldedCount,BEscapedCount,BEscapedPartnerKilledSelf,BEscapedSelfKilledSelf," +
+                "BttackedCount,BKilledCount,BTaskAssigneeCount,BTaskAssigneeKilldedCount,BNonTaskAssigneeKilldedCount,BEscapedCount,BEscapedPartnerKilledSelf,BEscapedSelfKilledSelf," +
                 "\n");
         }
     }
@@ -61,7 +62,7 @@ public class ActionLogCSV : MonoBehaviour
     }
     */
 
-    // JST,被験者ID,ステージID,プレイヤーID,学習タイプ,CurrentHP,*報酬関係(左右情報込),*出現した敵の総数,各スコア,ActionDataGroup(Total,A,B)※より充実させること,
+    // JST,被験者ID,ステージID,プレイヤーID,学習タイプ,CurrentHP,*報酬関係(左右情報込)※死亡するまでも入れると良いかも,出現した敵の総数,各スコア,ActionDataGroup(Total,A,B)
     // 書き込み(step,time,hp,reward,state)
     public void UpdateData(ActionDataGroup t, ActionDataGroup a, ActionDataGroup b)
     {
@@ -72,20 +73,24 @@ public class ActionLogCSV : MonoBehaviour
 
         if (!File.Exists(logFilePath))
         {
-            File.WriteAllText(logFilePath, "JST,SubjectID,StageID," +
-                "Total_Score," +
-                "TotalKilledCount,TotalTaskAssigneeCount,TotalTaskAssigneeKilldedCount,TotalNonTaskAssigneeKilldedCount,TotalEscapedCount,TotalEscapedPartnerKilledSelf,TotalEscapedSelfKilledSelf," +
-                "A_ID," +
-                "A_BehaviorTypeName," +
-                "A_CurrentHP," +
-                "A_Score," +
-                "AKilledCount,ATaskAssigneeCount,ATaskAssigneeKilldedCount,ANonTaskAssigneeKilldedCount,AEscapedCount,AEscapedPartnerKilledSelf,AEscapedSelfKilledSelf," +
-                "B_ID," +
-                "B_BehaviorTypeName," +
-                "B_CurrentHP," +
-                "B_Score," +
-                "BKilledCount,BTaskAssigneeCount,BTaskAssigneeKilldedCount,BNonTaskAssigneeKilldedCount,BEscapedCount,BEscapedPartnerKilledSelf,BEscapedSelfKilledSelf," +
-                "\n");
+            if (!File.Exists(logFilePath))
+            {
+                File.WriteAllText(logFilePath, "JST,SubjectID,StageID," +
+                    "EnemyCount," +
+                    "Total_Score," +
+                    "TotalAttackedCount,TotalKilledCount,TotalTaskAssigneeCount,TotalTaskAssigneeKilldedCount,TotalNonTaskAssigneeKilldedCount,TotalEscapedCount,TotalEscapedPartnerKilledSelf,TotalEscapedSelfKilledSelf," +
+                    "A_ID," +
+                    "A_BehaviorTypeName," +
+                    "A_CurrentHP," +
+                    "A_Score," +
+                    "AAttackedCount,AKilledCount,ATaskAssigneeCount,ATaskAssigneeKilldedCount,ANonTaskAssigneeKilldedCount,AEscapedCount,AEscapedPartnerKilledSelf,AEscapedSelfKilledSelf," +
+                    "B_ID," +
+                    "B_BehaviorTypeName," +
+                    "B_CurrentHP," +
+                    "B_Score," +
+                    "BttackedCount,BKilledCount,BTaskAssigneeCount,BTaskAssigneeKilldedCount,BNonTaskAssigneeKilldedCount,BEscapedCount,BEscapedPartnerKilledSelf,BEscapedSelfKilledSelf," +
+                    "\n");
+            }
         }
 
         string jst = GetCurrentJST();
@@ -94,21 +99,22 @@ public class ActionLogCSV : MonoBehaviour
             $"{jst}," +
             $"{SubjectManager.Instance.SubjectID}," +
             $"{ActionLogController.Instance.ActionLog_StageID}," +
+            $"{ActionLogController.Instance.EnemyCount}," +
             // Total
             $"{ActionLogController.Instance.ActionLog_Score_Total}," +
-            $"{t.killedCount},{t.taskAssigneeCount},{t.taskAssigneeKilldedCount},{t.nonTaskAssigneeKilldedCount},{t.escapedCount},{t.escapedPartnerKilledSelf},{t.escapedSelfKilledSelf}," +
+            $"{t.attackedCount},{t.killedCount},{t.taskAssigneeCount},{t.taskAssigneeKilldedCount},{t.nonTaskAssigneeKilldedCount},{t.escapedCount},{t.escapedPartnerKilledSelf},{t.escapedSelfKilledSelf}," +
             // A
             $"{ActionLogController.Instance.ActionLog_PlayerID_A}," +
             $"{ActionLogController.Instance.ActionLog_BehaviorTypeName_A}," +
             $"{ActionLogController.Instance.ActionLog_CurrentHP_A}," +
             $"{ActionLogController.Instance.ActionLog_Score_A}," +
-            $"{a.killedCount},{a.taskAssigneeCount},{a.taskAssigneeKilldedCount},{a.nonTaskAssigneeKilldedCount},{a.escapedCount},{a.escapedPartnerKilledSelf},{a.escapedSelfKilledSelf}," +
+            $"{a.attackedCount},{a.killedCount},{a.taskAssigneeCount},{a.taskAssigneeKilldedCount},{a.nonTaskAssigneeKilldedCount},{a.escapedCount},{a.escapedPartnerKilledSelf},{a.escapedSelfKilledSelf}," +
             // B
             $"{ActionLogController.Instance.ActionLog_PlayerID_B}," +
             $"{ActionLogController.Instance.ActionLog_BehaviorTypeName_B}," +
             $"{ActionLogController.Instance.ActionLog_CurrentHP_B}," +
             $"{ActionLogController.Instance.ActionLog_Score_B}," +
-            $"{b.killedCount},{b.taskAssigneeCount},{b.taskAssigneeKilldedCount},{b.nonTaskAssigneeKilldedCount},{b.escapedCount},{b.escapedPartnerKilledSelf},{b.escapedSelfKilledSelf}," +
+            $"{b.attackedCount},{b.killedCount},{b.taskAssigneeCount},{b.taskAssigneeKilldedCount},{b.nonTaskAssigneeKilldedCount},{b.escapedCount},{b.escapedPartnerKilledSelf},{b.escapedSelfKilledSelf}," +
             $"{jst}\n";
         File.AppendAllText(logFilePath, line);
     }
