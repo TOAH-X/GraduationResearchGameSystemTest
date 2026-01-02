@@ -109,7 +109,7 @@ public class SubPlayerAgent : Agent
         Vector3 playerPos = playerBaseScript.transform.position;
 
         // ★修正点A：判定用の「相対座標」を作る
-        Vector3 relativePos = playerPos;
+        Vector3 relativePos = playerBaseScript.transform.localPosition;
         if (playerParentObj != null)
         {
             relativePos = playerPos - playerParentObj.transform.position;
@@ -122,6 +122,15 @@ public class SubPlayerAgent : Agent
 
         _gridCounts[xIndex, yIndex]++;
         _totalStatFrames++;
+
+        // デバッグ表示（これでエディタ上で数値が正しく動くか確認できます）
+
+        //string xName = (xIndex == 0) ? "Left" : (xIndex == 2 ? "Right" : "Center");
+        //string yName = (yIndex == 0) ? "Bottom" : (yIndex == 2 ? "Top" : "Middle");
+        //Debug.Log($"LocalPos: {relativePos.x:F2} | BorderX: {statsBorderX} | Result: {xName}");
+        //Debug.Log($"LocalPos: {relativePos.y:F2} | BorderY: {statsBorderY} | Result: {yName}");
+
+        /*
 
         /*
         // プレイヤーがいるか確認

@@ -1554,7 +1554,7 @@ MonoBehaviour:
   slowSpeedRate: 0.5
   playerSpriteControllerScript: {fileID: 526268576}
   playerBaseScript: {fileID: 526268568}
-  isMove: 1
+  isMove: 0
 --- !u!212 &526268566
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -1687,7 +1687,7 @@ MonoBehaviour:
     hasUpgradedBrainParametersWithActionSpec: 1
   m_Model: {fileID: 0}
   m_InferenceDevice: 0
-  m_BehaviorType: 1
+  m_BehaviorType: 0
   m_BehaviorName: Player
   TeamId: 0
   m_UseChildSensors: 1
@@ -2925,7 +2925,7 @@ MonoBehaviour:
     hasUpgradedBrainParametersWithActionSpec: 1
   m_Model: {fileID: 5022602860645237092, guid: ae42bf8c4addd4446975246531b497c5, type: 3}
   m_InferenceDevice: 0
-  m_BehaviorType: 2
+  m_BehaviorType: 1
   m_BehaviorName: SubPlayer
   TeamId: 0
   m_UseChildSensors: 1

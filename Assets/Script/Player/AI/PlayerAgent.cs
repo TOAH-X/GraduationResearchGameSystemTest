@@ -92,6 +92,30 @@ public class PlayerAgent : Agent
     {
         if (!TryAcquireReferences()) return;
 
+        // 1. ワールド座標ではなく「ローカル座標（親から見た位置）」を直接使う
+        // これにより、エリアがどこにあっても「エリアの中心からの距離」が取れます
+        Vector3 relativePos = playerBaseScript.transform.localPosition;
+
+        // 2. 判定を行う
+        // statsBorderX が 2.0、statsBorderY が 1.666 なら
+        // ローカル座標の Y が 1.666 を超えた瞬間に "Top" と判定されます
+        int xIndex = (relativePos.x < -statsBorderX) ? 0 : (relativePos.x > statsBorderX ? 2 : 1);
+        int yIndex = (relativePos.y < -statsBorderY) ? 0 : (relativePos.y > statsBorderY ? 2 : 1);
+
+        // カウントアップ
+        _gridCounts[xIndex, yIndex]++;
+        _totalStatFrames++;
+
+        // デバッグ表示（これでエディタ上で数値が正しく動くか確認できます）
+        
+        //string xName = (xIndex == 0) ? "Left" : (xIndex == 2 ? "Right" : "Center");
+        //string yName = (yIndex == 0) ? "Bottom" : (yIndex == 2 ? "Top" : "Middle");
+        //Debug.Log($"LocalPos: {relativePos.x:F2} | BorderX: {statsBorderX} | Result: {xName}");
+        //Debug.Log($"LocalPos: {relativePos.y:F2} | BorderY: {statsBorderY} | Result: {yName}");
+
+        /*
+        if (!TryAcquireReferences()) return;
+
         // 現在のワールド座標
         Vector3 playerPos = playerBaseScript.transform.position;
 
@@ -109,7 +133,7 @@ public class PlayerAgent : Agent
 
         _gridCounts[xIndex, yIndex]++;
         _totalStatFrames++;
-
+        */
         /*
         // プレイヤーがいるか確認
         if (!TryAcquireReferences()) return;
