@@ -601,7 +601,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &210556202
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -737,9 +737,9 @@ MonoBehaviour:
     VectorActionDescriptions: []
     VectorActionSpaceType: 1
     hasUpgradedBrainParametersWithActionSpec: 1
-  m_Model: {fileID: 5022602860645237092, guid: ae42bf8c4addd4446975246531b497c5, type: 3}
+  m_Model: {fileID: 0}
   m_InferenceDevice: 0
-  m_BehaviorType: 2
+  m_BehaviorType: 1
   m_BehaviorName: SubPlayer
   TeamId: 0
   m_UseChildSensors: 1
@@ -799,6 +799,7 @@ MonoBehaviour:
   playerSpriteControllerScript: {fileID: 210556203}
   playerBaseScript: {fileID: 210556209}
   isMove: 0
+  isDefaultBehavior: 1
 --- !u!58 &210556212
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -1118,6 +1119,7 @@ MonoBehaviour:
   playerSpriteControllerScript: {fileID: 526268576}
   playerBaseScript: {fileID: 261061837}
   isMove: 1
+  isDefaultBehavior: 0
 --- !u!58 &261061840
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -1555,6 +1557,7 @@ MonoBehaviour:
   playerSpriteControllerScript: {fileID: 526268576}
   playerBaseScript: {fileID: 526268568}
   isMove: 0
+  isDefaultBehavior: 1
 --- !u!212 &526268566
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -1685,9 +1688,9 @@ MonoBehaviour:
     VectorActionDescriptions: []
     VectorActionSpaceType: 1
     hasUpgradedBrainParametersWithActionSpec: 1
-  m_Model: {fileID: 0}
+  m_Model: {fileID: 5022602860645237092, guid: 28e6b0440419e7143aecfe1ca0576f40, type: 3}
   m_InferenceDevice: 0
-  m_BehaviorType: 0
+  m_BehaviorType: 1
   m_BehaviorName: Player
   TeamId: 0
   m_UseChildSensors: 1
@@ -1713,7 +1716,7 @@ MonoBehaviour:
   playerBaseScript: {fileID: 526268568}
   playerMoveControllerScript: {fileID: 526268565}
   playerShotControllerScript: {fileID: 526268564}
-  playerParentObj: {fileID: 0}
+  playerParentObj: {fileID: 1724695562}
   bulletParent: {fileID: 878227807}
   enemyParent: {fileID: 1864019613}
   isLimitedCollectObservations: 1
@@ -1726,7 +1729,9 @@ MonoBehaviour:
   behaviorParameters: {fileID: 526268572}
   bulletInactivePos: {x: -100, y: -100}
   enemyInactivePos: {x: -100, y: -100}
+  partnerPlayerObj: {fileID: 0}
   statsNamePrefix: Player
+  spreadThreshold: 2
 --- !u!114 &526268574
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2923,9 +2928,9 @@ MonoBehaviour:
     VectorActionDescriptions: []
     VectorActionSpaceType: 1
     hasUpgradedBrainParametersWithActionSpec: 1
-  m_Model: {fileID: 5022602860645237092, guid: ae42bf8c4addd4446975246531b497c5, type: 3}
+  m_Model: {fileID: 5022602860645237092, guid: 7f16fa21dd3941b46853c54aba0af124, type: 3}
   m_InferenceDevice: 0
-  m_BehaviorType: 1
+  m_BehaviorType: 2
   m_BehaviorName: SubPlayer
   TeamId: 0
   m_UseChildSensors: 1
@@ -2985,6 +2990,7 @@ MonoBehaviour:
   playerSpriteControllerScript: {fileID: 1022352612}
   playerBaseScript: {fileID: 1022352617}
   isMove: 0
+  isDefaultBehavior: 0
 --- !u!58 &1022352620
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -4058,7 +4064,7 @@ MonoBehaviour:
   playerBaseScript: {fileID: 1703502164}
   playerMoveControllerScript: {fileID: 1703502166}
   playerShotControllerScript: {fileID: 1703502165}
-  playerParentObj: {fileID: 0}
+  playerParentObj: {fileID: 1724695562}
   bulletParent: {fileID: 878227807}
   enemyParent: {fileID: 1864019613}
   isLimitedCollectObservations: 1
@@ -4071,7 +4077,9 @@ MonoBehaviour:
   behaviorParameters: {fileID: 1703502163}
   bulletInactivePos: {x: -100, y: -100}
   enemyInactivePos: {x: -100, y: -100}
+  partnerPlayerObj: {fileID: 0}
   statsNamePrefix: Player
+  spreadThreshold: 2
 --- !u!114 &1703502162
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4114,7 +4122,7 @@ MonoBehaviour:
     VectorActionDescriptions: []
     VectorActionSpaceType: 1
     hasUpgradedBrainParametersWithActionSpec: 1
-  m_Model: {fileID: 5022602860645237092, guid: 7caba4cdb2be59547b6452461433ad4b, type: 3}
+  m_Model: {fileID: 5022602860645237092, guid: 8a1f948f67190c04bb05f7b6c366fbb9, type: 3}
   m_InferenceDevice: 0
   m_BehaviorType: 2
   m_BehaviorName: Player
@@ -4176,6 +4184,7 @@ MonoBehaviour:
   playerSpriteControllerScript: {fileID: 1703502158}
   playerBaseScript: {fileID: 1703502164}
   isMove: 0
+  isDefaultBehavior: 0
 --- !u!58 &1703502167
 CircleCollider2D:
   m_ObjectHideFlags: 0

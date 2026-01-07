@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 [System.Serializable] 
@@ -53,6 +54,10 @@ public class ActionLogController : SafeSingleton<ActionLogController>
     public int ActionLog_Score_A { get; set; } = 0;
     // ゲーム内スコア(偶数機体)
     public int ActionLog_Score_B { get; set; } = 0;
+    // ゲーム内スコア(偶数機体)
+    public List<float> ActionLog_PosValue_A { get; set; } = new List<float>(new float[17]);
+    // ゲーム内スコア(偶数機体)
+    public List<float> ActionLog_PosValue_B { get; set; } = new List<float>(new float[17]);
 
     /*
     // プレイヤーが敵を倒した数(倒したプレイヤー)
@@ -126,7 +131,19 @@ public class ActionLogController : SafeSingleton<ActionLogController>
     // isKilled(倒されたのか),isEscape(撃ち漏らしが発生したか),taskAssigneeID_Player(責任者),attackID(攻撃者),true/false(協調成立か)
     public void AddIsEscapeData(bool isKilled, bool isEscape, int taskAssigneeID_Player, int attackID)
     {
-        
+        // プレイヤーが攻撃した数
+        statsTotal.attackedCount++;
+        // 奇数ID機体
+        if (attackID == 1 || attackID == 3)
+        {
+            statsA.attackedCount++;
+        }
+        // 偶数ID機体
+        else if (attackID == 2 || attackID == 4)
+        {
+            statsB.attackedCount++;
+        }
+
         if (isKilled == true) 
         {
             // プレイヤーが敵を倒した数
@@ -280,6 +297,9 @@ public class ActionLogController : SafeSingleton<ActionLogController>
         ActionLog_Score_B = 0;
         ActionLog_CurrentHP_A = 0;
         ActionLog_CurrentHP_B = 0;
+
+        ActionLog_PosValue_A.Clear();
+        ActionLog_PosValue_B.Clear();
 
         Debug.Log("ActionLog: エピソード統計をリセットしました。");
     }

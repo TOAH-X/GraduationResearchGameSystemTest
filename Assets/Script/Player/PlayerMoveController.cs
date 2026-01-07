@@ -15,8 +15,8 @@ public class PlayerMoveController : MonoBehaviour
 
     [Header("手動入力を受け付けるかどうか。手動はtrue、機械学習はfalse。必ず変更すること")]
     [SerializeField] bool isMove = true;
-
-    public bool isDefaultBehavior { get; set; } = false;        // 学習中かどうか
+    [Header("いずれかの機体が学習中かどうか(実質的にはランダム出現を有効化するフラグ)")]
+    [SerializeField] bool isDefaultBehavior = false;
 
     // Start is called before the first frame update
     void Start()
@@ -100,7 +100,7 @@ public class PlayerMoveController : MonoBehaviour
         }*/
 
         // 学習中ではない(通常)
-        if (isDefaultBehavior == false) 
+        if (IsDefaultBehavior == false) 
         {
             startPos = new Vector3(0f, -3.0f);          // 開始位置
             resetPos = new Vector3(0f, -6.0f);          // 画面外位置
@@ -146,5 +146,11 @@ public class PlayerMoveController : MonoBehaviour
         }
 
         playerBaseScript.IsRestart = false;
+    }
+
+    public bool IsDefaultBehavior
+    {
+        get { return isDefaultBehavior; }
+        set { isDefaultBehavior = value; }
     }
 }

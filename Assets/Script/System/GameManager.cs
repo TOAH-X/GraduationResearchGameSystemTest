@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -54,34 +55,41 @@ public class GameManager : MonoBehaviour
     // ゲーム終了時処理、可能ならデリゲートに書き換えること
     public void EndGame() 
     {
+        
+        Debug.Log("TTP" + playerAgent_Player.ExportPosValue()[12]);
+        Debug.Log("TTS" + subPlayerAgent_SubPlayerAnother.ExportPosValue()[12]);
         // 値の取得
         if (playerObj.activeSelf == true)
         {
             ActionLogController.Instance.ActionLog_PlayerID_A = 1;
             ActionLogController.Instance.ActionLog_CurrentHP_A = playerBase_Player.CurrentHP;
             ActionLogController.Instance.ActionLog_BehaviorTypeName_A = playerAgent_Player.BehaviorTypeName;
-            playerAgent_Player.EndGame();
+            ActionLogController.Instance.ActionLog_PosValue_A = playerAgent_Player.ExportPosValue();
+            //playerAgent_Player.EndGame();
         }
         if (playerAnotherObj.activeSelf == true)
         {
             ActionLogController.Instance.ActionLog_PlayerID_B = 2;
             ActionLogController.Instance.ActionLog_CurrentHP_B = playerBase_PlayerAnother.CurrentHP;
             ActionLogController.Instance.ActionLog_BehaviorTypeName_B = playerAgent_PlayerAnother.BehaviorTypeName;
-            playerAgent_PlayerAnother.EndGame();
+            ActionLogController.Instance.ActionLog_PosValue_B = playerAgent_PlayerAnother.ExportPosValue();
+            //playerAgent_PlayerAnother.EndGame();
         }
         if (subPlayerObj.activeSelf == true)
         {
             ActionLogController.Instance.ActionLog_PlayerID_A = 3;
             ActionLogController.Instance.ActionLog_CurrentHP_A = playerBase_SubPlayer.CurrentHP;
             ActionLogController.Instance.ActionLog_BehaviorTypeName_A = subPlayerAgent_SubPlayer.BehaviorTypeName;
-            subPlayerAgent_SubPlayer.EndGame();
+            ActionLogController.Instance.ActionLog_PosValue_A = subPlayerAgent_SubPlayer.ExportPosValue();
+            //subPlayerAgent_SubPlayer.EndGame();
         }
         if (subPlayerAnotherObj.activeSelf == true)
         {
             ActionLogController.Instance.ActionLog_PlayerID_B = 4;
             ActionLogController.Instance.ActionLog_CurrentHP_B = playerBase_SubPlayerAnother.CurrentHP;
             ActionLogController.Instance.ActionLog_BehaviorTypeName_B = subPlayerAgent_SubPlayerAnother.BehaviorTypeName;
-            subPlayerAgent_SubPlayerAnother.EndGame();
+            ActionLogController.Instance.ActionLog_PosValue_B = subPlayerAgent_SubPlayerAnother.ExportPosValue();
+            //subPlayerAgent_SubPlayerAnother.EndGame();
         }
 
         // 情報の収集
@@ -110,6 +118,7 @@ public class GameManager : MonoBehaviour
         {
             subPlayerAgent_SubPlayerAnother.EndGame();
         }
+        
     }
 
     // Agentから呼ばれる「安全なリセット要求」メソッド

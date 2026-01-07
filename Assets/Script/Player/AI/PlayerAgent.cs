@@ -4,6 +4,7 @@ using Unity.MLAgents;
 using Unity.MLAgents.Sensors;
 using Unity.MLAgents.Actuators;
 using Unity.MLAgents.Policies;
+using Unity.VisualScripting;
 
 public class PlayerAgent : Agent
 {
@@ -60,7 +61,7 @@ public class PlayerAgent : Agent
     public List<(Vector2 now, Vector2 prev1, Vector2 prev2)> enemyTrackedPositions = new List<(Vector2, Vector2, Vector2)>();
 
     // 追加
-
+    [SerializeField] GameObject partnerPlayerObj;           // 僚機
 
     // 位置情報ログ(機能を移すこと)
     [Header("学習用ログ設定")]
@@ -69,6 +70,11 @@ public class PlayerAgent : Agent
     [SerializeField] private string statsNamePrefix = "Player";         // ログの頭につく名前（PlayerやSubPlayerに変更）
     private int[,] _gridCounts = new int[3, 3];                         // 9分割カウント用 [x, y]
     private int _totalStatFrames = 0;                                   // 9分割カウント用 [x, y]
+
+    // 僚機との位置関係
+    private float _cumulativeDistance = 0f;    // 距離の合計
+    private int _spreadFrames = 0;             // 展開（左右分散）できていたフレーム数
+    [SerializeField] private float spreadThreshold = 2.0f;              // 展開判定の境界線(12なので)
 
 
     private void Awake()
@@ -79,7 +85,14 @@ public class PlayerAgent : Agent
     // Start is called before the first frame update
     void Start()
     {
+        // 僚機を取得
+        GetPartnerPlayer();
 
+        // PlayerIDの合計が偶数の場合はバグが起きるので防止
+        if ((this.gameObject.GetComponent<PlayerBase>().PlayerID + partnerPlayerObj.GetComponentInParent<PlayerBase>().PlayerID) % 2 == 0)
+        {
+            Debug.LogError("プレイヤーとサブプレイヤーの組み合わせが無効");
+        }
     }
 
     // Update is called once per frame
@@ -90,11 +103,19 @@ public class PlayerAgent : Agent
 
     private void FixedUpdate()
     {
+        /*
         if (!TryAcquireReferences()) return;
+
+        // 現在のワールド座標
+        Vector3 playerPos = playerBaseScript.transform.position;
 
         // 1. ワールド座標ではなく「ローカル座標（親から見た位置）」を直接使う
         // これにより、エリアがどこにあっても「エリアの中心からの距離」が取れます
         Vector3 relativePos = playerBaseScript.transform.localPosition;
+        if (playerParentObj != null)
+        {
+            relativePos = playerPos - playerParentObj.transform.position;
+        }
 
         // 2. 判定を行う
         // statsBorderX が 2.0、statsBorderY が 1.666 なら
@@ -106,21 +127,59 @@ public class PlayerAgent : Agent
         _gridCounts[xIndex, yIndex]++;
         _totalStatFrames++;
 
-        // デバッグ表示（これでエディタ上で数値が正しく動くか確認できます）
-        
-        //string xName = (xIndex == 0) ? "Left" : (xIndex == 2 ? "Right" : "Center");
-        //string yName = (yIndex == 0) ? "Bottom" : (yIndex == 2 ? "Top" : "Middle");
-        //Debug.Log($"LocalPos: {relativePos.x:F2} | BorderX: {statsBorderX} | Result: {xName}");
-        //Debug.Log($"LocalPos: {relativePos.y:F2} | BorderY: {statsBorderY} | Result: {yName}");
+        //
 
-        /*
+        // 僚機がまだ取得できていない、または死んでいる場合は計測しない
+        if (partnerPlayerObj == null) return;
+        if (partnerPlayerObj.activeSelf == false) return;
+
+        // --- 計測ロジック ---
+        _totalStatFrames++;
+
+        // 1. 位置情報のグリッド集計
+        // 座標を 0.0~1.0 に正規化 (-statsBorderX ~ +statsBorderX を想定)
+        float normX = Mathf.InverseLerp(-statsBorderX, statsBorderX, playerPos.x);
+        float normY = Mathf.InverseLerp(-statsBorderY, statsBorderY, playerPos.y);
+
+        // 0~2 のインデックスに変換
+        int gridX = Mathf.FloorToInt(Mathf.Clamp(normX * 3f, 0, 2.99f));
+        int gridY = Mathf.FloorToInt(Mathf.Clamp(normY * 3f, 0, 2.99f));
+
+        _gridCounts[gridX, gridY]++;
+
+        // 2. 僚機との関係性集計
+        // A. 距離の積算
+        float dist = Vector3.Distance(playerPos, partnerPlayerObj.transform.position);
+        _cumulativeDistance += dist;
+
+        // B. 展開率 (Spread) の判定
+        // 自分のエリア判定 (-1:左, 0:中, 1:右)
+        int myArea = 0;
+        if (playerPos.x < -spreadThreshold) myArea = -1;
+        else if (playerPos.x > spreadThreshold) myArea = 1;
+
+        // 僚機のエリア判定
+        int subArea = 0;
+        float subX = partnerPlayerObj.transform.position.x;
+        if (subX < -spreadThreshold) subArea = -1;
+        else if (subX > spreadThreshold) subArea = 1;
+
+        // 「僚機が左で、自分が左以外」 または 「僚機が右で、自分が右以外」なら展開成功
+        bool isSpread = (subArea == -1 && myArea > -1) || (subArea == 1 && myArea < 1);
+
+        if (isSpread)
+        {
+            _spreadFrames++;
+        }
+        */
+        
         if (!TryAcquireReferences()) return;
 
         // 現在のワールド座標
         Vector3 playerPos = playerBaseScript.transform.position;
 
         // ★修正点A：判定用の「相対座標」を作る
-        Vector3 relativePos = playerPos;
+        Vector3 relativePos = this.transform.localPosition;
         if (playerParentObj != null)
         {
             relativePos = playerPos - playerParentObj.transform.position;
@@ -133,36 +192,51 @@ public class PlayerAgent : Agent
 
         _gridCounts[xIndex, yIndex]++;
         _totalStatFrames++;
-        */
-        /*
-        // プレイヤーがいるか確認
-        if (!TryAcquireReferences()) return;
 
-        // プレイヤーの位置を変数に入れる
-        Vector3 playerPos = playerBaseScript.transform.position;
+        //
 
-        // どのマスにいるか判定 (0:左/下, 1:中, 2:右/上)
-        int xIndex = (playerPos.x < -statsBorderX) ? 0 : (playerPos.x > statsBorderX ? 2 : 1);
-        int yIndex = (playerPos.y < -statsBorderY) ? 0 : (playerPos.y > statsBorderY ? 2 : 1);
+        // 僚機がまだ取得できていない、または死んでいる場合は計測しない
+        if (partnerPlayerObj == null) return;
+        if (partnerPlayerObj.activeSelf == false) return;
 
-        Debug.Log($"Current Pos X: {playerPos.x}");
-
-        // カウントアップ
-        _gridCounts[xIndex, yIndex]++;
+        // --- 計測ロジック ---
         _totalStatFrames++;
-        */
 
-        /*
-        // デバッグ用: 現在の判定状況をわかりやすく表示
-        string xName = (xIndex == 0) ? "<color=red>Left</color>" : (xIndex == 2 ? "<color=blue>Right</color>" : "Center");
-        string yName = (yIndex == 0) ? "Bottom" : (yIndex == 2 ? "Top" : "Middle");
+        // 1. 位置情報のグリッド集計
+        // 座標を 0.0~1.0 に正規化 (-statsBorderX ~ +statsBorderX を想定)
+        float normX = Mathf.InverseLerp(-statsBorderX, statsBorderX, playerPos.x);
+        float normY = Mathf.InverseLerp(-statsBorderY, statsBorderY, playerPos.y);
 
-        // コンソール出力
-        // RelX: 判定に使われた相対座標
-        // Border: 境界線（これを超えると判定が変わる）
-        // Result: 最終的な判定結果
-        Debug.Log($"[Check] RelX: {relativePos.x:F2} | Border: {statsBorderX} | Result: {xName} ({xIndex})");
-        */
+        // 0~2 のインデックスに変換
+        int gridX = Mathf.FloorToInt(Mathf.Clamp(normX * 3f, 0, 2.99f));
+        int gridY = Mathf.FloorToInt(Mathf.Clamp(normY * 3f, 0, 2.99f));
+
+        _gridCounts[gridX, gridY]++;
+
+        // 2. 僚機との関係性集計
+        // A. 距離の積算
+        float dist = Vector3.Distance(playerPos, partnerPlayerObj.transform.position);
+        _cumulativeDistance += dist;
+
+        // B. 展開率 (Spread) の判定
+        // 自分のエリア判定 (-1:左, 0:中, 1:右)
+        int myArea = 0;
+        if (playerPos.x < -spreadThreshold) myArea = -1;
+        else if (playerPos.x > spreadThreshold) myArea = 1;
+
+        // 僚機のエリア判定
+        int subArea = 0;
+        float subX = partnerPlayerObj.transform.position.x;
+        if (subX < -spreadThreshold) subArea = -1;
+        else if (subX > spreadThreshold) subArea = 1;
+
+        // 「僚機が左で、自分が左以外」 または 「僚機が右で、自分が右以外」なら展開成功
+        bool isSpread = (subArea == -1 && myArea > -1) || (subArea == 1 && myArea < 1);
+
+        if (isSpread)
+        {
+            _spreadFrames++;
+        }
     }
 
 
@@ -192,18 +266,29 @@ public class PlayerAgent : Agent
         {
             BehaviorTypeName = "none";
         }
+
+        // 学習中のみ(利き手現象の対策)
+        if (behaviorParameters.BehaviorType == BehaviorType.Default)
+        {
+            playerMoveControllerScript.IsDefaultBehavior = true;
+        }
     }
 
     // エピソード開始時に呼ばれる
     public override void OnEpisodeBegin()
     {
         isExported = false;
+        // 学習中のみ(利き手現象の対策)
+        if (behaviorParameters.BehaviorType == BehaviorType.Default)
+        {
+            playerMoveControllerScript.IsDefaultBehavior = true;
+        }
     }
 
     // 観察取得時に呼ばれる
     public override void CollectObservations(VectorSensor vectorSensor)//posかも？
     {
-        const float velocityScale = 0.5f;                   // 観察用の係数、ノイズだと思われないように値を大きくする
+        const float velocityScale = 1.0f;                   // 観察用の係数、ノイズだと思われないように値を大きくする
 
         // プレイヤーがいるか確認
         if (!TryAcquireReferences()) return;
@@ -226,8 +311,10 @@ public class PlayerAgent : Agent
         }
 
         // 自身の位置を取得
-        vectorSensor.AddObservation(playerPos.x / 3.0f);
-        vectorSensor.AddObservation(playerPos.y / 2.5f);
+        vectorSensor.AddObservation(playerPos.x / 6.0f);
+        vectorSensor.AddObservation(playerPos.y / 5.0f);
+        // vectorSensor.AddObservation(0f);
+        // vectorSensor.AddObservation(0f);
 
         // --- アクティブな敵を取得 ---
         List<Transform> activeEnemies = new List<Transform>();
@@ -310,10 +397,10 @@ public class PlayerAgent : Agent
                 Vector2 relPrev1 = (now - prev1) / Time.fixedDeltaTime;
                 Vector2 relPrev2 = (prev1 - prev2) / Time.fixedDeltaTime;
 
-                vectorSensor.AddObservation(relNow.x / 3.0f);
-                vectorSensor.AddObservation(relNow.y / 2.5f);
-                vectorSensor.AddObservation(Mathf.Clamp(relPrev1.x / 3.0f * velocityScale, -2f, 2f));
-                vectorSensor.AddObservation(Mathf.Clamp(relPrev1.y / 2.5f * velocityScale, -2f, 2f));
+                vectorSensor.AddObservation(relNow.x / 6.0f);
+                vectorSensor.AddObservation(relNow.y / 5.0f);
+                vectorSensor.AddObservation(Mathf.Clamp(relPrev1.x / 6.0f * velocityScale, -2f, 2f));
+                vectorSensor.AddObservation(Mathf.Clamp(relPrev1.y / 5.0f * velocityScale, -2f, 2f));
                 // vectorSensor.AddObservation(relPrev2.x);
                 // vectorSensor.AddObservation(relPrev2.y);
             }
@@ -326,8 +413,8 @@ public class PlayerAgent : Agent
                 Vector2 relPrev1 = (Vector2)playerPos;
                 Vector2 relPrev2 = (Vector2)playerPos;
 
-                vectorSensor.AddObservation(enemyInactivePos.x / 3.0f);
-                vectorSensor.AddObservation(enemyInactivePos.y / 2.5f);
+                vectorSensor.AddObservation(enemyInactivePos.x / 6.0f);
+                vectorSensor.AddObservation(enemyInactivePos.y / 5.0f);
                 vectorSensor.AddObservation(0f);
                 vectorSensor.AddObservation(0f);
                 // vectorSensor.AddObservation(relPrev2.x);
@@ -420,10 +507,10 @@ public class PlayerAgent : Agent
                 Vector2 relPrev1 = (now - prev1) / Time.fixedDeltaTime;
                 Vector2 relPrev2 = (prev1 - prev2) / Time.fixedDeltaTime;
 
-                vectorSensor.AddObservation(relNow.x / 3.0f);
-                vectorSensor.AddObservation(relNow.y / 2.5f);
-                vectorSensor.AddObservation(Mathf.Clamp(relPrev1.x / 3.0f * 10f, -2f, 2f));
-                vectorSensor.AddObservation(Mathf.Clamp(relPrev1.y / 2.5f * 10f, -2f, 2f));
+                vectorSensor.AddObservation(relNow.x / 6.0f);
+                vectorSensor.AddObservation(relNow.y / 5.0f);
+                vectorSensor.AddObservation(Mathf.Clamp(relPrev1.x / 6.0f * 10f, -2f, 2f));
+                vectorSensor.AddObservation(Mathf.Clamp(relPrev1.y / 5.0f * 10f, -2f, 2f));
                 // vectorSensor.AddObservation(relPrev2.x);
                 // vectorSensor.AddObservation(relPrev2.y);
             }
@@ -436,8 +523,8 @@ public class PlayerAgent : Agent
                 Vector2 relPrev1 = (Vector2)playerPos;
                 Vector2 relPrev2 = (Vector2)playerPos;
 
-                vectorSensor.AddObservation(bulletInactivePos.x / 3.0f);
-                vectorSensor.AddObservation(bulletInactivePos.y / 2.5f);
+                vectorSensor.AddObservation(bulletInactivePos.x / 6.0f);
+                vectorSensor.AddObservation(bulletInactivePos.y / 5.0f);
                 vectorSensor.AddObservation(0f);
                 vectorSensor.AddObservation(0f);
                 // vectorSensor.AddObservation(relPrev2.x);
@@ -641,6 +728,10 @@ public class PlayerAgent : Agent
                 // --- カウンターのリセット ---
                 _gridCounts = new int[3, 3];
                 _totalStatFrames = 0;
+
+                // 僚機との位置関係のリセット
+                _cumulativeDistance = 0f;
+                _spreadFrames = 0;
             }
 
             isExported = true;
@@ -710,7 +801,7 @@ public class PlayerAgent : Agent
         // 学習中のみ(利き手現象の対策)
         if (behaviorParameters.BehaviorType == BehaviorType.Default)
         {
-            playerMoveControllerScript.isDefaultBehavior = true;
+            playerMoveControllerScript.IsDefaultBehavior = true;
         }
 
         // 4. マネージャー類の再取得
@@ -740,5 +831,111 @@ public class PlayerAgent : Agent
         enemyHistory.Clear();
 
         return true; // 接続成功
+    }
+
+    // 僚機の取得（親オブジェクトが更新されている前提）
+    public void GetPartnerPlayer()
+    {
+        // 親が取れていないなら探す
+        if (playerParentObj == null)
+        {
+            playerParentObj = GameObject.Find("PlayerParent");
+        }
+
+        if (playerParentObj == null) return;
+
+        foreach (Transform child in playerParentObj.transform)
+        {
+            if (child.gameObject.activeSelf)
+            {
+                // 自分自身のIDとは違うIDを持つ機体を探す
+                // (playerBaseScriptがnullの場合は比較できないのでチェック)
+                if (playerBaseScript != null && child.gameObject.GetComponent<PlayerBase>().PlayerID != playerBaseScript.PlayerID)
+                {
+                    partnerPlayerObj = child.gameObject;
+                    // Debug.Log("僚機を取得しました: " + child.name);
+                    return; // 見つかったら終了
+                }
+            }
+        }
+    }
+    // 位置関係
+    public List<float> ExportPosValue()
+    {
+        var statsValue = new List<float>(new float[17]);
+
+        if (_totalStatFrames == 0)
+        {
+            return statsValue;
+        }
+
+        //var stats = Academy.Instance.StatsRecorder;
+
+        // A. 9項目の詳細出力 (CSV分析用)
+        string[] xNames = { "Left", "Center", "Right" };
+        string[] yNames = { "Bottom", "Middle", "Top" };
+
+        for (int x = 0; x < 3; x++)
+        {
+            for (int y = 0; y < 3; y++)
+            {
+                float rate = (float)_gridCounts[x, y] / _totalStatFrames;
+                // 例: Player/Grid_Left_Top
+                //stats.Add($"{statsNamePrefix}/Grid_{xNames[x]}_{yNames[y]}", rate);
+                //statsValue.Add(rate);
+                statsValue[y + x * 3] = rate;
+            }
+        }
+
+        // B. 6項目のまとめ出力 (TensorBoard用)
+        //    9つのマスを足し算して算出する
+
+        // Y軸の集計（横一列を足す：Bottomなら (0,0)+(1,0)+(2,0) ）
+        float stayBottom = (float)(_gridCounts[0, 0] + _gridCounts[1, 0] + _gridCounts[2, 0]) / _totalStatFrames;
+        float stayMiddleY = (float)(_gridCounts[0, 1] + _gridCounts[1, 1] + _gridCounts[2, 1]) / _totalStatFrames;
+        float stayTop = (float)(_gridCounts[0, 2] + _gridCounts[1, 2] + _gridCounts[2, 2]) / _totalStatFrames;
+
+        // stats.Add($"{statsNamePrefix}/Pos_Bottom", stayBottom);
+        // stats.Add($"{statsNamePrefix}/Pos_Middle_Y", stayMiddleY);
+        // stats.Add($"{statsNamePrefix}/Pos_Top", stayTop);
+        //statsValue.Add(stayBottom);
+        //statsValue.Add(stayMiddleY);
+        //statsValue.Add(stayTop);
+        statsValue[9] = stayBottom;
+        statsValue[10] = stayMiddleY;
+        statsValue[11] = stayTop;
+
+        // X軸の集計（縦一列を足す）
+        float stayLeft = (float)(_gridCounts[0, 0] + _gridCounts[0, 1] + _gridCounts[0, 2]) / _totalStatFrames;
+        float stayCenterX = (float)(_gridCounts[1, 0] + _gridCounts[1, 1] + _gridCounts[1, 2]) / _totalStatFrames;
+        float stayRight = (float)(_gridCounts[2, 0] + _gridCounts[2, 1] + _gridCounts[2, 2]) / _totalStatFrames;
+
+        // stats.Add($"{statsNamePrefix}/Pos_Left", stayLeft);
+        // stats.Add($"{statsNamePrefix}/Pos_Center_X", stayCenterX);
+        // stats.Add($"{statsNamePrefix}/Pos_Right", stayRight);
+        //statsValue.Add(stayLeft);
+        //statsValue.Add(stayCenterX);
+        //statsValue.Add(stayRight);
+        statsValue[12] = stayLeft;
+        statsValue[13] = stayCenterX;
+        statsValue[14] = stayRight;
+
+        if (partnerPlayerObj != null)
+        {
+            // 1. 平均距離
+            float avgDist = _cumulativeDistance / _totalStatFrames;
+
+            //stats.Add($"{statsNamePrefix}/Relationship_Avg_Distance", avgDist);
+            //statsValue.Add(avgDist);
+            statsValue[15] = avgDist;
+
+            // 2. 展開率 (Spread Rate)
+            float spreadRate = (float)_spreadFrames / _totalStatFrames;
+            // stats.Add($"{statsNamePrefix}/Relationship_Spread_Rate", spreadRate);
+            //statsValue.Add(spreadRate);
+            statsValue[16] = spreadRate;
+        }
+
+        return statsValue;
     }
 }
