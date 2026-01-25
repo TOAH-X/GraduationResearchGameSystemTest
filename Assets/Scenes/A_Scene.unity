@@ -2341,6 +2341,7 @@ MonoBehaviour:
   playerBase_PlayerAnother: {fileID: 1703502164}
   playerBase_SubPlayer: {fileID: 1022352617}
   playerBase_SubPlayerAnother: {fileID: 210556209}
+  isReload: 1
 --- !u!1 &920481899
 GameObject:
   m_ObjectHideFlags: 0
@@ -4183,7 +4184,7 @@ MonoBehaviour:
   slowSpeedRate: 0.5
   playerSpriteControllerScript: {fileID: 1703502158}
   playerBaseScript: {fileID: 1703502164}
-  isMove: 0
+  isMove: 1
   isDefaultBehavior: 0
 --- !u!58 &1703502167
 CircleCollider2D:

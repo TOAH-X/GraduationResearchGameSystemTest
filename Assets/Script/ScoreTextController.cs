@@ -31,7 +31,7 @@ public class ScoreTextController : MonoBehaviour
             + "\n支援機のスコア：" + ScoreSystemController.Instance.Player2Score
             + "\n\n\n\n\n"
             + "\n残り時間：" + timer.ToString("F1");
-        scoreTextB.text = "TotalScore:" + ScoreSystemController.Instance.TotalScore
+        scoreTextB.text = "総合スコア：" + ScoreSystemController.Instance.TotalScore
             + "\nあなたのスコア：" + ScoreSystemController.Instance.Player1Score
             + "\n支援機のスコア：" + ScoreSystemController.Instance.Player2Score
             + "\n\n\n\n\n"

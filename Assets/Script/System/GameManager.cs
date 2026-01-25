@@ -29,7 +29,8 @@ public class GameManager : MonoBehaviour
     [SerializeField] PlayerBase playerBase_PlayerAnother;
     [SerializeField] PlayerBase playerBase_SubPlayer;
     [SerializeField] PlayerBase playerBase_SubPlayerAnother;
-
+    [Header("リロードできるようにするか")]
+    [SerializeField] bool isReload = false;
 
     void Awake()
     {
@@ -118,7 +119,6 @@ public class GameManager : MonoBehaviour
         {
             subPlayerAgent_SubPlayerAnother.EndGame();
         }
-        
     }
 
     // Agentから呼ばれる「安全なリセット要求」メソッド
@@ -147,16 +147,24 @@ public class GameManager : MonoBehaviour
         yield return new WaitForFixedUpdate();
 
         Debug.Log("シーン遷移実行");
-        
-        if (StageID <= 0)
+
+        // リロードする
+        if (isReload == true)
         {
-            // 学習時、エラー時はリロード
             SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         }
         else 
         {
-            // 正規は会話画面へ
-            SceneManager.LoadScene("StartScene");
+            if (StageID <= 0)
+            {
+                // 学習時、エラー時はリロード
+                SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+            }
+            else
+            {
+                // 正規は会話画面へ
+                SceneManager.LoadScene("StartScene");
+            }
         }
     }
 
