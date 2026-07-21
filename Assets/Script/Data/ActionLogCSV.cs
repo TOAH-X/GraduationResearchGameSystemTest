@@ -4,12 +4,18 @@ using System;
 
 public class ActionLogCSV : MonoBehaviour
 {
+    [Header("ログ出力を行うか")]
+    [SerializeField] bool enableLogging = true;
+
     string fileName = "ActionLog";
     private string logFilePath;
 
 
     void Awake()
     {
+        // ログ出力オフ（オープンキャンパス等）なら何もしない
+        if (!enableLogging) return;
+
         logFilePath = Path.Combine(Application.dataPath, fileName + "StatsLog.csv");
 
         if (!File.Exists(logFilePath))
@@ -72,6 +78,9 @@ public class ActionLogCSV : MonoBehaviour
     // 書き込み(step,time,hp,reward,state)
     public void UpdateData(ActionDataGroup t, ActionDataGroup a, ActionDataGroup b)
     {
+        // ログ出力オフ（オープンキャンパス等）なら何もしない
+        if (!enableLogging) return;
+
         if (string.IsNullOrEmpty(logFilePath))
         {
             logFilePath = Path.Combine(Application.persistentDataPath, fileName + "StatsLog.csv");

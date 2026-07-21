@@ -614,6 +614,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6e34c8cfd5a8b774b96ee396acf9a342, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  enableLogging: 0
   playerBase: {fileID: 210556209}
   rewardManager: {fileID: 210556206}
 --- !u!114 &210556203
@@ -1825,6 +1826,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6e34c8cfd5a8b774b96ee396acf9a342, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  enableLogging: 0
   playerBase: {fileID: 526268568}
   rewardManager: {fileID: 526268578}
 --- !u!1 &571245874
@@ -3166,6 +3168,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6e34c8cfd5a8b774b96ee396acf9a342, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  enableLogging: 0
   playerBase: {fileID: 1022352617}
   rewardManager: {fileID: 1022352625}
 --- !u!1 &1104147299
@@ -3371,6 +3374,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8e19967307242d746bfda4a745cfda65, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  enableLogging: 0
 --- !u!1 &1306420297
 GameObject:
   m_ObjectHideFlags: 0
@@ -4001,6 +4005,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6e34c8cfd5a8b774b96ee396acf9a342, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  enableLogging: 0
   playerBase: {fileID: 1703502164}
   rewardManager: {fileID: 1703502162}
 --- !u!114 &1703502158

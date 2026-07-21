@@ -5,6 +5,9 @@ using Unity.MLAgents;
 
 public class LearningLogCSV : MonoBehaviour
 {
+    [Header("ログ出力を行うか")]
+    [SerializeField] bool enableLogging = true;
+
     [SerializeField] PlayerBase playerBase;
     [SerializeField] RewardManager rewardManager;
     string fileName = "";
@@ -15,6 +18,9 @@ public class LearningLogCSV : MonoBehaviour
 
     void Awake()
     {
+        // ログ出力オフ（オープンキャンパス等）なら何もしない
+        if (!enableLogging) return;
+
         // 学習関係が動いているときは止める(多重起動で故障を防ぐため)
         if (Academy.Instance.IsCommunicatorOn == true) return;
 
@@ -42,6 +48,9 @@ public class LearningLogCSV : MonoBehaviour
     // 書き込み(step,time,hp,reward,state)
     public void UpdateData(int step, float time, float hp, string state)
     {
+        // ログ出力オフ（オープンキャンパス等）なら何もしない
+        if (!enableLogging) return;
+
         // 学習関係が動いているときは止める(多重起動で故障を防ぐため)
         if (Academy.Instance.IsCommunicatorOn == true) return;
 
