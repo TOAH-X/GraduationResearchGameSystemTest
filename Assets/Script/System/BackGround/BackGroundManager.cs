@@ -1,33 +1,33 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
 public class BackGroundManager : MonoBehaviour
 {
-    [Header("İ’è")]
-    [SerializeField] private float scrollSpeed = 2.0f; // ‰º‚É—¬‚ê‚é‘¬‚³
-    [SerializeField] private float backgroundHeight = 10.0f; // ”wŒi1–‡‚Ì‚‚³
+    [Header("è¨­å®š")]
+    [SerializeField] private float scrollSpeed = 2.0f; // ä¸‹ã«æµã‚Œã‚‹é€Ÿã•
+    [SerializeField] private float backgroundHeight = 10.0f; // èƒŒæ™¯1æšã®é«˜ã•
 
-    [Header("qƒIƒuƒWƒFƒNƒg‚ÌQÆ")]
+    [Header("å­ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®å‚ç…§")]
     [SerializeField] private Transform bg1;
     [SerializeField] private Transform bg2;
 
     void Update()
     {
-        // 1. 2‚Â‚ÌqƒIƒuƒWƒFƒNƒg‚ğ“¯‚É‰º‚ÉˆÚ“®‚³‚¹‚é
+        // 1. 2ã¤ã®å­ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’åŒæ™‚ã«ä¸‹ã«ç§»å‹•ã•ã›ã‚‹
         float moveAmount = scrollSpeed * Time.deltaTime;
         bg1.position += Vector3.down * moveAmount;
         bg2.position += Vector3.down * moveAmount;
 
-        // 2. Še”wŒi‚ªu‰æ–ÊŠOi‰ºjv‚Éo‚½‚©ŒÂ•Ê‚Éƒ`ƒFƒbƒN‚µ‚Äƒ[ƒv‚³‚¹‚é
+        // 2. å„èƒŒæ™¯ãŒã€Œç”»é¢å¤–ï¼ˆä¸‹ï¼‰ã€ã«å‡ºãŸã‹å€‹åˆ¥ã«ãƒã‚§ãƒƒã‚¯ã—ã¦ãƒ¯ãƒ¼ãƒ—ã•ã›ã‚‹
         CheckAndResetPosition(bg1);
         CheckAndResetPosition(bg2);
     }
 
     private void CheckAndResetPosition(Transform bgTransform)
     {
-        // ”wŒi‚Ì‚‚³•ª‚¾‚¯‰º‚ÉˆÚ“®‚µ‚½‚çAˆê”Ôã‚ÖˆÚ“®‚³‚¹‚é
+        // èƒŒæ™¯ã®é«˜ã•åˆ†ã ã‘ä¸‹ã«ç§»å‹•ã—ãŸã‚‰ã€ä¸€ç•ªä¸Šã¸ç§»å‹•ã•ã›ã‚‹
         if (bgTransform.position.y <= -backgroundHeight)
         {
-            // Œ»İ‚ÌÀ•W‚Éu”wŒi2–‡•ª‚Ì‚‚³v‚ğ‘«‚µ‚ÄA‚à‚¤ˆê•û‚Ì”wŒi‚Ì^ã‚Ö‘—‚é
+            // ç¾åœ¨ã®åº§æ¨™ã«ã€ŒèƒŒæ™¯2æšåˆ†ã®é«˜ã•ã€ã‚’è¶³ã—ã¦ã€ã‚‚ã†ä¸€æ–¹ã®èƒŒæ™¯ã®çœŸä¸Šã¸é€ã‚‹
             bgTransform.position += new Vector3(0, backgroundHeight * 2, 0);
         }
     }

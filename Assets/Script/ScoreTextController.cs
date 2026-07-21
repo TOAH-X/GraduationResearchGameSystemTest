@@ -1,4 +1,4 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using TMPro;
 
 public class ScoreTextController : MonoBehaviour
@@ -23,18 +23,18 @@ public class ScoreTextController : MonoBehaviour
         timer -= Time.fixedDeltaTime;
     }
 
-    // ƒeƒLƒXƒg‚ÌƒAƒbƒvƒf[ƒg
+    // ãƒ†ã‚­ã‚¹ãƒˆã®ã‚¢ãƒƒãƒ—ãƒ‡ãƒ¼ãƒˆ
     public void UpdateText() 
     {
-        scoreTextA.text = "‘‡ƒXƒRƒAF" + ScoreSystemController.Instance.TotalScore
-            + "\n‚ ‚È‚½‚ÌƒXƒRƒAF" + ScoreSystemController.Instance.Player1Score
-            + "\nx‰‡‹@‚ÌƒXƒRƒAF" + ScoreSystemController.Instance.Player2Score
+        scoreTextA.text = "ç·åˆã‚¹ã‚³ã‚¢ï¼š" + ScoreSystemController.Instance.TotalScore
+            + "\nã‚ãªãŸã®ã‚¹ã‚³ã‚¢ï¼š" + ScoreSystemController.Instance.Player1Score
+            + "\næ”¯æ´æ©Ÿã®ã‚¹ã‚³ã‚¢ï¼š" + ScoreSystemController.Instance.Player2Score
             + "\n\n\n\n\n"
-            + "\nc‚èŠÔF" + timer.ToString("F1");
-        scoreTextB.text = "‘‡ƒXƒRƒAF" + ScoreSystemController.Instance.TotalScore
-            + "\n‚ ‚È‚½‚ÌƒXƒRƒAF" + ScoreSystemController.Instance.Player1Score
-            + "\nx‰‡‹@‚ÌƒXƒRƒAF" + ScoreSystemController.Instance.Player2Score
+            + "\næ®‹ã‚Šæ™‚é–“ï¼š" + timer.ToString("F1");
+        scoreTextB.text = "ç·åˆã‚¹ã‚³ã‚¢ï¼š" + ScoreSystemController.Instance.TotalScore
+            + "\nã‚ãªãŸã®ã‚¹ã‚³ã‚¢ï¼š" + ScoreSystemController.Instance.Player1Score
+            + "\næ”¯æ´æ©Ÿã®ã‚¹ã‚³ã‚¢ï¼š" + ScoreSystemController.Instance.Player2Score
             + "\n\n\n\n\n"
-            + "\nc‚èŠÔF" + timer.ToString("F1");
+            + "\næ®‹ã‚Šæ™‚é–“ï¼š" + timer.ToString("F1");
     }
 }

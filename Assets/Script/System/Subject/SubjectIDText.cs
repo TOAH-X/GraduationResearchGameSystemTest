@@ -1,4 +1,4 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
@@ -16,6 +16,6 @@ public class SubjectIDText : MonoBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
-        subjectIDText.text = "”íŒ±ŽÒID:" + SubjectManager.Instance.SubjectID;
+        subjectIDText.text = "è¢«é¨“è€…ID:" + SubjectManager.Instance.SubjectID;
     }
 }

@@ -1,13 +1,13 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class ScoreSystemController : MonoBehaviour
 {
-    [Header("‘‡ƒXƒRƒA")]
+    [Header("ç·åˆã‚¹ã‚³ã‚¢")]
     [SerializeField] int totalScore = 0;
-    [Header("ƒvƒŒƒCƒ„[1‚ÌƒXƒRƒA")]
+    [Header("ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼1ã®ã‚¹ã‚³ã‚¢")]
     [SerializeField] int player1Score = 0;
-    [Header("ƒvƒŒƒCƒ„[2‚ÌƒXƒRƒA")]
+    [Header("ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼2ã®ã‚¹ã‚³ã‚¢")]
     [SerializeField] int player2Score = 0;
 
     //[SerializeField] RewardManager rewardManagerScript;
@@ -28,54 +28,54 @@ public class ScoreSystemController : MonoBehaviour
     }
 
     /// <summary>
-    /// ƒXƒRƒAXV(‰ÁZ)
+    /// ã‚¹ã‚³ã‚¢æ›´æ–°(åŠ ç®—)
     /// </summary>
-    /// <param name="case">ƒP[ƒXA“G‚Ì”í’ec1,“G‚Ì€–Sc0</param>
-    /// <param name="id">‰ÁZ‘ÎÛ(ƒvƒŒƒCƒ„[1‚©ƒvƒŒƒCƒ„[2‚©)</param>
+    /// <param name="case">ã‚±ãƒ¼ã‚¹ã€æ•µã®è¢«å¼¾â€¦1,æ•µã®æ­»äº¡â€¦0</param>
+    /// <param name="id">åŠ ç®—å¯¾è±¡(ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼1ã‹ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼2ã‹)</param>
     public void UpdateScore(int caseType, int id) 
     {
         int score = 0;
-        // “G‚Ì”í’e
+        // æ•µã®è¢«å¼¾
         if (caseType == 1) 
         {
             score = 1;
         }
-        // “G‚Ì€–S
+        // æ•µã®æ­»äº¡
         if (caseType == 2) 
         {
             score = 100;
         }
         totalScore += score;
 
-        // Šï”ƒvƒŒƒCƒ„[(A)
+        // å¥‡æ•°ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼(A)
         if (id == 1 || id == 3)
         {
             player1Score += score;
 
-            // Œ±“I‚È•ñV(Œã‚Å‘‚«Š·‚¦‚é‚±‚Æ)¦“G‚ğ“|‚µ‚½‚Æ‚«
-            // “G‚Ì”í’e
+            // è©¦é¨“çš„ãªå ±é…¬(å¾Œã§æ›¸ãæ›ãˆã‚‹ã“ã¨)â€»æ•µã‚’å€’ã—ãŸã¨ã
+            // æ•µã®è¢«å¼¾
             /*if (caseType == 1)
             {
                 rewardManagerScript.AddReward(RewardType.AttackReward);
             }
-            // “G‚Ì€–S
+            // æ•µã®æ­»äº¡
             if (caseType == 2)
             {
                 rewardManagerScript.AddReward(RewardType.KillReward);
             }*/
         }
-        // ‹ô”ƒvƒŒƒCƒ„[(B)
+        // å¶æ•°ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼(B)
         else if (id == 2 || id == 4)  
         {
             player2Score += score;
 
-            // Œ±“I‚È•ñV(Œã‚Å‘‚«Š·‚¦‚é‚±‚Æ)¦“G‚ğ“|‚µ‚½‚Æ‚«
-            // “G‚Ì”í’e
+            // è©¦é¨“çš„ãªå ±é…¬(å¾Œã§æ›¸ãæ›ãˆã‚‹ã“ã¨)â€»æ•µã‚’å€’ã—ãŸã¨ã
+            // æ•µã®è¢«å¼¾
             /*if (caseType == 1)
             {
                 rewardManagerScript.AddReward(RewardType.AttackReward);
             }
-            // “G‚Ì€–S
+            // æ•µã®æ­»äº¡
             if (caseType == 2)
             {
                 rewardManagerScript.AddReward(RewardType.KillReward);
@@ -83,28 +83,28 @@ public class ScoreSystemController : MonoBehaviour
         }
     }
 
-    // totalScoreQÆ(getset)
+    // totalScoreå‚ç…§(getset)
     public int TotalScore
     {
         get { return totalScore; }
         set { totalScore = value; }
     }
 
-    // player1ScoreQÆ(getset)
+    // player1Scoreå‚ç…§(getset)
     public int Player1Score
     {
         get { return player1Score; }
         set { player1Score = value; }
     }
 
-    // player2ScoreQÆ(getset)
+    // player2Scoreå‚ç…§(getset)
     public int Player2Score
     {
         get { return player2Score; }
         set { player2Score = value; }
     }
 
-    //ƒVƒ“ƒOƒ‹ƒgƒ“
+    //ã‚·ãƒ³ã‚°ãƒ«ãƒˆãƒ³
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -114,17 +114,17 @@ public class ScoreSystemController : MonoBehaviour
         }
         Instance = this;
 
-        // eƒIƒuƒWƒFƒNƒg‚ª‚¢‚éê‡AØ‚è—£‚µ‚Äƒ‹[ƒgŠK‘w‚ÉˆÚ“®‚³‚¹‚é(DontDestroyOnLoad‚ÌŒx‘Îô)
+        // è¦ªã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆãŒã„ã‚‹å ´åˆã€åˆ‡ã‚Šé›¢ã—ã¦ãƒ«ãƒ¼ãƒˆéšå±¤ã«ç§»å‹•ã•ã›ã‚‹(DontDestroyOnLoadã®è­¦å‘Šå¯¾ç­–)
         if (transform.parent != null)
         {
             transform.SetParent(null);
         }
 
-        DontDestroyOnLoad(gameObject); // ƒV[ƒ“Ø‚è‘Ö‚¦‚ÉÁ‚¦‚È‚¢
+        DontDestroyOnLoad(gameObject); // ã‚·ãƒ¼ãƒ³åˆ‡ã‚Šæ›¿ãˆæ™‚ã«æ¶ˆãˆãªã„
     }
 
-    // --- ’Ç‰ÁFƒŠƒ[ƒh‚É‰Šú‰»‚·‚é‚½‚ß‚Ìˆ— ---
-    // ƒŠƒZƒbƒg
+    // --- è¿½åŠ ï¼šãƒªãƒ­ãƒ¼ãƒ‰æ™‚ã«åˆæœŸåŒ–ã™ã‚‹ãŸã‚ã®å‡¦ç† ---
+    // ãƒªã‚»ãƒƒãƒˆ
     public void ResetScores()
     {
         totalScore = 0;
@@ -133,17 +133,17 @@ public class ScoreSystemController : MonoBehaviour
     }
     private void OnEnable()
     {
-        // ƒV[ƒ“‚ª“Ç‚İ‚Ü‚ê‚½‚Æ‚«‚ÉÀs‚³‚ê‚éƒCƒxƒ“ƒg‚Éƒƒ\ƒbƒh‚ğ“o˜^
+        // ã‚·ãƒ¼ãƒ³ãŒèª­ã¿è¾¼ã¾ã‚ŒãŸã¨ãã«å®Ÿè¡Œã•ã‚Œã‚‹ã‚¤ãƒ™ãƒ³ãƒˆã«ãƒ¡ã‚½ãƒƒãƒ‰ã‚’ç™»éŒ²
         SceneManager.sceneLoaded += OnSceneLoaded;
     }
 
     private void OnDisable()
     {
-        // ƒIƒuƒWƒFƒNƒg‚ªíœ‚³‚ê‚é‚Æ‚«‚Í“o˜^‚ğ‰ğœiƒƒ‚ƒŠƒŠ[ƒN–h~j
+        // ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆãŒå‰Šé™¤ã•ã‚Œã‚‹ã¨ãã¯ç™»éŒ²ã‚’è§£é™¤ï¼ˆãƒ¡ãƒ¢ãƒªãƒªãƒ¼ã‚¯é˜²æ­¢ï¼‰
         SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 
-    // ƒV[ƒ“‚ª“Ç‚İ‚Ü‚ê‚½Û‚ÉŒÄ‚Î‚ê‚é
+    // ã‚·ãƒ¼ãƒ³ãŒèª­ã¿è¾¼ã¾ã‚ŒãŸéš›ã«å‘¼ã°ã‚Œã‚‹
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         ResetScores();

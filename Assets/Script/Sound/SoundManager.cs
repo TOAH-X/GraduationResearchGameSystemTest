@@ -1,4 +1,4 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using System.Threading;
@@ -7,13 +7,13 @@ public class SoundManager : MonoBehaviour
 {
     public static SoundManager Instance { get; private set; }
 
-    // BGMİ’è
+    // BGMè¨­å®š
     [Header("BGM Settings")]
     [SerializeField] private List<BGMData> bgmList = new List<BGMData>();
     private AudioSource bgmSource;
     private Dictionary<BGMType, AudioClip> bgmClips = new Dictionary<BGMType, AudioClip>();
 
-    // SEİ’è
+    // SEè¨­å®š
     [Header("SE Settings")]
     [SerializeField] private List<SEData> seList = new List<SEData>();
     [SerializeField] private int audioSourcePoolSize = 5;
@@ -28,7 +28,7 @@ public class SoundManager : MonoBehaviour
         {
             Instance = this;
 
-            // eƒIƒuƒWƒFƒNƒg‚ª‚¢‚éê‡AØ‚è—£‚µ‚Äƒ‹[ƒgŠK‘w‚ÉˆÚ“®‚³‚¹‚é(DontDestroyOnLoad‚ÌŒx‘Îô)
+            // è¦ªã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆãŒã„ã‚‹å ´åˆã€åˆ‡ã‚Šé›¢ã—ã¦ãƒ«ãƒ¼ãƒˆéšå±¤ã«ç§»å‹•ã•ã›ã‚‹(DontDestroyOnLoadã®è­¦å‘Šå¯¾ç­–)
             if (transform.parent != null)
             {
                 transform.SetParent(null);
@@ -46,7 +46,7 @@ public class SoundManager : MonoBehaviour
 
     private void Initialize()
     {
-        // BGM‰Šú‰»
+        // BGMåˆæœŸåŒ–
         GameObject bgmObject = new GameObject("BGM_Source");
         bgmObject.transform.SetParent(this.transform);
         bgmSource = bgmObject.AddComponent<AudioSource>();
@@ -59,7 +59,7 @@ public class SoundManager : MonoBehaviour
             }
         }
 
-        // SE‰Šú‰»
+        // SEåˆæœŸåŒ–
         foreach (var data in seList)
         {
             if (data.type != SEType.None && !seClips.ContainsKey(data.type))
@@ -77,24 +77,24 @@ public class SoundManager : MonoBehaviour
     }
 
     // =======================================================
-    // BGM Ä¶/’â~ ƒƒWƒbƒN
+    // BGM å†ç”Ÿ/åœæ­¢ ãƒ­ã‚¸ãƒƒã‚¯
     // =======================================================
 
     public static void PlayBGM(BGMType type)
     {
         if (Instance == null)
         {
-            Debug.LogError("SoundManager‚ª‰Šú‰»‚³‚ê‚Ä‚¢‚Ü‚¹‚ñB");
+            Debug.LogError("SoundManagerãŒåˆæœŸåŒ–ã•ã‚Œã¦ã„ã¾ã›ã‚“ã€‚");
             return;
         }
 
         if (!Instance.bgmClips.ContainsKey(type))
         {
-            Debug.LogWarning($"BGM Type '{type}' ‚Í“o˜^‚³‚ê‚Ä‚¢‚Ü‚¹‚ñB");
+            Debug.LogWarning($"BGM Type '{type}' ã¯ç™»éŒ²ã•ã‚Œã¦ã„ã¾ã›ã‚“ã€‚");
             return;
         }
 
-        // Šù‚É“¯‚¶BGM‚ªÄ¶’†‚Ìê‡‚Í‰½‚à‚µ‚È‚¢
+        // æ—¢ã«åŒã˜BGMãŒå†ç”Ÿä¸­ã®å ´åˆã¯ä½•ã‚‚ã—ãªã„
         if (Instance.bgmSource.clip == Instance.bgmClips[type] && Instance.bgmSource.isPlaying)
         {
             return;
@@ -102,9 +102,9 @@ public class SoundManager : MonoBehaviour
 
         AudioClip clip = Instance.bgmClips[type];
 
-        // Ä¶ƒƒWƒbƒN
+        // å†ç”Ÿãƒ­ã‚¸ãƒƒã‚¯
         Instance.bgmSource.clip = clip;
-        Instance.bgmSource.volume = 1.0f; // BGMData‚©‚ç‰¹—Ê‚ğİ’è‚·‚é‚±‚Æ‚à‰Â”\
+        Instance.bgmSource.volume = 1.0f; // BGMDataã‹ã‚‰éŸ³é‡ã‚’è¨­å®šã™ã‚‹ã“ã¨ã‚‚å¯èƒ½
         Instance.bgmSource.Play();
     }
 
@@ -115,7 +115,7 @@ public class SoundManager : MonoBehaviour
     }
 
     // =======================================================
-    // SE Ä¶ƒƒWƒbƒN (UniTask—˜—p)
+    // SE å†ç”Ÿãƒ­ã‚¸ãƒƒã‚¯ (UniTaskåˆ©ç”¨)
     // =======================================================
 
     public static void PlaySE(SEType type)
@@ -128,11 +128,11 @@ public class SoundManager : MonoBehaviour
 
         source.Play();
 
-        // UniTask‚Å”ñ“¯Šú“I‚Éƒv[ƒ‹–ß‚µˆ—‚ğŠJn
+        // UniTaskã§éåŒæœŸçš„ã«ãƒ—ãƒ¼ãƒ«æˆ»ã—å‡¦ç†ã‚’é–‹å§‹
         Instance.ReturnToPoolAsync(source, source.clip.length).Forget();
     }
 
-    // UniTask‚ğg‚Á‚½AudioSource‚Ìƒv[ƒ‹–ß‚µˆ—
+    // UniTaskã‚’ä½¿ã£ãŸAudioSourceã®ãƒ—ãƒ¼ãƒ«æˆ»ã—å‡¦ç†
     private async UniTaskVoid ReturnToPoolAsync(AudioSource source, float delay)
     {
         try
@@ -148,7 +148,7 @@ public class SoundManager : MonoBehaviour
         }
         catch (System.OperationCanceledException)
         {
-            // ƒLƒƒƒ“ƒZƒ‹‚³‚ê‚½ê‡‚ÍAˆÀ‘S‚Éˆ—‚ğI—¹
+            // ã‚­ãƒ£ãƒ³ã‚»ãƒ«ã•ã‚ŒãŸå ´åˆã¯ã€å®‰å…¨ã«å‡¦ç†ã‚’çµ‚äº†
         }
     }
 }

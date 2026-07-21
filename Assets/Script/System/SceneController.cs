@@ -1,4 +1,4 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
 public class SceneController : MonoBehaviour
 {
@@ -14,7 +14,7 @@ public class SceneController : MonoBehaviour
         
     }
 
-    // ƒV[ƒ“‘JˆÚ
+    // ã‚·ãƒ¼ãƒ³é·ç§»
     public void ChangeScene(string sceneName)
     {
         UnityEngine.SceneManagement.SceneManager.LoadScene(sceneName);

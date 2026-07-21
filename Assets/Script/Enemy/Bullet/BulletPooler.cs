@@ -1,13 +1,13 @@
-using System.Collections.Generic;
+ï»¿using System.Collections.Generic;
 using UnityEngine;
 
 public class BulletPooler : MonoBehaviour
 {
-    [Header("’e–‹‚ÌƒvƒŒƒnƒu")]
+    [Header("å¼¾å¹•ã®ãƒ—ãƒ¬ãƒãƒ–")]
     [SerializeField] GameObject bulletPrefab;
-    [Header("ƒv[ƒŠƒ“ƒOƒTƒCƒY")]
+    [Header("ãƒ—ãƒ¼ãƒªãƒ³ã‚°ã‚µã‚¤ã‚º")]
     [SerializeField] int poolSize = 100;
-    [Header("ƒoƒŒƒbƒg‚Ìe")]
+    [Header("ãƒãƒ¬ãƒƒãƒˆã®è¦ª")]
     [SerializeField] GameObject bulletParentObj;
 
     private Queue<GameObject> pool = new Queue<GameObject>();

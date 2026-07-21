@@ -1,15 +1,15 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
 public class BulletController : MonoBehaviour
 {
-    [Header("ˆÚ“®‘¬“x")]
+    [Header("ç§»å‹•é€Ÿåº¦")]
     [SerializeField] float moveSpeed = 10.0f;
-    [Header("Šp“x")]
+    [Header("è§’åº¦")]
     [SerializeField] float angleDegree = 30.0f;
 
     float timer = 0;
 
-    // ‰æ–ÊŠO‚Ì”ÍˆÍ
+    // ç”»é¢å¤–ã®ç¯„å›²
     float minX = -6.5f;
     float maxX = 6.5f;
     float minY = -5.0f;
@@ -24,10 +24,10 @@ public class BulletController : MonoBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
-        // ˆÚ“®
+        // ç§»å‹•
         Move();
 
-        // ‰æ–ÊŠOˆ—
+        // ç”»é¢å¤–å‡¦ç†
         Vector3 pos = transform.position;
         if (pos.x < minX || pos.x > maxX || pos.y < minY || pos.y > maxY) 
         {
@@ -35,32 +35,32 @@ public class BulletController : MonoBehaviour
         }
     }
 
-    // ˆÚ“®
+    // ç§»å‹•
     public void Move()
     {
-        Vector2 moveDirection;          // Œü‚«
-        // Y²iã•ûŒüj‚ğŠî€‚Æ‚µ‚ÄŠp“x‚ğ”½‰f
+        Vector2 moveDirection;          // å‘ã
+        // Yè»¸ï¼ˆä¸Šæ–¹å‘ï¼‰ã‚’åŸºæº–ã¨ã—ã¦è§’åº¦ã‚’åæ˜ 
         float angleRad = -angleDegree * Mathf.Deg2Rad;
         moveDirection = new Vector2(Mathf.Sin(angleRad), Mathf.Cos(angleRad)).normalized;
 
-        // Z²‰ñ“]iŒ©‚½–Ú‚ÌŒü‚«j‚à‡‚í‚¹‚é
+        // Zè»¸å›è»¢ï¼ˆè¦‹ãŸç›®ã®å‘ãï¼‰ã‚‚åˆã‚ã›ã‚‹
         transform.rotation = Quaternion.Euler(0f, 0f, angleDegree);
 
         transform.position += (Vector3)(moveDirection * moveSpeed * Time.fixedDeltaTime);
     }
 
-    // “G‚É‚Ô‚Â‚©‚Á‚½‚Æ‚«
+    // æ•µã«ã¶ã¤ã‹ã£ãŸã¨ã
     void OnTriggerEnter2D(Collider2D other)
     {
         if (other.gameObject.CompareTag("Player"))
         {
-            // ƒ_ƒ[ƒW‚ğ—^‚¦‚é
-            other.GetComponent<PlayerBase>()?.Damage(1);         // ƒ_ƒ[ƒW‚ğ1‚Æ‰¼’è
-            // ŠÑ’Ê‚µ‚È‚¢ê‡
+            // ãƒ€ãƒ¡ãƒ¼ã‚¸ã‚’ä¸ãˆã‚‹
+            other.GetComponent<PlayerBase>()?.Damage(1);         // ãƒ€ãƒ¡ãƒ¼ã‚¸ã‚’1ã¨ä»®å®š
+            // è²«é€šã—ãªã„å ´åˆ
             Death();
         }
 
-        // Œ±“I(•K‚¸ƒŠƒtƒ@ƒNƒ^ƒŠƒ“ƒO‚ğs‚¤‚±‚Æ)
+        // è©¦é¨“çš„(å¿…ãšãƒªãƒ•ã‚¡ã‚¯ã‚¿ãƒªãƒ³ã‚°ã‚’è¡Œã†ã“ã¨)
         if (other.gameObject.name=="Graze")
         {
             //Debug.Log("Graze");
@@ -68,20 +68,20 @@ public class BulletController : MonoBehaviour
         }
     }
 
-    // Á–Å
+    // æ¶ˆæ»…
     public void Death()
     {
         BulletPooler.Instance.ReturnBullet(gameObject);
     }
 
-    // player1ScoreQÆ(getset)
+    // player1Scoreå‚ç…§(getset)
     public float MoveSpeed
     {
         get { return moveSpeed; }
         set { moveSpeed = value; }
     }
 
-    // angleDegreeQÆ(getset)
+    // angleDegreeå‚ç…§(getset)
     public float AngleDegree
     {
         get { return angleDegree; }

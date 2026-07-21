@@ -1,26 +1,26 @@
-/*
+ï»¿/*
 using UnityEngine;
 
 public class EnemyBase : MonoBehaviour
 {
-    [Header("ƒGƒlƒ~[ID")]
+    [Header("ã‚¨ãƒãƒŸãƒ¼ID")]
     [SerializeField] int enemyID = 0;
-    [Header("Å‘åHP")]
+    [Header("æœ€å¤§HP")]
     [SerializeField] int maxHp = 1;
-    [Header("Œ»İHP")]
+    [Header("ç¾åœ¨HP")]
     [SerializeField] int currentHp;
-    [Header("ƒAƒ^ƒbƒNID")]  // ÅV‚ÌUŒ‚Ò(ƒvƒŒƒCƒ„[)‚ÌID
+    [Header("ã‚¢ã‚¿ãƒƒã‚¯ID")]  // æœ€æ–°ã®æ”»æ’ƒè€…(ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼)ã®ID
     [SerializeField] int attackID;
 
-    [Header("’e–‹ƒvƒŒƒnƒu")]
+    [Header("å¼¾å¹•ãƒ—ãƒ¬ãƒãƒ–")]
     [SerializeField] GameObject bulletPrefab;
-    [Header("’e–‹Ši”[æ(e)")]
+    [Header("å¼¾å¹•æ ¼ç´å…ˆ(è¦ª)")]
     [SerializeField] GameObject bulletParentObj;
     private float timer = 0;
 
     private float lifeTimer = 0;
 
-    // ‰æ–ÊŠO‚Ì”ÍˆÍ
+    // ç”»é¢å¤–ã®ç¯„å›²
     float minX = -10.0f;
     float maxX = 10.0f;
     float minY = -6.0f;
@@ -29,7 +29,7 @@ public class EnemyBase : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        // –³‚­‚Ä—Ç‚¢
+        // ç„¡ãã¦è‰¯ã„
         // ResetEnemy();
     }
 
@@ -38,7 +38,7 @@ public class EnemyBase : MonoBehaviour
     {
         lifeTimer += Time.fixedDeltaTime;
 
-        // ˆÚ“®       //‘¼ƒXƒNƒŠƒvƒg‚É•ª‚¯‚é‚±‚Æ
+        // ç§»å‹•       //ä»–ã‚¹ã‚¯ãƒªãƒ—ãƒˆã«åˆ†ã‘ã‚‹ã“ã¨
         Move();
 
         timer += Time.fixedDeltaTime;
@@ -48,109 +48,109 @@ public class EnemyBase : MonoBehaviour
             for (int i = 0; i < 4; i++) 
             {
 
-                //’e–‹”­Ë      //‘¼ƒXƒNƒŠƒvƒg‚É•ª‚¯‚é‚±‚Æ
-                LaunchBullet(new Vector3(0f, 0f), 2f, i * 360 / 4f + num);      // ƒ‰ƒ“ƒ_ƒ€’e
-                //LaunchBullet(new Vector3(0f, 0f), 2f, i * 36f);               // •úË’e
+                //å¼¾å¹•ç™ºå°„      //ä»–ã‚¹ã‚¯ãƒªãƒ—ãƒˆã«åˆ†ã‘ã‚‹ã“ã¨
+                LaunchBullet(new Vector3(0f, 0f), 2f, i * 360 / 4f + num);      // ãƒ©ãƒ³ãƒ€ãƒ å¼¾
+                //LaunchBullet(new Vector3(0f, 0f), 2f, i * 36f);               // æ”¾å°„å¼¾
             }
             timer = 0;
         }
 
-        // ‰æ–ÊŠOˆ—
+        // ç”»é¢å¤–å‡¦ç†
         Vector3 pos = transform.position;
         if (pos.x < minX || pos.x > maxX || pos.y < minY || pos.y > maxY)
         {
-            // š Death() ‚É——R‚ğ“n‚·
+            // â˜… Death() ã«ç†ç”±ã‚’æ¸¡ã™
             //Death("Screen Boundary");
         }
     }
 
     /// <summary>
-    /// ”íƒ_ƒ[ƒWˆ—
+    /// è¢«ãƒ€ãƒ¡ãƒ¼ã‚¸å‡¦ç†
     /// </summary>
-    /// <param name="damage">ƒ_ƒ[ƒW—Ê</param>
-    /// <param name="id">©g(“G)‚Éƒ_ƒ[ƒW‚ğ—^‚¦‚½ƒvƒŒƒCƒ„[ID</param>/// <summary>
-    /// <returns>€–S‚µ‚½‚ç1‚ğ•Ô‚·</returns>
+    /// <param name="damage">ãƒ€ãƒ¡ãƒ¼ã‚¸é‡</param>
+    /// <param name="id">è‡ªèº«(æ•µ)ã«ãƒ€ãƒ¡ãƒ¼ã‚¸ã‚’ä¸ãˆãŸãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ID</param>/// <summary>
+    /// <returns>æ­»äº¡ã—ãŸã‚‰1ã‚’è¿”ã™</returns>
     public int Damage(int damage, int id)
     {
         currentHp -= damage;
         attackID = id;
-        // “G‚Ì”í’eAƒXƒRƒA‚ğ‰ÁZ
+        // æ•µã®è¢«å¼¾ã€ã‚¹ã‚³ã‚¢ã‚’åŠ ç®—
         //ScoreSystemController.Instance.UpdateScore(1, attackID);
         if (currentHp <= 0)
         {
-            // “G‚Ì€–S
+            // æ•µã®æ­»äº¡
             ScoreSystemController.Instance.UpdateScore(2, attackID);
 
-            // €–SƒGƒtƒFƒNƒgÄ¶
+            // æ­»äº¡ã‚¨ãƒ•ã‚§ã‚¯ãƒˆå†ç”Ÿ
             EnemyDeathEffect.Instance.PlayEffect(this.transform.position);
-            // €–S‰¹Ä¶
+            // æ­»äº¡éŸ³å†ç”Ÿ
             SoundManager.PlaySE(SEType.EnemyDeath);
 
-            // š Death() ‚É——R‚ğ“n‚·
+            // â˜… Death() ã«ç†ç”±ã‚’æ¸¡ã™
             Death("HP Depleted (Current HP: " + currentHp + ")");
             return 1;
         }
         return 0;
     }
 
-    // €–Sˆ—
+    // æ­»äº¡å‡¦ç†
     public void Death(string reason = "Unknown")
     {
-        // ššš C³‰ÓŠF€–S‚ÌHP‚Æ——R‚ğƒƒO‚Éo—Í ššš
+        // â˜…â˜…â˜… ä¿®æ­£ç®‡æ‰€ï¼šæ­»äº¡æ™‚ã®HPã¨ç†ç”±ã‚’ãƒ­ã‚°ã«å‡ºåŠ› â˜…â˜…â˜…
         Debug.LogError($"[ENEMY DEATH] ID: {enemyID}. Reason: {reason}. Current HP at Death: {currentHp}.");
 
         EnemySpawnerController.Instance.ReturnEnemyToPool(gameObject);
     }
 
-    // ˆÚ“®(Œp³‚µ‚Ä•ÊƒXƒNƒŠƒvƒg‚É‚·‚é‚±‚Æ)
+    // ç§»å‹•(ç¶™æ‰¿ã—ã¦åˆ¥ã‚¹ã‚¯ãƒªãƒ—ãƒˆã«ã™ã‚‹ã“ã¨)
     public void Move()
     {
         if (enemyID == 1)
         {
-            float moveSpeed = 10.0f;     // ˆÚ“®‘¬“x
-            Vector3 moveDirection = new Vector3(0.5f, -0.25f);      //‰E‰º
+            float moveSpeed = 10.0f;     // ç§»å‹•é€Ÿåº¦
+            Vector3 moveDirection = new Vector3(0.5f, -0.25f);      //å³ä¸‹
             transform.position += (Vector3)(moveDirection * moveSpeed * Time.fixedDeltaTime);
         }
         else if (enemyID == 2)
         {
-            float moveSpeed = 10.0f;     // ˆÚ“®‘¬“x
-            Vector3 moveDirection = new Vector3(-0.5f, -0.25f);     //¶‰º
+            float moveSpeed = 10.0f;     // ç§»å‹•é€Ÿåº¦
+            Vector3 moveDirection = new Vector3(-0.5f, -0.25f);     //å·¦ä¸‹
             transform.position += (Vector3)(moveDirection * moveSpeed * Time.fixedDeltaTime);
         }
         else if (enemyID == 3)
         {
-            float moveSpeed = 10.0f;     // ˆÚ“®‘¬“x
-            Vector3 moveDirection = new Vector3(0.5f, 0.25f);       //‰Eã
+            float moveSpeed = 10.0f;     // ç§»å‹•é€Ÿåº¦
+            Vector3 moveDirection = new Vector3(0.5f, 0.25f);       //å³ä¸Š
             transform.position += (Vector3)(moveDirection * moveSpeed * Time.fixedDeltaTime);
         }
         else if (enemyID == 4)
         {
-            float moveSpeed = 10.0f;     // ˆÚ“®‘¬“x
-            Vector3 moveDirection = new Vector3(-0.5f, 0.25f);       //¶ã
+            float moveSpeed = 10.0f;     // ç§»å‹•é€Ÿåº¦
+            Vector3 moveDirection = new Vector3(-0.5f, 0.25f);       //å·¦ä¸Š
             transform.position += (Vector3)(moveDirection * moveSpeed * Time.fixedDeltaTime);
         }
         else if (enemyID == 5)
         {
-            float moveSpeed = 10.0f;     // ˆÚ“®‘¬“x
-            Vector3 moveDirection = new Vector3(0, -0.25f);       //‰º
+            float moveSpeed = 10.0f;     // ç§»å‹•é€Ÿåº¦
+            Vector3 moveDirection = new Vector3(0, -0.25f);       //ä¸‹
             transform.position += (Vector3)(moveDirection * moveSpeed * Time.fixedDeltaTime);
         }
         else if (enemyID == 6)
         {
-            float moveSpeed = 10.0f;     // ˆÚ“®‘¬“x
-            Vector3 moveDirection = new Vector3(0f, -0.25f);       //‰º
+            float moveSpeed = 10.0f;     // ç§»å‹•é€Ÿåº¦
+            Vector3 moveDirection = new Vector3(0f, -0.25f);       //ä¸‹
             transform.position += (Vector3)(moveDirection * moveSpeed * Time.fixedDeltaTime);
         }
         else if (enemyID == 7)
         {
-            float moveSpeed = 10.0f;     // ˆÚ“®‘¬“x
-            Vector3 moveDirection = new Vector3(0.2f, -0.4f);       //‰E‰º
+            float moveSpeed = 10.0f;     // ç§»å‹•é€Ÿåº¦
+            Vector3 moveDirection = new Vector3(0.2f, -0.4f);       //å³ä¸‹
             transform.position += (Vector3)(moveDirection * moveSpeed * Time.fixedDeltaTime);
         }
         else if (enemyID == 8)
         {
-            float moveSpeed = 10.0f;     // ˆÚ“®‘¬“x
-            Vector3 moveDirection = new Vector3(-0.2f, -0.4f);       //¶‰º
+            float moveSpeed = 10.0f;     // ç§»å‹•é€Ÿåº¦
+            Vector3 moveDirection = new Vector3(-0.2f, -0.4f);       //å·¦ä¸‹
             transform.position += (Vector3)(moveDirection * moveSpeed * Time.fixedDeltaTime);
         }
 
@@ -173,14 +173,14 @@ public class EnemyBase : MonoBehaviour
     }
 
     /// <summary>
-    /// ’e–‹”­Ë(Œp³‚µ‚Ä•ÊƒXƒNƒŠƒvƒg‚É‚·‚é‚±‚Æ)
+    /// å¼¾å¹•ç™ºå°„(ç¶™æ‰¿ã—ã¦åˆ¥ã‚¹ã‚¯ãƒªãƒ—ãƒˆã«ã™ã‚‹ã“ã¨)
     /// </summary>
-    /// <param name="pos">’e–‹‚Ì¶¬ˆÊ’u</param>
-    /// <param name="moveSpeed">’e–‹‚Ì‘ª“x</param>
-    /// <param name="angleDegree">”­ËŠp“x</param>
+    /// <param name="pos">å¼¾å¹•ã®ç”Ÿæˆä½ç½®</param>
+    /// <param name="moveSpeed">å¼¾å¹•ã®æ¸¬åº¦</param>
+    /// <param name="angleDegree">ç™ºå°„è§’åº¦</param>
     public void LaunchBullet(Vector3 pos, float moveSpeed, float angleDegree)
     {
-        // BulletParent ‚Ì‘¶İŠm”F
+        // BulletParent ã®å­˜åœ¨ç¢ºèª
         if (bulletParentObj == null)
         {
             bulletParentObj = GameObject.Find("BulletParent");
@@ -191,7 +191,7 @@ public class EnemyBase : MonoBehaviour
             }
         }
 
-        // ƒv[ƒ‹æ“¾
+        // ãƒ—ãƒ¼ãƒ«å–å¾—
         var pooler = BulletPooler.Instance;
         if (pooler == null)
         {
@@ -221,7 +221,7 @@ public class EnemyBase : MonoBehaviour
         bulletControllerScript.AngleDegree = angleDegree;
     }
 
-    // playerIDQÆ(getset)
+    // playerIDå‚ç…§(getset)
     public int EnemyID
     {
         get { return enemyID; }
@@ -230,13 +230,13 @@ public class EnemyBase : MonoBehaviour
 
     private void OnDisable()
     {
-        // lifeTimer ‚Í FixedUpdate ‚Å‘‚¦‚éA‚±‚Ì“G‚Ì¶‘¶ŠÔ
+        // lifeTimer ã¯ FixedUpdate ã§å¢—ãˆã‚‹ã€ã“ã®æ•µã®ç”Ÿå­˜æ™‚é–“
         float survivalTime = lifeTimer;
 
-        // ¶‘¶ŠÔ‚ª”ñí‚É’Z‚¢ê‡‚Ì‚İƒƒO‚ğo‚· (‘¦€–S‚Ì’ÇÕ)
+        // ç”Ÿå­˜æ™‚é–“ãŒéå¸¸ã«çŸ­ã„å ´åˆã®ã¿ãƒ­ã‚°ã‚’å‡ºã™ (å³æ™‚æ­»äº¡ã®è¿½è·¡)
         if (survivalTime < 0.5f)
         {
-            // š ƒƒO‚ğ‹­‰»F’N‚ªŒÄ‚ñ‚¾‚©‚ğ’ÇÕ‚·‚é‚½‚ß‚ÉStackTrace‚ğ’Ç‰Á
+            // â˜… ãƒ­ã‚°ã‚’å¼·åŒ–ï¼šèª°ãŒå‘¼ã‚“ã ã‹ã‚’è¿½è·¡ã™ã‚‹ãŸã‚ã«StackTraceã‚’è¿½åŠ 
             Debug.LogError($"[EXTERNAL DISABLE] ID: {enemyID}. " +
                            $"Active(false) called by external source. " +
                            $"Survival Time: {survivalTime:F3}s (Frame: {Time.frameCount})\n" +
@@ -250,23 +250,23 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// EnemyBaseFŠù‘¶‚ÌÀ‘•‚ğ‘¸d‚µ‚Â‚ÂA
-/// - ResetEnemy_InternalOnly() ‚ğ’Ç‰Áiƒv[ƒ‹‚©‚çæ‚èo‚³‚ê‚½‚ÉŒÄ‚ÔŒy‚¢‰Šú‰»j
-/// - Death() ‚Íƒv[ƒ‹‚Ö‚Ì–ß‚µ‚ğs‚¤iDestroy‚µ‚È‚¢j
-/// - OnDisable ‚É’Zõ–½ƒƒO‚ğc‚µ‚ÄƒgƒŒ[ƒX‰Â”\‚É‚·‚é
+/// EnemyBaseï¼šæ—¢å­˜ã®å®Ÿè£…ã‚’å°Šé‡ã—ã¤ã¤ã€
+/// - ResetEnemy_InternalOnly() ã‚’è¿½åŠ ï¼ˆãƒ—ãƒ¼ãƒ«ã‹ã‚‰å–ã‚Šå‡ºã•ã‚ŒãŸæ™‚ã«å‘¼ã¶è»½ã„åˆæœŸåŒ–ï¼‰
+/// - Death() ã¯ãƒ—ãƒ¼ãƒ«ã¸ã®æˆ»ã—ã‚’è¡Œã†ï¼ˆDestroyã—ãªã„ï¼‰
+/// - OnDisable ã«çŸ­å¯¿å‘½ãƒ­ã‚°ã‚’æ®‹ã—ã¦ãƒˆãƒ¬ãƒ¼ã‚¹å¯èƒ½ã«ã™ã‚‹
 /// </summary>
 public class EnemyBase : MonoBehaviour
 {
-    [Header("ƒGƒlƒ~[ID")]
+    [Header("ã‚¨ãƒãƒŸãƒ¼ID")]
     [SerializeField] int enemyID = 0;
-    [Header("Å‘åHP")]
+    [Header("æœ€å¤§HP")]
     [SerializeField] int maxHp = 1;
-    [Header("Œ»İHP")]
+    [Header("ç¾åœ¨HP")]
     [SerializeField] int currentHp;
 
-    [Header("’e–‹ƒvƒŒƒnƒu")]
+    [Header("å¼¾å¹•ãƒ—ãƒ¬ãƒãƒ–")]
     [SerializeField] GameObject bulletPrefab;
-    [Header("’e–‹Ši”[æ(e)")]
+    [Header("å¼¾å¹•æ ¼ç´å…ˆ(è¦ª)")]
     [SerializeField] GameObject bulletParentObj;
 
     private Vector2  initialScale;
@@ -275,28 +275,28 @@ public class EnemyBase : MonoBehaviour
 
     private float lifeTimer = 0f;
 
-    // ƒƒOo—Í—p
-    List<PlayerBase> activePlayersList = new List<PlayerBase>();    // ƒvƒŒƒCƒ„[‚ÌˆÊ’u
-    private int taskAssigneeID_Local = 0;           // Ó”CÒID(ƒGƒlƒ~[‘¤‚Åˆµ‚¤•Ö‹X“I‚ÈID)
-    private int taskAssigneeID_Player = 0;          // Ó”CÒID(ƒvƒŒƒCƒ„[‚ÌƒvƒŒƒCƒ„[ID)
-    private int taskAssigneeCountFrame = 0;         // Ó”CÒID‚ğ•t—^‚·‚éÛ‚ÌƒtƒŒ[ƒ€‚ÌƒJƒEƒ“ƒ^[(Å‰‚ÌƒJƒEƒ“ƒg‚ÍÅŒã‚ÌÀ•W‚ª‹L˜^‚³‚ê‚È‚¢‚È‚Ç‚Ì——R)
-    private bool isEscape = false;                  // Œ‚‚¿˜R‚ç‚µ
-    Vector2 currentPos;                             // Œ»İ‚ÌˆÊ’u
-    Vector2 lastPos;                                // 1ƒtƒŒ[ƒ€‘O‚ÌˆÊ’u
+    // ãƒ­ã‚°å‡ºåŠ›ç”¨
+    List<PlayerBase> activePlayersList = new List<PlayerBase>();    // ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®ä½ç½®
+    private int taskAssigneeID_Local = 0;           // è²¬ä»»è€…ID(ã‚¨ãƒãƒŸãƒ¼å´ã§æ‰±ã†ä¾¿å®œçš„ãªID)
+    private int taskAssigneeID_Player = 0;          // è²¬ä»»è€…ID(ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ID)
+    private int taskAssigneeCountFrame = 0;         // è²¬ä»»è€…IDã‚’ä»˜ä¸ã™ã‚‹éš›ã®ãƒ•ãƒ¬ãƒ¼ãƒ ã®ã‚«ã‚¦ãƒ³ã‚¿ãƒ¼(æœ€åˆã®ã‚«ã‚¦ãƒ³ãƒˆã¯æœ€å¾Œã®åº§æ¨™ãŒè¨˜éŒ²ã•ã‚Œãªã„ãªã©ã®ç†ç”±)
+    private bool isEscape = false;                  // æ’ƒã¡æ¼ã‚‰ã—
+    Vector2 currentPos;                             // ç¾åœ¨ã®ä½ç½®
+    Vector2 lastPos;                                // 1ãƒ•ãƒ¬ãƒ¼ãƒ å‰ã®ä½ç½®
 
-    private bool isCount = false;                   // ¶¬‚µ‚ÄÅ‰‚ÌƒtƒŒ[ƒ€‚ÅtrueA“G‚Ì¶¬”‚ğƒJƒEƒ“ƒg‚·‚é‚½‚ß
+    private bool isCount = false;                   // ç”Ÿæˆã—ã¦æœ€åˆã®ãƒ•ãƒ¬ãƒ¼ãƒ ã§trueã€æ•µã®ç”Ÿæˆæ•°ã‚’ã‚«ã‚¦ãƒ³ãƒˆã™ã‚‹ãŸã‚
 
-    // ‰æ–ÊŠO‚Ì”ÍˆÍ
+    // ç”»é¢å¤–ã®ç¯„å›²
     float minX = -10.0f;
     float maxX = 10.0f;
     float minY = -6.0f;
     float maxY = 6.0f;
 
-    private int bulletLaunchCounter = 0;            // ’e–‹‚ğ”­Ë‚µ‚½‰ñ”
+    private int bulletLaunchCounter = 0;            // å¼¾å¹•ã‚’ç™ºå°„ã—ãŸå›æ•°
 
     void Start()
     {
-        // Šù‘¶ Start ˆ—i•K—v‚È‚çc‚·j
+        // æ—¢å­˜ Start å‡¦ç†ï¼ˆå¿…è¦ãªã‚‰æ®‹ã™ï¼‰
         initialScale = transform.localScale;
     }
 
@@ -305,24 +305,24 @@ public class EnemyBase : MonoBehaviour
         lifeTimer += Time.fixedDeltaTime;
         timer += Time.fixedDeltaTime;
 
-        // ¶¬‚³‚ê‚½‚©‚Ç‚¤‚©
+        // ç”Ÿæˆã•ã‚ŒãŸã‹ã©ã†ã‹
         if (isCount == false) 
         {
-            // ¶¬‚³‚ê‚½”‚ÌƒJƒEƒ“ƒg
+            // ç”Ÿæˆã•ã‚ŒãŸæ•°ã®ã‚«ã‚¦ãƒ³ãƒˆ
             ActionLogController.Instance.CountEnemy();
 
             isCount = true;
         } 
 
-        // Ó”CÒIDæ“¾
+        // è²¬ä»»è€…IDå–å¾—
         if (taskAssigneeID_Local == 0) 
         {
             GetTaskAssigneeID();
-            // Ó”CÒ‚ÌƒJƒEƒ“ƒg
+            // è²¬ä»»è€…ã®ã‚«ã‚¦ãƒ³ãƒˆ
             ActionLogController.Instance.AddTaskAssignee(taskAssigneeID_Player);
         }
 
-        // Œ‚‚¿˜R‚ç‚µæ“¾
+        // æ’ƒã¡æ¼ã‚‰ã—å–å¾—
         if (taskAssigneeCountFrame > 1) 
         {
             if (taskAssigneeID_Local == 1 || taskAssigneeID_Local == 2)
@@ -332,12 +332,12 @@ public class EnemyBase : MonoBehaviour
         }
         taskAssigneeCountFrame++;
 
-        // ˆÚ“®ˆ—
+        // ç§»å‹•å‡¦ç†
         Move();
         
         if (timer >= 0.75f)
         {
-            // ”­Ë‚Í3‰ñ‚Ü‚Å(‰º‚Å”­Ë‚·‚é‚Æ“ïˆÕ“x‚ª’µ‚Ëã‚ª‚é‚½‚ß)
+            // ç™ºå°„ã¯3å›ã¾ã§(ä¸‹ã§ç™ºå°„ã™ã‚‹ã¨é›£æ˜“åº¦ãŒè·³ã­ä¸ŠãŒã‚‹ãŸã‚)
             if (bulletLaunchCounter >= 3) return;
 
             float num = Random.Range(0.0f, 360.0f);
@@ -349,65 +349,65 @@ public class EnemyBase : MonoBehaviour
             bulletLaunchCounter++;
         }
 
-        // ‰æ–ÊŠOƒ`ƒFƒbƒNiƒRƒƒ“ƒgƒAƒEƒg‰Âj
+        // ç”»é¢å¤–ãƒã‚§ãƒƒã‚¯ï¼ˆã‚³ãƒ¡ãƒ³ãƒˆã‚¢ã‚¦ãƒˆå¯ï¼‰
         Vector3 pos = transform.position;
         if (pos.x < minX || pos.x > maxX || pos.y < minY || pos.y > maxY)
         {
-            // ‰æ–ÊŠO‚Å‘¦€‚³‚¹‚½‚­‚È‚¢ê‡‚Í‰½‚à‚µ‚È‚¢
+            // ç”»é¢å¤–ã§å³æ­»ã•ã›ãŸããªã„å ´åˆã¯ä½•ã‚‚ã—ãªã„
             Death(false, -1);
         }
     }
 
     /// <summary>
-    /// ”íƒ_ƒ[ƒWˆ—iHP <= 0 ‚Ì‚Æ‚«‚Í Death ‚ğŒÄ‚Ôj
+    /// è¢«ãƒ€ãƒ¡ãƒ¼ã‚¸å‡¦ç†ï¼ˆHP <= 0 ã®ã¨ãã¯ Death ã‚’å‘¼ã¶ï¼‰
     /// </summary>
     public int Damage(int damage, int attackID)
     {
         currentHp -= damage;
 
-        // ƒXƒRƒA“™‚Ìˆ—AUŒ‚
+        // ã‚¹ã‚³ã‚¢ç­‰ã®å‡¦ç†ã€æ”»æ’ƒ
         ScoreSystemController.Instance.UpdateScore(1, attackID);
 
         if (currentHp <= 0)
         {
-            // ƒXƒRƒA“™‚Ìˆ—AŒ‚”j
+            // ã‚¹ã‚³ã‚¢ç­‰ã®å‡¦ç†ã€æ’ƒç ´
             ScoreSystemController.Instance.UpdateScore(2, attackID);
 
-            // ƒGƒtƒFƒNƒgE‰¹
+            // ã‚¨ãƒ•ã‚§ã‚¯ãƒˆãƒ»éŸ³
             if (EnemyDeathEffect.Instance != null)
                 EnemyDeathEffect.Instance.PlayEffect(transform.position);
             SoundManager.PlaySE(SEType.EnemyDeath);
 
-            // €–S
+            // æ­»äº¡
             Death(true, attackID);
             return 1;
         }
         return 0;
     }
 
-    // Death: ƒv[ƒ‹‚Ö–ß‚·iDestroy‚µ‚È‚¢j
+    // Death: ãƒ—ãƒ¼ãƒ«ã¸æˆ»ã™ï¼ˆDestroyã—ãªã„ï¼‰
     public void Death(bool isKilled, int attackID)
     {
-        // Œ‚‚¿˜R‚ç‚µ•â•”»’è(Œ‚‚¿˜R‚ç‚µƒtƒ‰ƒO‚ª‚ ‚é“G‚ª“|‚³‚ê‚½)
+        // æ’ƒã¡æ¼ã‚‰ã—è£œåŠ©åˆ¤å®š(æ’ƒã¡æ¼ã‚‰ã—ãƒ•ãƒ©ã‚°ãŒã‚ã‚‹æ•µãŒå€’ã•ã‚ŒãŸ)
         if (ActionLogController.IsAvailable())
         {
-            // isEscape(Œ‚‚¿˜R‚ç‚µ‚ª”­¶‚µ‚½‚©),taskAssigneeID_Player(Ó”CÒ),attackID(UŒ‚Ò),true/false(‹¦’²¬—§‚©)
+            // isEscape(æ’ƒã¡æ¼ã‚‰ã—ãŒç™ºç”Ÿã—ãŸã‹),taskAssigneeID_Player(è²¬ä»»è€…),attackID(æ”»æ’ƒè€…),true/false(å”èª¿æˆç«‹ã‹)
             ActionLogController.Instance.AddIsEscapeData(isKilled, isEscape, taskAssigneeID_Player, attackID);
         }
 
-        // ƒv[ƒ‹‚Ö•Ô‹piEnemyPoolManager ‚ğg—pj
+        // ãƒ—ãƒ¼ãƒ«ã¸è¿”å´ï¼ˆEnemyPoolManager ã‚’ä½¿ç”¨ï¼‰
         if (EnemyPoolManager.Instance != null)
         {
             EnemyPoolManager.Instance.ReleaseEnemy(this.gameObject);
         }
         else
         {
-            // —\”õ: ƒv[ƒ‹‚ª‚È‚¢‚È‚ç DestroyiˆÀ‘Sôj
+            // äºˆå‚™: ãƒ—ãƒ¼ãƒ«ãŒãªã„ãªã‚‰ Destroyï¼ˆå®‰å…¨ç­–ï¼‰
             Destroy(this.gameObject);
         }
     }
 
-    // ˆÚ“®iŠù‘¶‚ÌƒƒWƒbƒN‚ğ•Ûj
+    // ç§»å‹•ï¼ˆæ—¢å­˜ã®ãƒ­ã‚¸ãƒƒã‚¯ã‚’ä¿æŒï¼‰
     public void Move()
     {
         float moveSpeed = 7.5f;
@@ -437,26 +437,26 @@ public class EnemyBase : MonoBehaviour
         transform.position += (Vector3)(moveDirection * moveSpeed * Time.fixedDeltaTime);
     }
 
-    // Ó”CÒIDæ“¾
+    // è²¬ä»»è€…IDå–å¾—
     public void GetTaskAssigneeID() 
     {
-        // ‚ß‚¿‚á‚­‚¿‚ád‚¢ˆ—‚È‚Ì‚ÅŒã‚Å‘‚«’¼‚·
+        // ã‚ã¡ã‚ƒãã¡ã‚ƒé‡ã„å‡¦ç†ãªã®ã§å¾Œã§æ›¸ãç›´ã™
         PlayerBase[] activePlayersArray = FindObjectsOfType<PlayerBase>();
         activePlayersList = new List<PlayerBase>(activePlayersArray);
 
         if (activePlayersList.Count != 2)
         {
-            //Debug.Log("Player‚ª" + activePlayersList.Count + "‘Ì‚¢‚éó‘ÔB");
+            //Debug.Log("PlayerãŒ" + activePlayersList.Count + "ä½“ã„ã‚‹çŠ¶æ…‹ã€‚");
             taskAssigneeID_Local = -1;
         }
         else
         {
-            // Ó”CÒID
+            // è²¬ä»»è€…ID
             Vector2 pos_0 = this.transform.position;
             Vector2 pos_1 = (Vector2)activePlayersList[0].transform.position - pos_0;
             Vector2 pos_2 = (Vector2)activePlayersList[1].transform.position - pos_0;
 
-            // ƒvƒŒƒCƒ„[‚ª©g‚æ‚è‰º‚É‚¢‚éê‡(ƒVƒ‡ƒbƒg‚ÍãŒü‚«‚È‚Ì‚Å–³‹‚·‚é•K—v‚ª‚ ‚é)
+            // ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ãŒè‡ªèº«ã‚ˆã‚Šä¸‹ã«ã„ã‚‹å ´åˆ(ã‚·ãƒ§ãƒƒãƒˆã¯ä¸Šå‘ããªã®ã§ç„¡è¦–ã™ã‚‹å¿…è¦ãŒã‚ã‚‹)
             if (pos_1.y < 0)
             {
                 pos_1.y = 0;
@@ -466,79 +466,79 @@ public class EnemyBase : MonoBehaviour
                 pos_2.y = 0;
             }
 
-            // ‹——£”äŠrAIDæ“¾B
+            // è·é›¢æ¯”è¼ƒã€IDå–å¾—ã€‚
             if (pos_1.sqrMagnitude <= pos_2.sqrMagnitude)
             {
-                // ƒ[ƒJƒ‹ID
+                // ãƒ­ãƒ¼ã‚«ãƒ«ID
                 taskAssigneeID_Local = 1;
                 //Debug.Log("taskAssigneeID_Local==" + taskAssigneeID_Local);
-                // ƒvƒŒƒCƒ„[ID
+                // ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ID
                 taskAssigneeID_Player = activePlayersList[0].PlayerID;
                 //Debug.Log("taskAssigneeID_Player==" + taskAssigneeID_Player);
             }
             else
             {
-                // ƒ[ƒJƒ‹ID
+                // ãƒ­ãƒ¼ã‚«ãƒ«ID
                 taskAssigneeID_Local = 2;
                 //Debug.Log("taskAssigneeID_Local==" + taskAssigneeID_Local);
-                // ƒvƒŒƒCƒ„[ID
+                // ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ID
                 taskAssigneeID_Player = activePlayersList[1].PlayerID;
                 //Debug.Log("taskAssigneeID_Player==" + taskAssigneeID_Player);
             }
         }
     }
 
-    // Œ‚‚¿˜R‚ç‚µæ“¾
+    // æ’ƒã¡æ¼ã‚‰ã—å–å¾—
     public void GetIsEscape() 
     {
-        // ˆÚ“®•ûŒü‹L˜^
-        lastPos = currentPos;                   // 1ƒtƒŒ[ƒ€‘O
-        currentPos = this.transform.position;   // Œ»İ‚ÌƒtƒŒ[ƒ€
+        // ç§»å‹•æ–¹å‘è¨˜éŒ²
+        lastPos = currentPos;                   // 1ãƒ•ãƒ¬ãƒ¼ãƒ å‰
+        currentPos = this.transform.position;   // ç¾åœ¨ã®ãƒ•ãƒ¬ãƒ¼ãƒ 
 
-        // Ó”CÒ‚ÌˆÊ’u
+        // è²¬ä»»è€…ã®ä½ç½®
         //Vector2 playerPos = activePlayersList[taskAssigneeID - 1].transform.position;
         Vector2 playerPos = (Vector2)activePlayersList[taskAssigneeID_Local - 1].transform.position;
 
-        // Ó”CÒ‚ª–¢İ’èA‚Ü‚½‚ÍŠù‚ÉŒ‚‚¿˜R‚ç‚µó‘Ô‚È‚ç”»’è‚µ‚È‚¢
+        // è²¬ä»»è€…ãŒæœªè¨­å®šã€ã¾ãŸã¯æ—¢ã«æ’ƒã¡æ¼ã‚‰ã—çŠ¶æ…‹ãªã‚‰åˆ¤å®šã—ãªã„
         //if (activePlayersList[taskAssigneeID] == null || isBypassed)
         //    return;
 
-        // “G‚ÌuŒ»İ‚ÌˆÚ“®•ûŒüv‚ğ¦‚·ƒxƒNƒgƒ‹
+        // æ•µã®ã€Œç¾åœ¨ã®ç§»å‹•æ–¹å‘ã€ã‚’ç¤ºã™ãƒ™ã‚¯ãƒˆãƒ«
         Vector2 movementVector = currentPos - lastPos;
 
-        // “G‚ª’â~‚µ‚Ä‚¢‚éê‡‚Í”»’è‚Å‚«‚È‚¢‚½‚ßAˆ—‚ğ’†’f
+        // æ•µãŒåœæ­¢ã—ã¦ã„ã‚‹å ´åˆã¯åˆ¤å®šã§ããªã„ãŸã‚ã€å‡¦ç†ã‚’ä¸­æ–­
         // if (movementVector.sqrMagnitude < 0.001f)
         // return;
 
-        // V_N (–@ü): ˆÚ“®•ûŒü V_E ‚Ì‹tŒü‚«‚ğ’è‹`
+        // V_N (æ³•ç·š): ç§»å‹•æ–¹å‘ V_E ã®é€†å‘ãã‚’å®šç¾©
         Vector2 normalVector = -movementVector.normalized;
 
-        // V_EP (‘Š‘ÎˆÊ’u): “G E ‚©‚çƒvƒŒƒCƒ„[ P ‚ÖŒü‚©‚¤ƒxƒNƒgƒ‹
+        // V_EP (ç›¸å¯¾ä½ç½®): æ•µ E ã‹ã‚‰ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ P ã¸å‘ã‹ã†ãƒ™ã‚¯ãƒˆãƒ«
         // V_EP = PlayerPosition - EnemyPosition
         Vector2 vectorEnemyToPlayer = playerPos - currentPos;
 
         // ----------------------------------------------------
-        // 3. ƒhƒbƒgÏ‚É‚æ‚é’Ê‰ß”»’è
+        // 3. ãƒ‰ãƒƒãƒˆç©ã«ã‚ˆã‚‹é€šéåˆ¤å®š
         // ----------------------------------------------------
 
         float dotProduct = Vector2.Dot(vectorEnemyToPlayer, normalVector);
 
 
-        float escapeBorder = 0.5f;      // Œ‚‚¿˜R‚ç‚µ‹——£
+        float escapeBorder = 0.5f;      // æ’ƒã¡æ¼ã‚‰ã—è·é›¢
 
-        if (dotProduct >= escapeBorder) //‚Ç‚ê‚¾‚¯‰z‚¦‚½‚©B
+        if (dotProduct >= escapeBorder) //ã©ã‚Œã ã‘è¶ŠãˆãŸã‹ã€‚
         {
-            // ƒhƒbƒgÏ‚ª³ = “G‚ª”»’èƒ‰ƒCƒ“‚ğ‰z‚¦‚ÄƒvƒŒƒCƒ„[‚ÌŒã‚ë‚É‰ñ‚Á‚½
+            // ãƒ‰ãƒƒãƒˆç©ãŒæ­£ = æ•µãŒåˆ¤å®šãƒ©ã‚¤ãƒ³ã‚’è¶Šãˆã¦ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®å¾Œã‚ã«å›ã£ãŸ
             isEscape = true;
-            //Debug.Log("yŒ‚‚¿˜R‚ç‚µ”­¶z: " + activePlayersList[taskAssigneeID_Local - 1].name + " ‚ğ“G‚ª’Ê‰ßB");
+            //Debug.Log("ã€æ’ƒã¡æ¼ã‚‰ã—ç™ºç”Ÿã€‘: " + activePlayersList[taskAssigneeID_Local - 1].name + " ã‚’æ•µãŒé€šéã€‚");
         }
     }
 
 
     /// <summary>
-    /// š V‹KF“à•”ê—p‚ÌŒy‚¢‰Šú‰»iActive‰»‘O‚ÉŒÄ‚Ôj
-    /// - Transform ‚Ì‰Šú‰»‚ÍŒÄ‚Ño‚µ‘¤iSpawnj‚Å‚â‚é‘z’è
-    /// - ‚±‚±‚Å‚Í HPEƒ^ƒCƒ}[‚È‚ÇÅ’áŒÀ‚ğƒŠƒZƒbƒg‚·‚é
+    /// â˜… æ–°è¦ï¼šå†…éƒ¨å°‚ç”¨ã®è»½ã„åˆæœŸåŒ–ï¼ˆActiveåŒ–å‰ã«å‘¼ã¶ï¼‰
+    /// - Transform ã®åˆæœŸåŒ–ã¯å‘¼ã³å‡ºã—å´ï¼ˆSpawnï¼‰ã§ã‚„ã‚‹æƒ³å®š
+    /// - ã“ã“ã§ã¯ HPãƒ»ã‚¿ã‚¤ãƒãƒ¼ãªã©æœ€ä½é™ã‚’ãƒªã‚»ãƒƒãƒˆã™ã‚‹
     /// </summary>
     public void ResetEnemy_Internal()
     {
@@ -546,7 +546,7 @@ public class EnemyBase : MonoBehaviour
         timer = 0;
         lifeTimer = 0;
 
-        // š’Ç‰ÁFˆÊ’uƒŠƒZƒbƒg
+        // â˜…è¿½åŠ ï¼šä½ç½®ãƒªã‚»ãƒƒãƒˆ
         transform.position = new Vector3(9999, 9999, 0);
 
         taskAssigneeID_Local = 0;
@@ -557,7 +557,7 @@ public class EnemyBase : MonoBehaviour
         bulletLaunchCounter = 0;
     }
 
-    // LaunchBullet ‚ÍŠù‘¶‚Ì‚à‚Ì‚ğ‚»‚Ì‚Ü‚Ü—˜—p
+    // LaunchBullet ã¯æ—¢å­˜ã®ã‚‚ã®ã‚’ãã®ã¾ã¾åˆ©ç”¨
     public void LaunchBullet(Vector3 pos, float moveSpeed, float angleDegree)
     {
         if (bulletParentObj == null)
@@ -610,7 +610,7 @@ public class EnemyBase : MonoBehaviour
         set { currentHp = value; }
     }
 
-    // ’Zõ–½‚Å“Ë‘R”ñƒAƒNƒeƒBƒu‚É‚È‚Á‚½‚Æ‚«‚Ì’ÇÕ—pƒƒO‚ğo‚·
+    // çŸ­å¯¿å‘½ã§çªç„¶éã‚¢ã‚¯ãƒ†ã‚£ãƒ–ã«ãªã£ãŸã¨ãã®è¿½è·¡ç”¨ãƒ­ã‚°ã‚’å‡ºã™
     private void OnDisable()
     {
         float survivalTime = lifeTimer;

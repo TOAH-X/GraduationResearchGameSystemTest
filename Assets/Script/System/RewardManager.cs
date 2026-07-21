@@ -1,4 +1,4 @@
-using System;
+ï»¿using System;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.MLAgents;
@@ -10,26 +10,26 @@ public class RewardManager : MonoBehaviour
 
     //[SerializeField] string playerType;
 
-    [Header("•ñVF“GUŒ‚")]      //0.5
+    [Header("å ±é…¬ï¼šæ•µæ”»æ’ƒ")]      //0.5
     [SerializeField] float attackReward = 0.5f;
-    [Header("•ñVF“GŒ‚”j")]      //5
+    [Header("å ±é…¬ï¼šæ•µæ’ƒç ´")]      //5
     [SerializeField] float killReward = 5f;
-    [Header("•ñVF‘Ï‹v")]        //0.01
+    [Header("å ±é…¬ï¼šè€ä¹…")]        //0.01
     [SerializeField] float survivalReward = 0.01f;
-    [Header("•ñV(•‰)F—©‚é")]    //-0.1
+    [Header("å ±é…¬(è² )ï¼šæ ã‚‹")]    //-0.1
     [SerializeField] float grazePenalty = -0.1f;
-    [Header("•ñV(•‰)F”í’e")]    //-10
+    [Header("å ±é…¬(è² )ï¼šè¢«å¼¾")]    //-10
     [SerializeField] float hitPenalty = -10f;
-    [Header("•ñV(•‰)F“V”±")]    //-50
+    [Header("å ±é…¬(è² )ï¼šå¤©ç½°")]    //-50
     [SerializeField] float punishPenalty = -50f;
-    [Header("•ñVF“V—S")]        //50
+    [Header("å ±é…¬ï¼šå¤©ç¥")]        //50
     [SerializeField] float graceReward = 50f;
 
     List<RewardType> rewardList = new List<RewardType>();
-    // •ñV‡Œv
+    // å ±é…¬åˆè¨ˆ
     public float RewardSum { get; set; } = 0;
 
-    // •ñV
+    // å ±é…¬
     public void AddReward(RewardType rewardType)
     {
         float reward = rewardType switch
@@ -51,14 +51,14 @@ public class RewardManager : MonoBehaviour
         RewardSum += reward;
     }
 
-    // •ñV‚Ìæ“¾
+    // å ±é…¬ã®å–å¾—
     public int GetRewardCount(RewardType rewardType)
     {
         return rewardList.Count(r => r == rewardType);
     }
 }
 
-// •ñV–¼’è‹`
+// å ±é…¬åå®šç¾©
 public enum RewardType
 {
     AttackReward,

@@ -1,13 +1,13 @@
-using System.Collections.Generic;
+ï»¿using System.Collections.Generic;
 using UnityEngine;
 
 public class ShotPooler : MonoBehaviour
 {
-    [Header("ƒVƒ‡ƒbƒg‚ÌƒvƒŒƒnƒu")]
+    [Header("ã‚·ãƒ§ãƒƒãƒˆã®ãƒ—ãƒ¬ãƒãƒ–")]
     [SerializeField] GameObject shotPrefab;
-    [Header("ƒv[ƒŠƒ“ƒOƒTƒCƒY")]
+    [Header("ãƒ—ãƒ¼ãƒªãƒ³ã‚°ã‚µã‚¤ã‚º")]
     [SerializeField] int poolSize = 100;
-    [Header("ƒVƒ‡ƒbƒg‚Ìe")]
+    [Header("ã‚·ãƒ§ãƒƒãƒˆã®è¦ª")]
     [SerializeField] GameObject shotParentObj;
 
     private Queue<GameObject> pool = new Queue<GameObject>();

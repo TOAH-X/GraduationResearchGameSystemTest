@@ -1,4 +1,4 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using System.IO;
 using System;
 
@@ -45,7 +45,7 @@ public class ActionLogCSV : MonoBehaviour
     }
 
     /*
-    // ‘‚«‚İ(step,time,hp,reward,state)
+    // æ›¸ãè¾¼ã¿(step,time,hp,reward,state)
     public void UpdateData()
     {
         string jst = GetCurrentJST();
@@ -68,8 +68,8 @@ public class ActionLogCSV : MonoBehaviour
     }
     */
 
-    // JST,”íŒ±ÒID,ƒXƒe[ƒWID,ƒvƒŒƒCƒ„[ID,ŠwKƒ^ƒCƒv,CurrentHP,*•ñVŠÖŒW(¶‰Eî•ñ)¦€–S‚·‚é‚Ü‚Å‚à“ü‚ê‚é‚Æ—Ç‚¢‚©‚à,oŒ»‚µ‚½“G‚Ì‘”,ŠeƒXƒRƒA,ActionDataGroup(Total,A,B)
-    // ‘‚«‚İ(step,time,hp,reward,state)
+    // JST,è¢«é¨“è€…ID,ã‚¹ãƒ†ãƒ¼ã‚¸ID,ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ID,å­¦ç¿’ã‚¿ã‚¤ãƒ—,CurrentHP,*å ±é…¬é–¢ä¿‚(å·¦å³æƒ…å ±è¾¼)â€»æ­»äº¡ã™ã‚‹ã¾ã§ã‚‚å…¥ã‚Œã‚‹ã¨è‰¯ã„ã‹ã‚‚,å‡ºç¾ã—ãŸæ•µã®ç·æ•°,å„ã‚¹ã‚³ã‚¢,ActionDataGroup(Total,A,B)
+    // æ›¸ãè¾¼ã¿(step,time,hp,reward,state)
     public void UpdateData(ActionDataGroup t, ActionDataGroup a, ActionDataGroup b)
     {
         if (string.IsNullOrEmpty(logFilePath))
@@ -142,17 +142,17 @@ public class ActionLogCSV : MonoBehaviour
         File.AppendAllText(logFilePath, line);
     }
 
-    // “ú–{‚ÌŒ»İŠÔ‚Ìæ“¾
+    // æ—¥æœ¬ã®ç¾åœ¨æ™‚é–“ã®å–å¾—
     public string GetCurrentJST()
     {
-        // ‹¦’è¢ŠE (UTC) ‚ğæ“¾
+        // å”å®šä¸–ç•Œæ™‚ (UTC) ã‚’å–å¾—
         DateTime utcNow = DateTime.UtcNow;
 
-        // JST‚ÍUTC+9ŠÔ‚È‚Ì‚ÅA9ŠÔ‚ğ‰ÁZ‚·‚é
+        // JSTã¯UTC+9æ™‚é–“ãªã®ã§ã€9æ™‚é–“ã‚’åŠ ç®—ã™ã‚‹
         DateTime jstTime = utcNow.AddHours(9);
 
         return jstTime.ToString("yyyy/MM/dd HH:mm:ss");
     }
 
-    // ‘‚«‚İ‚½‚¢“à—e...Œ‚”j”AŒ‚‚¿˜R‚ç‚µ•â•
+    // æ›¸ãè¾¼ã¿ãŸã„å†…å®¹...æ’ƒç ´æ•°ã€æ’ƒã¡æ¼ã‚‰ã—è£œåŠ©
 }

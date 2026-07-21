@@ -1,14 +1,14 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class LifeUIController : MonoBehaviour
 {
-    [SerializeField] PlayerBase playerBaseScript;       // playerBase‚ÌƒXƒNƒŠƒvƒg
-    [SerializeField] GameObject lifeObj;                   // c‹@‚ÌImage
+    [SerializeField] PlayerBase playerBaseScript;       // playerBaseã®ã‚¹ã‚¯ãƒªãƒ—ãƒˆ
+    [SerializeField] GameObject lifeObj;                   // æ®‹æ©Ÿã®Image
 
-    [SerializeField] Transform lifeContainer;           // ƒn[ƒg‚ğ•À‚×‚ée
+    [SerializeField] Transform lifeContainer;           // ãƒãƒ¼ãƒˆã‚’ä¸¦ã¹ã‚‹è¦ª
 
     private List<GameObject> heartList = new List<GameObject>();
 

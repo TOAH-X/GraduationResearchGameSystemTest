@@ -1,24 +1,24 @@
-using System.Collections.Generic;
+ï»¿using System.Collections.Generic;
 using UnityEngine;
 
 [System.Serializable] 
 public struct ActionDataGroup
 {
-    // ƒvƒŒƒCƒ„[‚ª“G‚ğUŒ‚‚µ‚½”
+    // ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ãŒæ•µã‚’æ”»æ’ƒã—ãŸæ•°
     public int attackedCount;
-    // ƒvƒŒƒCƒ„[‚ª“G‚ğ“|‚µ‚½”(“|‚µ‚½ƒvƒŒƒCƒ„[)
+    // ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ãŒæ•µã‚’å€’ã—ãŸæ•°(å€’ã—ãŸãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼)
     public int killedCount;
-    // Ó”CŠ„‚è“–‚Ä”(ƒvƒŒƒCƒ„[‚ÌÓ”C‚Ì”)
+    // è²¬ä»»å‰²ã‚Šå½“ã¦æ•°(ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®è²¬ä»»ã®æ•°)
     public int taskAssigneeCount;
-    // ©g‚ÌÓ”C‚ª•t‚¢‚½“G‚ğ“|‚µ‚½”(ƒTƒuè–@)
+    // è‡ªèº«ã®è²¬ä»»ãŒä»˜ã„ãŸæ•µã‚’å€’ã—ãŸæ•°(ã‚µãƒ–æ‰‹æ³•)
     public int taskAssigneeKilldedCount;
-    // ©g‚ÌÓ”C‚ª•t‚¢‚Ä‚¢‚È‚¢“G‚ğ“|‚µ‚½”(ƒTƒuè–@)
+    // è‡ªèº«ã®è²¬ä»»ãŒä»˜ã„ã¦ã„ãªã„æ•µã‚’å€’ã—ãŸæ•°(ã‚µãƒ–æ‰‹æ³•)
     public int nonTaskAssigneeKilldedCount;
-    // Œ‚‚¿˜R‚ç‚µ‚Ì”(Ó”C‚ÌŠ‘®)
+    // æ’ƒã¡æ¼ã‚‰ã—ã®æ•°(è²¬ä»»ã®æ‰€å±)
     public int escapedCount;
-    // ‘Šè‚ªŒ‚‚¿˜R‚ç‚µ‚Ä©•ª‚ª“G‚ğ“|‚µ‚½”
+    // ç›¸æ‰‹ãŒæ’ƒã¡æ¼ã‚‰ã—ã¦è‡ªåˆ†ãŒæ•µã‚’å€’ã—ãŸæ•°
     public int escapedPartnerKilledSelf;
-    // ©•ª‚ªŒ‚‚¿˜R‚ç‚µ‚Ä©•ª‚ª“G‚ğ“|‚µ‚½”
+    // è‡ªåˆ†ãŒæ’ƒã¡æ¼ã‚‰ã—ã¦è‡ªåˆ†ãŒæ•µã‚’å€’ã—ãŸæ•°
     public int escapedSelfKilledSelf;
 }
 
@@ -34,68 +34,68 @@ public class ActionLogController : SafeSingleton<ActionLogController>
     public ActionDataGroup StatsA => statsA;
     public ActionDataGroup StatsB => statsB;
 
-    //ƒXƒe[ƒWID
+    //ã‚¹ãƒ†ãƒ¼ã‚¸ID
     public int ActionLog_StageID { get; set; } = -1;
-    // PlayerID(Šï”‹@‘Ì)
+    // PlayerID(å¥‡æ•°æ©Ÿä½“)
     public int ActionLog_PlayerID_A { get; set; } = 0;
-    // PlayerID(‹ô”‹@‘Ì)
+    // PlayerID(å¶æ•°æ©Ÿä½“)
     public int ActionLog_PlayerID_B { get; set; } = 0;
-    // CurrentHP(Šï”‹@‘Ì)
+    // CurrentHP(å¥‡æ•°æ©Ÿä½“)
     public int ActionLog_CurrentHP_A { get; set; } = 0;
-    // CurrentHP(‹ô”‹@‘Ì)
+    // CurrentHP(å¶æ•°æ©Ÿä½“)
     public int ActionLog_CurrentHP_B { get; set; } = 0;
-    // ŠwKƒ^ƒCƒv(Šï”‹@‘Ì)
+    // å­¦ç¿’ã‚¿ã‚¤ãƒ—(å¥‡æ•°æ©Ÿä½“)
     public string ActionLog_BehaviorTypeName_A { get; set; } = "";
-    // ŠwKƒ^ƒCƒv(‹ô”‹@‘Ì)
+    // å­¦ç¿’ã‚¿ã‚¤ãƒ—(å¶æ•°æ©Ÿä½“)
     public string ActionLog_BehaviorTypeName_B { get; set; } = "";
-    // ƒQ[ƒ€“àƒXƒRƒA(‘‡)
+    // ã‚²ãƒ¼ãƒ å†…ã‚¹ã‚³ã‚¢(ç·åˆ)
     public int ActionLog_Score_Total { get; set; } = 0;
-    // ƒQ[ƒ€“àƒXƒRƒA(Šï”‹@‘Ì)
+    // ã‚²ãƒ¼ãƒ å†…ã‚¹ã‚³ã‚¢(å¥‡æ•°æ©Ÿä½“)
     public int ActionLog_Score_A { get; set; } = 0;
-    // ƒQ[ƒ€“àƒXƒRƒA(‹ô”‹@‘Ì)
+    // ã‚²ãƒ¼ãƒ å†…ã‚¹ã‚³ã‚¢(å¶æ•°æ©Ÿä½“)
     public int ActionLog_Score_B { get; set; } = 0;
-    // ƒQ[ƒ€“àƒXƒRƒA(‹ô”‹@‘Ì)
+    // ã‚²ãƒ¼ãƒ å†…ã‚¹ã‚³ã‚¢(å¶æ•°æ©Ÿä½“)
     public List<float> ActionLog_PosValue_A { get; set; } = new List<float>(new float[17]);
-    // ƒQ[ƒ€“àƒXƒRƒA(‹ô”‹@‘Ì)
+    // ã‚²ãƒ¼ãƒ å†…ã‚¹ã‚³ã‚¢(å¶æ•°æ©Ÿä½“)
     public List<float> ActionLog_PosValue_B { get; set; } = new List<float>(new float[17]);
 
     /*
-    // ƒvƒŒƒCƒ„[‚ª“G‚ğ“|‚µ‚½”(“|‚µ‚½ƒvƒŒƒCƒ„[)
+    // ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ãŒæ•µã‚’å€’ã—ãŸæ•°(å€’ã—ãŸãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼)
     [SerializeField] private int killedCount = 0;
     [SerializeField] private int killedCountA = 0;
     [SerializeField] private int killedCountB = 0;
-    // Ó”CŠ„‚è“–‚Ä”(ƒvƒŒƒCƒ„[‚ÌÓ”C‚Ì”)
+    // è²¬ä»»å‰²ã‚Šå½“ã¦æ•°(ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®è²¬ä»»ã®æ•°)
     [SerializeField] private int taskAssigneeCount = 0;
     [SerializeField] private int taskAssigneeCountA = 0;
     [SerializeField] private int taskAssigneeCountB = 0;
-    // ©g‚ÌÓ”C‚ª•t‚¢‚½“G‚ğ“|‚µ‚½”(ƒTƒuè–@)
+    // è‡ªèº«ã®è²¬ä»»ãŒä»˜ã„ãŸæ•µã‚’å€’ã—ãŸæ•°(ã‚µãƒ–æ‰‹æ³•)
     [SerializeField] private int taskAssigneeKilldedCount = 0;
     [SerializeField] private int taskAssigneeKilldedCountA = 0;
     [SerializeField] private int taskAssigneeKilldedCountB = 0;
-    // ©g‚ÌÓ”C‚ª•t‚¢‚Ä‚¢‚È‚¢“G‚ğ“|‚µ‚½”(ƒTƒuè–@)
+    // è‡ªèº«ã®è²¬ä»»ãŒä»˜ã„ã¦ã„ãªã„æ•µã‚’å€’ã—ãŸæ•°(ã‚µãƒ–æ‰‹æ³•)
     [SerializeField] private int nonTaskAssigneeKilldedCount = 0;
     [SerializeField] private int nonTaskAssigneeKilldedCountA = 0;
     [SerializeField] private int nonTaskAssigneeKilldedCountB = 0;
-    // Œ‚‚¿˜R‚ç‚µ‚Ì”(Ó”C‚ÌŠ‘®)
+    // æ’ƒã¡æ¼ã‚‰ã—ã®æ•°(è²¬ä»»ã®æ‰€å±)
     [SerializeField] private int escapedCount = 0;
     [SerializeField] private int escapedCountA = 0;
     [SerializeField] private int escapedCountB = 0;
-    // ‘Šè‚ªŒ‚‚¿˜R‚ç‚µ‚Ä©•ª‚ª“G‚ğ“|‚µ‚½”
+    // ç›¸æ‰‹ãŒæ’ƒã¡æ¼ã‚‰ã—ã¦è‡ªåˆ†ãŒæ•µã‚’å€’ã—ãŸæ•°
     [SerializeField] private int escapedPartnerKilledSelf = 0;
     [SerializeField] private int escapedPartnerKilledSelfA = 0;
     [SerializeField] private int escapedPartnerKilledSelfB = 0;
-    // ©•ª‚ªŒ‚‚¿˜R‚ç‚µ‚Ä©•ª‚ª“G‚ğ“|‚µ‚½”
+    // è‡ªåˆ†ãŒæ’ƒã¡æ¼ã‚‰ã—ã¦è‡ªåˆ†ãŒæ•µã‚’å€’ã—ãŸæ•°
     [SerializeField] private int escapedSelfKilledSelf = 0;
     [SerializeField] private int escapedSelfKilledSelfA = 0;
     [SerializeField] private int escapedSelfKilledSelfB = 0;
     */
-    // “¦‚°Ø‚Á‚½“G‚Ì”(Š®‘S‚ÈŒ‚‚¿˜R‚ç‚µ)
+    // é€ƒã’åˆ‡ã£ãŸæ•µã®æ•°(å®Œå…¨ãªæ’ƒã¡æ¼ã‚‰ã—)
 
-    // oŒ»‚µ‚½“G‚Ì”
+    // å‡ºç¾ã—ãŸæ•µã®æ•°
     [SerializeField] private int enemyCount = 0;
     
 
-    // ¦ƒVƒXƒeƒ€ãAƒQ[ƒ€‚ª’†’f‚³‚ê‚Ä‚µ‚Ü‚Á‚Ä“|‚³‚ê‚¸‚Éˆ—‚³‚ê‚È‚©‚Á‚½“G‚Ìˆµ‚¢‚àl‚¦‚Ä‚¨‚­
+    // â€»ã‚·ã‚¹ãƒ†ãƒ ä¸Šã€ã‚²ãƒ¼ãƒ ãŒä¸­æ–­ã•ã‚Œã¦ã—ã¾ã£ã¦å€’ã•ã‚Œãšã«å‡¦ç†ã•ã‚Œãªã‹ã£ãŸæ•µã®æ‰±ã„ã‚‚è€ƒãˆã¦ãŠã
 
     // Start is called before the first frame update
     void Start()
@@ -103,14 +103,14 @@ public class ActionLogController : SafeSingleton<ActionLogController>
 
     }
 
-    // ‰Šú‰»‚µ‚½‚¢“à—e
+    // åˆæœŸåŒ–ã—ãŸã„å†…å®¹
     protected override void OnSingletonAwake()
     {
         base.OnSingletonAwake();
 
-        Debug.Log("Cooperation Manager ‚ªˆÀ‘S‚É‰Šú‰»‚³‚ê‚Ü‚µ‚½B");
+        Debug.Log("Cooperation Manager ãŒå®‰å…¨ã«åˆæœŸåŒ–ã•ã‚Œã¾ã—ãŸã€‚");
 
-        // ‚±‚±‚Åƒf[ƒ^‚Ì‰Šú‰»‚â•K—v‚ÈƒIƒuƒWƒFƒNƒg‚ÌQÆæ“¾‚ğs‚¤
+        // ã“ã“ã§ãƒ‡ãƒ¼ã‚¿ã®åˆæœŸåŒ–ã‚„å¿…è¦ãªã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®å‚ç…§å–å¾—ã‚’è¡Œã†
     }
 
     void FixedUpdate()
@@ -118,27 +118,27 @@ public class ActionLogController : SafeSingleton<ActionLogController>
 
     }
 
-    // o—ÍBActionLogCSV‚É“n‚·B
+    // å‡ºåŠ›ã€‚ActionLogCSVã«æ¸¡ã™ã€‚
     public void ExportData() 
     {
         actionLogCSV.UpdateData(statsTotal, statsA, statsB);
 
-        // ‰Šú‰»
+        // åˆæœŸåŒ–
         ResetAllStats();
     }
 
-    // Œ‚‚¿˜R‚ç‚µ•â•ŠÖŒW
-    // isKilled(“|‚³‚ê‚½‚Ì‚©),isEscape(Œ‚‚¿˜R‚ç‚µ‚ª”­¶‚µ‚½‚©),taskAssigneeID_Player(Ó”CÒ),attackID(UŒ‚Ò),true/false(‹¦’²¬—§‚©)
+    // æ’ƒã¡æ¼ã‚‰ã—è£œåŠ©é–¢ä¿‚
+    // isKilled(å€’ã•ã‚ŒãŸã®ã‹),isEscape(æ’ƒã¡æ¼ã‚‰ã—ãŒç™ºç”Ÿã—ãŸã‹),taskAssigneeID_Player(è²¬ä»»è€…),attackID(æ”»æ’ƒè€…),true/false(å”èª¿æˆç«‹ã‹)
     public void AddIsEscapeData(bool isKilled, bool isEscape, int taskAssigneeID_Player, int attackID)
     {
-        // ƒvƒŒƒCƒ„[‚ªUŒ‚‚µ‚½”
+        // ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ãŒæ”»æ’ƒã—ãŸæ•°
         statsTotal.attackedCount++;
-        // Šï”ID‹@‘Ì
+        // å¥‡æ•°IDæ©Ÿä½“
         if (attackID == 1 || attackID == 3)
         {
             statsA.attackedCount++;
         }
-        // ‹ô”ID‹@‘Ì
+        // å¶æ•°IDæ©Ÿä½“
         else if (attackID == 2 || attackID == 4)
         {
             statsB.attackedCount++;
@@ -146,44 +146,44 @@ public class ActionLogController : SafeSingleton<ActionLogController>
 
         if (isKilled == true) 
         {
-            // ƒvƒŒƒCƒ„[‚ª“G‚ğ“|‚µ‚½”
+            // ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ãŒæ•µã‚’å€’ã—ãŸæ•°
             statsTotal.killedCount++;
-            // Šï”ID‹@‘Ì
+            // å¥‡æ•°IDæ©Ÿä½“
             if (attackID == 1 || attackID == 3)
             {
                 statsA.killedCount++;
             }
-            // ‹ô”ID‹@‘Ì
+            // å¶æ•°IDæ©Ÿä½“
             else if (attackID == 2 || attackID == 4)
             {
                 statsB.killedCount++;
             }
 
-            // ©g‚ÌÓ”C‚ª•t‚¢‚½“G‚ğ“|‚µ‚½”(ƒTƒuè–@)
+            // è‡ªèº«ã®è²¬ä»»ãŒä»˜ã„ãŸæ•µã‚’å€’ã—ãŸæ•°(ã‚µãƒ–æ‰‹æ³•)
             if (taskAssigneeID_Player == attackID)
             {
                 statsTotal.taskAssigneeKilldedCount++;
-                // Šï”ID‹@‘Ì
+                // å¥‡æ•°IDæ©Ÿä½“
                 if (attackID == 1 || attackID == 3)
                 {
                     statsA.taskAssigneeKilldedCount++;
                 }
-                // ‹ô”ID‹@‘Ì
+                // å¶æ•°IDæ©Ÿä½“
                 else if (attackID == 2 || attackID == 4)
                 {
                     statsB.taskAssigneeKilldedCount++;
                 }
             }
-            // ©g‚ÌÓ”C‚ª•t‚¢‚Ä‚¢‚È‚¢“G‚ğ“|‚µ‚½”(ƒTƒuè–@)
+            // è‡ªèº«ã®è²¬ä»»ãŒä»˜ã„ã¦ã„ãªã„æ•µã‚’å€’ã—ãŸæ•°(ã‚µãƒ–æ‰‹æ³•)
             else if (taskAssigneeID_Player != attackID) 
             {
                 statsTotal.nonTaskAssigneeKilldedCount++;
-                // Šï”ID‹@‘Ì
+                // å¥‡æ•°IDæ©Ÿä½“
                 if (attackID == 1 || attackID == 3)
                 {
                     statsA.nonTaskAssigneeKilldedCount++;
                 }
-                // ‹ô”ID‹@‘Ì
+                // å¶æ•°IDæ©Ÿä½“
                 else if (attackID == 2 || attackID == 4)
                 {
                     statsB.nonTaskAssigneeKilldedCount++;
@@ -192,17 +192,17 @@ public class ActionLogController : SafeSingleton<ActionLogController>
 
         }
 
-        // ‹¦’²¬—§‚©‚ÍtaskAssigneeID_Player‚ÆattackID‚ğŒ©‚é
+        // å”èª¿æˆç«‹ã‹ã¯taskAssigneeID_Playerã¨attackIDã‚’è¦‹ã‚‹
         if (isEscape == true)  
         {
-            // Œ‚‚¿˜R‚ç‚µ‚Ì”(Ó”C‚ÌŠ‘®)
+            // æ’ƒã¡æ¼ã‚‰ã—ã®æ•°(è²¬ä»»ã®æ‰€å±)
             statsTotal.escapedCount++;
-            // Šï”ID‹@‘Ì
+            // å¥‡æ•°IDæ©Ÿä½“
             if (taskAssigneeID_Player == 1 || taskAssigneeID_Player == 3)
             {
                 statsA.escapedCount++;
             }
-            // ‹ô”ID‹@‘Ì
+            // å¶æ•°IDæ©Ÿä½“
             else if (taskAssigneeID_Player == 2 || taskAssigneeID_Player == 4)
             {
                 statsB.escapedCount++;
@@ -210,33 +210,33 @@ public class ActionLogController : SafeSingleton<ActionLogController>
 
             if (isKilled == true) 
             {
-                // ‹¦’²s“®¬—§
+                // å”èª¿è¡Œå‹•æˆç«‹
                 if (taskAssigneeID_Player != attackID)
                 {
-                    // ‘Šè‚ªŒ‚‚¿˜R‚ç‚µ‚Ä©•ª‚ª“G‚ğ“|‚µ‚½”
+                    // ç›¸æ‰‹ãŒæ’ƒã¡æ¼ã‚‰ã—ã¦è‡ªåˆ†ãŒæ•µã‚’å€’ã—ãŸæ•°
                     statsTotal.escapedPartnerKilledSelf++;
-                    // Šï”ID‹@‘Ì
+                    // å¥‡æ•°IDæ©Ÿä½“
                     if (attackID == 1 || attackID == 3)
                     {
                         statsA.escapedPartnerKilledSelf++;
                     }
-                    // ‹ô”ID‹@‘Ì
+                    // å¶æ•°IDæ©Ÿä½“
                     else if (attackID == 2 || attackID == 4)
                     {
                         statsB.escapedPartnerKilledSelf++;
                     }
                 }
-                // ‹¦’²s“®•s¬—§
+                // å”èª¿è¡Œå‹•ä¸æˆç«‹
                 else
                 {
-                    // ©•ª‚ªŒ‚‚¿˜R‚ç‚µ‚Ä©•ª‚ª“G‚ğ“|‚µ‚½”
+                    // è‡ªåˆ†ãŒæ’ƒã¡æ¼ã‚‰ã—ã¦è‡ªåˆ†ãŒæ•µã‚’å€’ã—ãŸæ•°
                     statsTotal.escapedSelfKilledSelf++;
-                    // Šï”ID‹@‘Ì
+                    // å¥‡æ•°IDæ©Ÿä½“
                     if (attackID == 1 || attackID == 3)
                     {
                         statsA.escapedSelfKilledSelf++;
                     }
-                    // ‹ô”ID‹@‘Ì
+                    // å¶æ•°IDæ©Ÿä½“
                     else if (attackID == 2 || attackID == 4)
                     {
                         statsB.escapedSelfKilledSelf++;
@@ -245,31 +245,31 @@ public class ActionLogController : SafeSingleton<ActionLogController>
             }
             
         }
-        // •s¬—§
+        // ä¸æˆç«‹
         else 
         { 
         }
     }
 
-    // Ó”C‚ÌŠ„‚è“–‚Ä
-    // taskAssigneeID_Player(Ó”CÒ)
+    // è²¬ä»»ã®å‰²ã‚Šå½“ã¦
+    // taskAssigneeID_Player(è²¬ä»»è€…)
     public void AddTaskAssignee(int taskAssigneeID_Player) 
     {
-        // Ó”CŠ„‚è“–‚Ä”(ƒvƒŒƒCƒ„[‚ÌÓ”C‚Ì”)
+        // è²¬ä»»å‰²ã‚Šå½“ã¦æ•°(ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®è²¬ä»»ã®æ•°)
         statsTotal. taskAssigneeCount++;
-        // Šï”ID‹@‘Ì
+        // å¥‡æ•°IDæ©Ÿä½“
         if (taskAssigneeID_Player == 1 || taskAssigneeID_Player == 3)
         {
             statsA.taskAssigneeCount++;
         }
-        // ‹ô”ID‹@‘Ì
+        // å¶æ•°IDæ©Ÿä½“
         else if (taskAssigneeID_Player == 2 || taskAssigneeID_Player == 4) 
         {
             statsB.taskAssigneeCount++;
         }
     }
 
-    // “G‚Ì¶¬”ƒJƒEƒ“ƒg
+    // æ•µã®ç”Ÿæˆæ•°ã‚«ã‚¦ãƒ³ãƒˆ
     public void CountEnemy() 
     { 
         enemyCount++;
@@ -283,15 +283,15 @@ public class ActionLogController : SafeSingleton<ActionLogController>
 
     public void ResetAllStats()
     {
-        // \‘¢‘Ìistructj‚ğ new ‚·‚é‚±‚Æ‚ÅA’†g‚Ì int ‚Í‘S‚Ä 0 ‚É–ß‚è‚Ü‚·
+        // æ§‹é€ ä½“ï¼ˆstructï¼‰ã‚’ new ã™ã‚‹ã“ã¨ã§ã€ä¸­èº«ã® int ã¯å…¨ã¦ 0 ã«æˆ»ã‚Šã¾ã™
         statsTotal = new ActionDataGroup();
         statsA = new ActionDataGroup();
         statsB = new ActionDataGroup();
 
-        // ƒVƒXƒeƒ€Œn•Ï”‚ÌƒŠƒZƒbƒg
+        // ã‚·ã‚¹ãƒ†ãƒ ç³»å¤‰æ•°ã®ãƒªã‚»ãƒƒãƒˆ
         enemyCount = 0;
 
-        // ƒXƒRƒAEHPî•ñ‚Ì‰Šú‰»i•K—v‚É‰‚¶‚Äj
+        // ã‚¹ã‚³ã‚¢ãƒ»HPæƒ…å ±ã®åˆæœŸåŒ–ï¼ˆå¿…è¦ã«å¿œã˜ã¦ï¼‰
         ActionLog_Score_Total = 0;
         ActionLog_Score_A = 0;
         ActionLog_Score_B = 0;
@@ -301,6 +301,6 @@ public class ActionLogController : SafeSingleton<ActionLogController>
         ActionLog_PosValue_A.Clear();
         ActionLog_PosValue_B.Clear();
 
-        Debug.Log("ActionLog: ƒGƒsƒ\[ƒh“Œv‚ğƒŠƒZƒbƒg‚µ‚Ü‚µ‚½B");
+        Debug.Log("ActionLog: ã‚¨ãƒ”ã‚½ãƒ¼ãƒ‰çµ±è¨ˆã‚’ãƒªã‚»ãƒƒãƒˆã—ã¾ã—ãŸã€‚");
     }
 }

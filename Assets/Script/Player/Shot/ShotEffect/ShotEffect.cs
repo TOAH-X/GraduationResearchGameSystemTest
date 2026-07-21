@@ -1,11 +1,11 @@
-using DG.Tweening;
+ï»¿using DG.Tweening;
 using UnityEngine;
 
 public class ShotEffect : MonoBehaviour
 {
     private float destroyDelay = 0f;
 
-    // ƒAƒjƒ[ƒVƒ‡ƒ“‚Ìƒpƒ‰ƒ[ƒ^
+    // ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ã®ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿
     private Vector2 targetScale = new Vector3(1.0f, 1.0f);
 
     private float scaleDuration = 0.2f;
@@ -15,52 +15,52 @@ public class ShotEffect : MonoBehaviour
     {
         transform.localScale = new Vector2(0f, 0f);
 
-        // –ğŠ„‚²‚Æ‚É•ª‚¯‚½ŠÖ”‚ğƒV[ƒPƒ“ƒX‚Å˜AŒ‹‚µ‚Ü‚·
+        // å½¹å‰²ã”ã¨ã«åˆ†ã‘ãŸé–¢æ•°ã‚’ã‚·ãƒ¼ã‚±ãƒ³ã‚¹ã§é€£çµã—ã¾ã™
         PlayCombinedEffect();
     }
 
     /// <summary>
-    /// ƒTƒCƒY•ÏXƒAƒjƒ[ƒVƒ‡ƒ“‚Æ”jŠüˆ—‚Ì—¬‚ê‚ğ’è‹`‚µÀs‚µ‚Ü‚·B
+    /// ã‚µã‚¤ã‚ºå¤‰æ›´ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ã¨ç ´æ£„å‡¦ç†ã®æµã‚Œã‚’å®šç¾©ã—å®Ÿè¡Œã—ã¾ã™ã€‚
     /// </summary>
     private void PlayCombinedEffect()
     {
-        // Šù‘¶‚ÌTween‚ªc‚Á‚Ä‚¢‚éê‡‚Í”O‚Ì‚½‚ßKill‚µ‚Ü‚·
+        // æ—¢å­˜ã®TweenãŒæ®‹ã£ã¦ã„ã‚‹å ´åˆã¯å¿µã®ãŸã‚Killã—ã¾ã™
         transform.DOKill();
 
-        // 1. ƒV[ƒPƒ“ƒX‚ğì¬
+        // 1. ã‚·ãƒ¼ã‚±ãƒ³ã‚¹ã‚’ä½œæˆ
         Sequence sequence = DOTween.Sequence();
 
-        // 2. ƒTƒCƒY•ÏXƒAƒjƒ[ƒVƒ‡ƒ“‚ğƒV[ƒPƒ“ƒX‚É’Ç‰Á
+        // 2. ã‚µã‚¤ã‚ºå¤‰æ›´ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ã‚’ã‚·ãƒ¼ã‚±ãƒ³ã‚¹ã«è¿½åŠ 
         sequence.Append(AnimateScale());
 
-        // 3. ƒTƒCƒY•ÏXŠ®—¹Œã‚É‘Ò‹@ŠÔ‚ğ’Ç‰Á (”jŠü‚Ì€”õ)
+        // 3. ã‚µã‚¤ã‚ºå¤‰æ›´å®Œäº†å¾Œã«å¾…æ©Ÿæ™‚é–“ã‚’è¿½åŠ  (ç ´æ£„ã®æº–å‚™)
         sequence.AppendInterval(destroyDelay);
 
-        // 4. ‘S‚Ä‚Ìˆ—‚ªŠ®—¹‚µ‚½ŒãAƒIƒuƒWƒFƒNƒg‚ğ”jŠü‚·‚éŠÖ”‚ğŒÄ‚Ño‚·
+        // 4. å…¨ã¦ã®å‡¦ç†ãŒå®Œäº†ã—ãŸå¾Œã€ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’ç ´æ£„ã™ã‚‹é–¢æ•°ã‚’å‘¼ã³å‡ºã™
         sequence.OnComplete(() => {
-            // ‚±‚±‚Å”jŠüŠÖ”‚ğŒÄ‚Ño‚µ‚Ü‚·
+            // ã“ã“ã§ç ´æ£„é–¢æ•°ã‚’å‘¼ã³å‡ºã—ã¾ã™
             if (this != null && gameObject != null)
             {
                 DestroyObject();
             }
         });
 
-        // ˆÀ‘S«‚Ì‚½‚ßSetTarget‚ğİ’è
+        // å®‰å…¨æ€§ã®ãŸã‚SetTargetã‚’è¨­å®š
         sequence.SetLink(gameObject);
     }
 
     /// <summary>
-    /// ©g‚ÌƒTƒCƒY‚ğ targetScale ‚É 0.5•b‚©‚¯‚Ä•ÏX‚·‚éTween‚ğ•Ô‚µ‚Ü‚·B
+    /// è‡ªèº«ã®ã‚µã‚¤ã‚ºã‚’ targetScale ã« 0.5ç§’ã‹ã‘ã¦å¤‰æ›´ã™ã‚‹Tweenã‚’è¿”ã—ã¾ã™ã€‚
     /// </summary>
     private Tween AnimateScale()
     {
-        // TweenƒIƒuƒWƒFƒNƒg‚ğ¶¬‚µAƒV[ƒPƒ“ƒX‚É“n‚¹‚é‚æ‚¤‚É•Ô‚µ‚Ü‚·
+        // Tweenã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’ç”Ÿæˆã—ã€ã‚·ãƒ¼ã‚±ãƒ³ã‚¹ã«æ¸¡ã›ã‚‹ã‚ˆã†ã«è¿”ã—ã¾ã™
         return transform.DOScale(targetScale, scaleDuration)
             .SetEase(Ease.OutQuad);
     }
 
     /// <summary>
-    /// ƒIƒuƒWƒFƒNƒg‚Ì”jŠü‚ğÀs‚µ‚Ü‚·B
+    /// ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®ç ´æ£„ã‚’å®Ÿè¡Œã—ã¾ã™ã€‚
     /// </summary>
     private void DestroyObject()
     {
@@ -70,11 +70,11 @@ public class ShotEffect : MonoBehaviour
         }
     }
 
-    // š•â‘«FDOTweenƒV[ƒPƒ“ƒX‚ğg‚í‚È‚¢ê‡‚ÍAˆÈ‰º‚Ì‚æ‚¤‚É’¼ÚŒÄ‚Ño‚·‚±‚Æ‚à‰Â”\‚Å‚·
+    // â˜…è£œè¶³ï¼šDOTweenã‚·ãƒ¼ã‚±ãƒ³ã‚¹ã‚’ä½¿ã‚ãªã„å ´åˆã¯ã€ä»¥ä¸‹ã®ã‚ˆã†ã«ç›´æ¥å‘¼ã³å‡ºã™ã“ã¨ã‚‚å¯èƒ½ã§ã™
     /*
     private void DestroyAfterDelay()
     {
-        // ’x‰„ˆ—‚Æ‚µ‚ÄDOVirtual.DelayedCall‚ğg‚¢A”jŠüŠÖ”‚ğŒÄ‚Ño‚·
+        // é…å»¶å‡¦ç†ã¨ã—ã¦DOVirtual.DelayedCallã‚’ä½¿ã„ã€ç ´æ£„é–¢æ•°ã‚’å‘¼ã³å‡ºã™
         DOVirtual.DelayedCall(destroyDelay, DestroyObject);
     }
     */

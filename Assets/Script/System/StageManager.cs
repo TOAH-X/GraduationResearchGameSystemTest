@@ -1,23 +1,23 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
-// SafeSingleton‚ğŒp³‚µ‚Äì¬
+// SafeSingletonã‚’ç¶™æ‰¿ã—ã¦ä½œæˆ
 public class StageManager : SafeSingleton<StageManager>
 {
-    [Header("i’»ID")]        // -1FƒGƒ‰[A0FŠwKŠÂ‹«A1Fƒ`ƒ…[ƒgƒŠƒAƒ‹A2F”íx‰‡ƒG[ƒWƒFƒ“ƒgA3Fx‰‡ƒG[ƒWƒFƒ“ƒg
+    [Header("é€²æ—ID")]        // -1ï¼šã‚¨ãƒ©ãƒ¼ã€0ï¼šå­¦ç¿’ç’°å¢ƒã€1ï¼šãƒãƒ¥ãƒ¼ãƒˆãƒªã‚¢ãƒ«ã€2ï¼šè¢«æ”¯æ´ã‚¨ãƒ¼ã‚¸ã‚§ãƒ³ãƒˆã€3ï¼šæ”¯æ´ã‚¨ãƒ¼ã‚¸ã‚§ãƒ³ãƒˆ
     public int phaseID = 1;
 
-    [Header("‰i‘±‰»İ’è")]
+    [Header("æ°¸ç¶šåŒ–è¨­å®š")]
     public bool shouldPersist = true;
 
     protected override void OnSingletonAwake()
     {
-        // ƒV[ƒ“‚ğ‚Ü‚½‚¢‚Å‚àÁ‚¦‚È‚¢‚æ‚¤‚Éİ’è
+        // ã‚·ãƒ¼ãƒ³ã‚’ã¾ãŸã„ã§ã‚‚æ¶ˆãˆãªã„ã‚ˆã†ã«è¨­å®š
         if (shouldPersist)
         {
             DontDestroyOnLoad(gameObject);
         }
 
-        // Debug.Log($"SubjectManager‚ª‹N“®‚µ‚Ü‚µ‚½BŒ»İ‚ÌID: {subjectID}");
+        // Debug.Log($"SubjectManagerãŒèµ·å‹•ã—ã¾ã—ãŸã€‚ç¾åœ¨ã®ID: {subjectID}");
     }
 
     public int PhaseID

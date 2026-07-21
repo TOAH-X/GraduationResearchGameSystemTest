@@ -1,4 +1,4 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using System.Collections.Generic;
 using Unity.MLAgents;
 using Unity.MLAgents.Sensors;
@@ -8,73 +8,73 @@ using Unity.VisualScripting;
 
 public class PlayerAgent : Agent
 {
-    [SerializeField] PlayerBase playerBaseScript;                           // PlayerBaseƒXƒNƒŠƒvƒg
-    [SerializeField] PlayerMoveController playerMoveControllerScript;       // PlayerMoveControllerƒXƒNƒŠƒvƒg
-    [SerializeField] PlayerShotController playerShotControllerScript;       // PlayerShotControllerƒXƒNƒŠƒvƒg
+    [SerializeField] PlayerBase playerBaseScript;                           // PlayerBaseã‚¹ã‚¯ãƒªãƒ—ãƒˆ
+    [SerializeField] PlayerMoveController playerMoveControllerScript;       // PlayerMoveControllerã‚¹ã‚¯ãƒªãƒ—ãƒˆ
+    [SerializeField] PlayerShotController playerShotControllerScript;       // PlayerShotControllerã‚¹ã‚¯ãƒªãƒ—ãƒˆ
     [SerializeField] GameObject playerParentObj;
 
-    [SerializeField] Transform bulletParent;                                // BulletParent‚ÌTransform
-    [SerializeField] Transform enemyParent;                                 // EnemyParent‚ÌTransform 
+    [SerializeField] Transform bulletParent;                                // BulletParentã®Transform
+    [SerializeField] Transform enemyParent;                                 // EnemyParentã®Transform 
 
-    [SerializeField] bool isLimitedCollectObservations = true;              // ŠÏ@”‚Ì§ŒÀ(’e–‹‚ğ‘S‚Ä”cˆ¬‚©‚çˆê•””cˆ¬‚Ö•ÏX)
+    [SerializeField] bool isLimitedCollectObservations = true;              // è¦³å¯Ÿæ•°ã®åˆ¶é™(å¼¾å¹•ã‚’å…¨ã¦æŠŠæ¡ã‹ã‚‰ä¸€éƒ¨æŠŠæ¡ã¸å¤‰æ›´)
 
-    [SerializeField] RewardManager rewardManagerScript;                     // rewardManagerƒXƒNƒŠƒvƒg
+    [SerializeField] RewardManager rewardManagerScript;                     // rewardManagerã‚¹ã‚¯ãƒªãƒ—ãƒˆ
 
-    [SerializeField] float gameTimer = 0;                                   // ƒQ[ƒ€ƒ^ƒCƒ}[
-    public int currentStep = 0;                                             // o—Í—pƒXƒeƒbƒv”ŠÇ—(‚â‚è’¼‚µ‚Ä‚àŠÇ—‚Å‚«‚é‚æ‚¤‚É‚·‚é‚½‚ß)
-    [SerializeField] private LearningLogCSV learningLogCSVScript;           // LearningLogCSVƒXƒNƒŠƒvƒg
+    [SerializeField] float gameTimer = 0;                                   // ã‚²ãƒ¼ãƒ ã‚¿ã‚¤ãƒãƒ¼
+    public int currentStep = 0;                                             // å‡ºåŠ›ç”¨ã‚¹ãƒ†ãƒƒãƒ—æ•°ç®¡ç†(ã‚„ã‚Šç›´ã—ã¦ã‚‚ç®¡ç†ã§ãã‚‹ã‚ˆã†ã«ã™ã‚‹ãŸã‚)
+    [SerializeField] private LearningLogCSV learningLogCSVScript;           // LearningLogCSVã‚¹ã‚¯ãƒªãƒ—ãƒˆ
 
     [SerializeField] RewardManager rewardManager;
     [SerializeField] GameManager gameManager;
 
     [SerializeField] BehaviorParameters behaviorParameters;
 
-    private bool isExported = false;                                        // CSV‚ğo—ÍÏ‚İ‚©(EndGame‚ªŒÄ‚Î‚ê‚½‚©‚Ç‚¤‚©‚Å”»•Ê‚·‚é‚Ì‚ÅŒµ–§‚Å‚Í‚È‚¢)
+    private bool isExported = false;                                        // CSVã‚’å‡ºåŠ›æ¸ˆã¿ã‹(EndGameãŒå‘¼ã°ã‚ŒãŸã‹ã©ã†ã‹ã§åˆ¤åˆ¥ã™ã‚‹ã®ã§å³å¯†ã§ã¯ãªã„)
 
     private int targetPlayerID = -1;
 
     public string BehaviorTypeName { get; set; } = "none";
 
-    // ’Ç‰Á
-    //[Header("Šî€‚Æ‚È‚éƒvƒŒƒCƒ„[")]
+    // è¿½åŠ 
+    //[Header("åŸºæº–ã¨ãªã‚‹ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼")]
     //[SerializeField] private Transform player;
 
-    private int bulletTrackCount = 15;                  // ’ÇÕ‚·‚é’e‚ÌÅ‘å”
-    private int enemyTrackCount = 20;                   // ’ÇÕ‚·‚é“G‚ÌÅ‘å”
+    private int bulletTrackCount = 15;                  // è¿½è·¡ã™ã‚‹å¼¾ã®æœ€å¤§æ•°
+    private int enemyTrackCount = 20;                   // è¿½è·¡ã™ã‚‹æ•µã®æœ€å¤§æ•°
 
-    [Header("”ñƒAƒNƒeƒBƒu‚Ìƒ_ƒ~[À•W")]
+    [Header("éã‚¢ã‚¯ãƒ†ã‚£ãƒ–æ™‚ã®ãƒ€ãƒŸãƒ¼åº§æ¨™")]
     [SerializeField] private Vector2 bulletInactivePos = new Vector2(0f, 15f);
 
-    // ’e‚Ì—š—ğƒf[ƒ^iŒ»İE1F‘OE2F‘Oj
+    // å¼¾ã®å±¥æ­´ãƒ‡ãƒ¼ã‚¿ï¼ˆç¾åœ¨ãƒ»1Få‰ãƒ»2Få‰ï¼‰
     private readonly Dictionary<Transform, Vector2[]> bulletHistory = new Dictionary<Transform, Vector2[]>();
 
-    // ML—p‚È‚Ç‘¼ƒXƒNƒŠƒvƒg‚ÅQÆ‚µ‚½‚¢ê‡‚Ég‚¤
+    // MLç”¨ãªã©ä»–ã‚¹ã‚¯ãƒªãƒ—ãƒˆã§å‚ç…§ã—ãŸã„å ´åˆã«ä½¿ã†
     public List<(Vector2 now, Vector2 prev1, Vector2 prev2)> bulletTrackedPositions = new List<(Vector2, Vector2, Vector2)>();
 
-    [Header("”ñƒAƒNƒeƒBƒu‚Ìƒ_ƒ~[À•W")]
+    [Header("éã‚¢ã‚¯ãƒ†ã‚£ãƒ–æ™‚ã®ãƒ€ãƒŸãƒ¼åº§æ¨™")]
     [SerializeField] private Vector2 enemyInactivePos = new Vector2(0f, 15f);
 
-    // ’e‚Ì—š—ğƒf[ƒ^iŒ»İE1F‘OE2F‘Oj
+    // å¼¾ã®å±¥æ­´ãƒ‡ãƒ¼ã‚¿ï¼ˆç¾åœ¨ãƒ»1Få‰ãƒ»2Få‰ï¼‰
     private readonly Dictionary<Transform, Vector2[]> enemyHistory = new Dictionary<Transform, Vector2[]>();
 
-    // ML—p‚È‚Ç‘¼ƒXƒNƒŠƒvƒg‚ÅQÆ‚µ‚½‚¢ê‡‚Ég‚¤
+    // MLç”¨ãªã©ä»–ã‚¹ã‚¯ãƒªãƒ—ãƒˆã§å‚ç…§ã—ãŸã„å ´åˆã«ä½¿ã†
     public List<(Vector2 now, Vector2 prev1, Vector2 prev2)> enemyTrackedPositions = new List<(Vector2, Vector2, Vector2)>();
 
-    // ’Ç‰Á
-    [SerializeField] GameObject partnerPlayerObj;           // —»‹@
+    // è¿½åŠ 
+    [SerializeField] GameObject partnerPlayerObj;           // åƒšæ©Ÿ
 
-    // ˆÊ’uî•ñƒƒO(‹@”\‚ğˆÚ‚·‚±‚Æ)
-    [Header("ŠwK—pƒƒOİ’è")]
-    private float statsBorderX = 2.0f;                 // ¶‰E‚Ì‹«ŠEü
-    private float statsBorderY = 1.666f;               // ã‰º‚Ì‹«ŠEü
-    [SerializeField] private string statsNamePrefix = "Player";         // ƒƒO‚Ì“ª‚É‚Â‚­–¼‘OiPlayer‚âSubPlayer‚É•ÏXj
-    private int[,] _gridCounts = new int[3, 3];                         // 9•ªŠ„ƒJƒEƒ“ƒg—p [x, y]
-    private int _totalStatFrames = 0;                                   // 9•ªŠ„ƒJƒEƒ“ƒg—p [x, y]
+    // ä½ç½®æƒ…å ±ãƒ­ã‚°(æ©Ÿèƒ½ã‚’ç§»ã™ã“ã¨)
+    [Header("å­¦ç¿’ç”¨ãƒ­ã‚°è¨­å®š")]
+    private float statsBorderX = 2.0f;                 // å·¦å³ã®å¢ƒç•Œç·š
+    private float statsBorderY = 1.666f;               // ä¸Šä¸‹ã®å¢ƒç•Œç·š
+    [SerializeField] private string statsNamePrefix = "Player";         // ãƒ­ã‚°ã®é ­ã«ã¤ãåå‰ï¼ˆPlayerã‚„SubPlayerã«å¤‰æ›´ï¼‰
+    private int[,] _gridCounts = new int[3, 3];                         // 9åˆ†å‰²ã‚«ã‚¦ãƒ³ãƒˆç”¨ [x, y]
+    private int _totalStatFrames = 0;                                   // 9åˆ†å‰²ã‚«ã‚¦ãƒ³ãƒˆç”¨ [x, y]
 
-    // —»‹@‚Æ‚ÌˆÊ’uŠÖŒW
-    private float _cumulativeDistance = 0f;    // ‹——£‚Ì‡Œv
-    private int _spreadFrames = 0;             // “WŠJi¶‰E•ªUj‚Å‚«‚Ä‚¢‚½ƒtƒŒ[ƒ€”
-    [SerializeField] private float spreadThreshold = 2.0f;              // “WŠJ”»’è‚Ì‹«ŠEü(12‚È‚Ì‚Å)
+    // åƒšæ©Ÿã¨ã®ä½ç½®é–¢ä¿‚
+    private float _cumulativeDistance = 0f;    // è·é›¢ã®åˆè¨ˆ
+    private int _spreadFrames = 0;             // å±•é–‹ï¼ˆå·¦å³åˆ†æ•£ï¼‰ã§ãã¦ã„ãŸãƒ•ãƒ¬ãƒ¼ãƒ æ•°
+    [SerializeField] private float spreadThreshold = 2.0f;              // å±•é–‹åˆ¤å®šã®å¢ƒç•Œç·š(12ãªã®ã§)
 
 
     private void Awake()
@@ -85,13 +85,13 @@ public class PlayerAgent : Agent
     // Start is called before the first frame update
     void Start()
     {
-        // —»‹@‚ğæ“¾
+        // åƒšæ©Ÿã‚’å–å¾—
         GetPartnerPlayer();
 
-        // PlayerID‚Ì‡Œv‚ª‹ô”‚Ìê‡‚ÍƒoƒO‚ª‹N‚«‚é‚Ì‚Å–h~
+        // PlayerIDã®åˆè¨ˆãŒå¶æ•°ã®å ´åˆã¯ãƒã‚°ãŒèµ·ãã‚‹ã®ã§é˜²æ­¢
         if ((this.gameObject.GetComponent<PlayerBase>().PlayerID + partnerPlayerObj.GetComponentInParent<PlayerBase>().PlayerID) % 2 == 0)
         {
-            Debug.LogError("ƒvƒŒƒCƒ„[‚ÆƒTƒuƒvƒŒƒCƒ„[‚Ì‘g‚İ‡‚í‚¹‚ª–³Œø");
+            Debug.LogError("ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã¨ã‚µãƒ–ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®çµ„ã¿åˆã‚ã›ãŒç„¡åŠ¹");
         }
     }
 
@@ -106,65 +106,65 @@ public class PlayerAgent : Agent
         /*
         if (!TryAcquireReferences()) return;
 
-        // Œ»İ‚Ìƒ[ƒ‹ƒhÀ•W
+        // ç¾åœ¨ã®ãƒ¯ãƒ¼ãƒ«ãƒ‰åº§æ¨™
         Vector3 playerPos = playerBaseScript.transform.position;
 
-        // 1. ƒ[ƒ‹ƒhÀ•W‚Å‚Í‚È‚­uƒ[ƒJƒ‹À•Wie‚©‚çŒ©‚½ˆÊ’ujv‚ğ’¼Úg‚¤
-        // ‚±‚ê‚É‚æ‚èAƒGƒŠƒA‚ª‚Ç‚±‚É‚ ‚Á‚Ä‚àuƒGƒŠƒA‚Ì’†S‚©‚ç‚Ì‹——£v‚ªæ‚ê‚Ü‚·
+        // 1. ãƒ¯ãƒ¼ãƒ«ãƒ‰åº§æ¨™ã§ã¯ãªãã€Œãƒ­ãƒ¼ã‚«ãƒ«åº§æ¨™ï¼ˆè¦ªã‹ã‚‰è¦‹ãŸä½ç½®ï¼‰ã€ã‚’ç›´æ¥ä½¿ã†
+        // ã“ã‚Œã«ã‚ˆã‚Šã€ã‚¨ãƒªã‚¢ãŒã©ã“ã«ã‚ã£ã¦ã‚‚ã€Œã‚¨ãƒªã‚¢ã®ä¸­å¿ƒã‹ã‚‰ã®è·é›¢ã€ãŒå–ã‚Œã¾ã™
         Vector3 relativePos = playerBaseScript.transform.localPosition;
         if (playerParentObj != null)
         {
             relativePos = playerPos - playerParentObj.transform.position;
         }
 
-        // 2. ”»’è‚ğs‚¤
-        // statsBorderX ‚ª 2.0AstatsBorderY ‚ª 1.666 ‚È‚ç
-        // ƒ[ƒJƒ‹À•W‚Ì Y ‚ª 1.666 ‚ğ’´‚¦‚½uŠÔ‚É "Top" ‚Æ”»’è‚³‚ê‚Ü‚·
+        // 2. åˆ¤å®šã‚’è¡Œã†
+        // statsBorderX ãŒ 2.0ã€statsBorderY ãŒ 1.666 ãªã‚‰
+        // ãƒ­ãƒ¼ã‚«ãƒ«åº§æ¨™ã® Y ãŒ 1.666 ã‚’è¶…ãˆãŸç¬é–“ã« "Top" ã¨åˆ¤å®šã•ã‚Œã¾ã™
         int xIndex = (relativePos.x < -statsBorderX) ? 0 : (relativePos.x > statsBorderX ? 2 : 1);
         int yIndex = (relativePos.y < -statsBorderY) ? 0 : (relativePos.y > statsBorderY ? 2 : 1);
 
-        // ƒJƒEƒ“ƒgƒAƒbƒv
+        // ã‚«ã‚¦ãƒ³ãƒˆã‚¢ãƒƒãƒ—
         _gridCounts[xIndex, yIndex]++;
         _totalStatFrames++;
 
         //
 
-        // —»‹@‚ª‚Ü‚¾æ“¾‚Å‚«‚Ä‚¢‚È‚¢A‚Ü‚½‚Í€‚ñ‚Å‚¢‚éê‡‚ÍŒv‘ª‚µ‚È‚¢
+        // åƒšæ©ŸãŒã¾ã å–å¾—ã§ãã¦ã„ãªã„ã€ã¾ãŸã¯æ­»ã‚“ã§ã„ã‚‹å ´åˆã¯è¨ˆæ¸¬ã—ãªã„
         if (partnerPlayerObj == null) return;
         if (partnerPlayerObj.activeSelf == false) return;
 
-        // --- Œv‘ªƒƒWƒbƒN ---
+        // --- è¨ˆæ¸¬ãƒ­ã‚¸ãƒƒã‚¯ ---
         _totalStatFrames++;
 
-        // 1. ˆÊ’uî•ñ‚ÌƒOƒŠƒbƒhWŒv
-        // À•W‚ğ 0.0~1.0 ‚É³‹K‰» (-statsBorderX ~ +statsBorderX ‚ğ‘z’è)
+        // 1. ä½ç½®æƒ…å ±ã®ã‚°ãƒªãƒƒãƒ‰é›†è¨ˆ
+        // åº§æ¨™ã‚’ 0.0~1.0 ã«æ­£è¦åŒ– (-statsBorderX ~ +statsBorderX ã‚’æƒ³å®š)
         float normX = Mathf.InverseLerp(-statsBorderX, statsBorderX, playerPos.x);
         float normY = Mathf.InverseLerp(-statsBorderY, statsBorderY, playerPos.y);
 
-        // 0~2 ‚ÌƒCƒ“ƒfƒbƒNƒX‚É•ÏŠ·
+        // 0~2 ã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã«å¤‰æ›
         int gridX = Mathf.FloorToInt(Mathf.Clamp(normX * 3f, 0, 2.99f));
         int gridY = Mathf.FloorToInt(Mathf.Clamp(normY * 3f, 0, 2.99f));
 
         _gridCounts[gridX, gridY]++;
 
-        // 2. —»‹@‚Æ‚ÌŠÖŒW«WŒv
-        // A. ‹——£‚ÌÏZ
+        // 2. åƒšæ©Ÿã¨ã®é–¢ä¿‚æ€§é›†è¨ˆ
+        // A. è·é›¢ã®ç©ç®—
         float dist = Vector3.Distance(playerPos, partnerPlayerObj.transform.position);
         _cumulativeDistance += dist;
 
-        // B. “WŠJ—¦ (Spread) ‚Ì”»’è
-        // ©•ª‚ÌƒGƒŠƒA”»’è (-1:¶, 0:’†, 1:‰E)
+        // B. å±•é–‹ç‡ (Spread) ã®åˆ¤å®š
+        // è‡ªåˆ†ã®ã‚¨ãƒªã‚¢åˆ¤å®š (-1:å·¦, 0:ä¸­, 1:å³)
         int myArea = 0;
         if (playerPos.x < -spreadThreshold) myArea = -1;
         else if (playerPos.x > spreadThreshold) myArea = 1;
 
-        // —»‹@‚ÌƒGƒŠƒA”»’è
+        // åƒšæ©Ÿã®ã‚¨ãƒªã‚¢åˆ¤å®š
         int subArea = 0;
         float subX = partnerPlayerObj.transform.position.x;
         if (subX < -spreadThreshold) subArea = -1;
         else if (subX > spreadThreshold) subArea = 1;
 
-        // u—»‹@‚ª¶‚ÅA©•ª‚ª¶ˆÈŠOv ‚Ü‚½‚Í u—»‹@‚ª‰E‚ÅA©•ª‚ª‰EˆÈŠOv‚È‚ç“WŠJ¬Œ÷
+        // ã€Œåƒšæ©ŸãŒå·¦ã§ã€è‡ªåˆ†ãŒå·¦ä»¥å¤–ã€ ã¾ãŸã¯ ã€Œåƒšæ©ŸãŒå³ã§ã€è‡ªåˆ†ãŒå³ä»¥å¤–ã€ãªã‚‰å±•é–‹æˆåŠŸ
         bool isSpread = (subArea == -1 && myArea > -1) || (subArea == 1 && myArea < 1);
 
         if (isSpread)
@@ -175,18 +175,18 @@ public class PlayerAgent : Agent
         
         if (!TryAcquireReferences()) return;
 
-        // Œ»İ‚Ìƒ[ƒ‹ƒhÀ•W
+        // ç¾åœ¨ã®ãƒ¯ãƒ¼ãƒ«ãƒ‰åº§æ¨™
         Vector3 playerPos = playerBaseScript.transform.position;
 
-        // šC³“_AF”»’è—p‚Ìu‘Š‘ÎÀ•Wv‚ğì‚é
+        // â˜…ä¿®æ­£ç‚¹Aï¼šåˆ¤å®šç”¨ã®ã€Œç›¸å¯¾åº§æ¨™ã€ã‚’ä½œã‚‹
         Vector3 relativePos = this.transform.localPosition;
         if (playerParentObj != null)
         {
             relativePos = playerPos - playerParentObj.transform.position;
         }
 
-        // šC³“_BF”»’è®‚Ì’†g‚ğ 'playerPos' ‚©‚ç 'relativePos' ‚É‘‚«Š·‚¦‚é
-        // (‚±‚±‚ª playerPos ‚Ì‚Ü‚Ü‚¾‚ÆAƒƒO‚Í³‚µ‚­‚Ä‚à”»’è‚¾‚¯ƒYƒŒ‚Ä‰E•Îd‚É‚È‚è‚Ü‚·)
+        // â˜…ä¿®æ­£ç‚¹Bï¼šåˆ¤å®šå¼ã®ä¸­èº«ã‚’ 'playerPos' ã‹ã‚‰ 'relativePos' ã«æ›¸ãæ›ãˆã‚‹
+        // (ã“ã“ãŒ playerPos ã®ã¾ã¾ã ã¨ã€ãƒ­ã‚°ã¯æ­£ã—ãã¦ã‚‚åˆ¤å®šã ã‘ã‚ºãƒ¬ã¦å³åé‡ã«ãªã‚Šã¾ã™)
         int xIndex = (relativePos.x < -statsBorderX) ? 0 : (relativePos.x > statsBorderX ? 2 : 1);
         int yIndex = (relativePos.y < -statsBorderY) ? 0 : (relativePos.y > statsBorderY ? 2 : 1);
 
@@ -195,42 +195,42 @@ public class PlayerAgent : Agent
 
         //
 
-        // —»‹@‚ª‚Ü‚¾æ“¾‚Å‚«‚Ä‚¢‚È‚¢A‚Ü‚½‚Í€‚ñ‚Å‚¢‚éê‡‚ÍŒv‘ª‚µ‚È‚¢
+        // åƒšæ©ŸãŒã¾ã å–å¾—ã§ãã¦ã„ãªã„ã€ã¾ãŸã¯æ­»ã‚“ã§ã„ã‚‹å ´åˆã¯è¨ˆæ¸¬ã—ãªã„
         if (partnerPlayerObj == null) return;
         if (partnerPlayerObj.activeSelf == false) return;
 
-        // --- Œv‘ªƒƒWƒbƒN ---
+        // --- è¨ˆæ¸¬ãƒ­ã‚¸ãƒƒã‚¯ ---
         _totalStatFrames++;
 
-        // 1. ˆÊ’uî•ñ‚ÌƒOƒŠƒbƒhWŒv
-        // À•W‚ğ 0.0~1.0 ‚É³‹K‰» (-statsBorderX ~ +statsBorderX ‚ğ‘z’è)
+        // 1. ä½ç½®æƒ…å ±ã®ã‚°ãƒªãƒƒãƒ‰é›†è¨ˆ
+        // åº§æ¨™ã‚’ 0.0~1.0 ã«æ­£è¦åŒ– (-statsBorderX ~ +statsBorderX ã‚’æƒ³å®š)
         float normX = Mathf.InverseLerp(-statsBorderX, statsBorderX, playerPos.x);
         float normY = Mathf.InverseLerp(-statsBorderY, statsBorderY, playerPos.y);
 
-        // 0~2 ‚ÌƒCƒ“ƒfƒbƒNƒX‚É•ÏŠ·
+        // 0~2 ã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã«å¤‰æ›
         int gridX = Mathf.FloorToInt(Mathf.Clamp(normX * 3f, 0, 2.99f));
         int gridY = Mathf.FloorToInt(Mathf.Clamp(normY * 3f, 0, 2.99f));
 
         _gridCounts[gridX, gridY]++;
 
-        // 2. —»‹@‚Æ‚ÌŠÖŒW«WŒv
-        // A. ‹——£‚ÌÏZ
+        // 2. åƒšæ©Ÿã¨ã®é–¢ä¿‚æ€§é›†è¨ˆ
+        // A. è·é›¢ã®ç©ç®—
         float dist = Vector3.Distance(playerPos, partnerPlayerObj.transform.position);
         _cumulativeDistance += dist;
 
-        // B. “WŠJ—¦ (Spread) ‚Ì”»’è
-        // ©•ª‚ÌƒGƒŠƒA”»’è (-1:¶, 0:’†, 1:‰E)
+        // B. å±•é–‹ç‡ (Spread) ã®åˆ¤å®š
+        // è‡ªåˆ†ã®ã‚¨ãƒªã‚¢åˆ¤å®š (-1:å·¦, 0:ä¸­, 1:å³)
         int myArea = 0;
         if (playerPos.x < -spreadThreshold) myArea = -1;
         else if (playerPos.x > spreadThreshold) myArea = 1;
 
-        // —»‹@‚ÌƒGƒŠƒA”»’è
+        // åƒšæ©Ÿã®ã‚¨ãƒªã‚¢åˆ¤å®š
         int subArea = 0;
         float subX = partnerPlayerObj.transform.position.x;
         if (subX < -spreadThreshold) subArea = -1;
         else if (subX > spreadThreshold) subArea = 1;
 
-        // u—»‹@‚ª¶‚ÅA©•ª‚ª¶ˆÈŠOv ‚Ü‚½‚Í u—»‹@‚ª‰E‚ÅA©•ª‚ª‰EˆÈŠOv‚È‚ç“WŠJ¬Œ÷
+        // ã€Œåƒšæ©ŸãŒå·¦ã§ã€è‡ªåˆ†ãŒå·¦ä»¥å¤–ã€ ã¾ãŸã¯ ã€Œåƒšæ©ŸãŒå³ã§ã€è‡ªåˆ†ãŒå³ä»¥å¤–ã€ãªã‚‰å±•é–‹æˆåŠŸ
         bool isSpread = (subArea == -1 && myArea > -1) || (subArea == 1 && myArea < 1);
 
         if (isSpread)
@@ -240,7 +240,7 @@ public class PlayerAgent : Agent
     }
 
 
-    // ƒQ[ƒ€ƒIƒuƒWƒFƒNƒg¶¬‚ÉŒÄ‚Î‚ê‚é
+    // ã‚²ãƒ¼ãƒ ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆç”Ÿæˆæ™‚ã«å‘¼ã°ã‚Œã‚‹
     public override void Initialize()
     {
         base.Initialize();
@@ -249,7 +249,7 @@ public class PlayerAgent : Agent
 
         behaviorParameters = GetComponent<BehaviorParameters>();
 
-        // ó‘Ôæ“¾
+        // çŠ¶æ…‹å–å¾—
         if (behaviorParameters.BehaviorType == BehaviorType.Default)
         {
             BehaviorTypeName = "Default";
@@ -267,40 +267,40 @@ public class PlayerAgent : Agent
             BehaviorTypeName = "none";
         }
 
-        // ŠwK’†‚Ì‚İ(—˜‚«èŒ»Û‚Ì‘Îô)
+        // å­¦ç¿’ä¸­ã®ã¿(åˆ©ãæ‰‹ç¾è±¡ã®å¯¾ç­–)
         if (behaviorParameters.BehaviorType == BehaviorType.Default)
         {
             playerMoveControllerScript.IsDefaultBehavior = true;
         }
     }
 
-    // ƒGƒsƒ\[ƒhŠJn‚ÉŒÄ‚Î‚ê‚é
+    // ã‚¨ãƒ”ã‚½ãƒ¼ãƒ‰é–‹å§‹æ™‚ã«å‘¼ã°ã‚Œã‚‹
     public override void OnEpisodeBegin()
     {
         isExported = false;
-        // ŠwK’†‚Ì‚İ(—˜‚«èŒ»Û‚Ì‘Îô)
+        // å­¦ç¿’ä¸­ã®ã¿(åˆ©ãæ‰‹ç¾è±¡ã®å¯¾ç­–)
         if (behaviorParameters.BehaviorType == BehaviorType.Default)
         {
             playerMoveControllerScript.IsDefaultBehavior = true;
         }
     }
 
-    // ŠÏ@æ“¾‚ÉŒÄ‚Î‚ê‚é
-    public override void CollectObservations(VectorSensor vectorSensor)//pos‚©‚àH
+    // è¦³å¯Ÿå–å¾—æ™‚ã«å‘¼ã°ã‚Œã‚‹
+    public override void CollectObservations(VectorSensor vectorSensor)//posã‹ã‚‚ï¼Ÿ
     {
-        const float velocityScale = 1.0f;                   // ŠÏ@—p‚ÌŒW”AƒmƒCƒY‚¾‚Æv‚í‚ê‚È‚¢‚æ‚¤‚É’l‚ğ‘å‚«‚­‚·‚é
+        const float velocityScale = 1.0f;                   // è¦³å¯Ÿç”¨ã®ä¿‚æ•°ã€ãƒã‚¤ã‚ºã ã¨æ€ã‚ã‚Œãªã„ã‚ˆã†ã«å€¤ã‚’å¤§ããã™ã‚‹
 
-        // ƒvƒŒƒCƒ„[‚ª‚¢‚é‚©Šm”F
+        // ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ãŒã„ã‚‹ã‹ç¢ºèª
         if (!TryAcquireReferences()) return;
 
-        // ƒvƒŒƒCƒ„[‚ÌˆÊ’u‚ğ•Ï”‚É“ü‚ê‚é
+        // ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®ä½ç½®ã‚’å¤‰æ•°ã«å…¥ã‚Œã‚‹
         Vector3 playerPos = playerBaseScript.transform.position;
 
-        // î•ñŒ‡—(ƒGƒ‰[B–„‚ß‚é—p)
+        // æƒ…å ±æ¬ è½(ã‚¨ãƒ©ãƒ¼ã€‚åŸ‹ã‚ã‚‹ç”¨)
         bool isBulletMissing = false;
         bool isEnemyMissing = false;
 
-        // 1*2(ƒvƒŒƒCƒ„[)+20*2*2(“G)+15*2*2(’e)=142
+        // 1*2(ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼)+20*2*2(æ•µ)+15*2*2(å¼¾)=142
         if (bulletParent == null)
         {
             isBulletMissing = true;
@@ -310,13 +310,13 @@ public class PlayerAgent : Agent
             isEnemyMissing = true;
         }
 
-        // ©g‚ÌˆÊ’u‚ğæ“¾
+        // è‡ªèº«ã®ä½ç½®ã‚’å–å¾—
         vectorSensor.AddObservation(playerPos.x / 6.0f);
         vectorSensor.AddObservation(playerPos.y / 5.0f);
         // vectorSensor.AddObservation(0f);
         // vectorSensor.AddObservation(0f);
 
-        // --- ƒAƒNƒeƒBƒu‚È“G‚ğæ“¾ ---
+        // --- ã‚¢ã‚¯ãƒ†ã‚£ãƒ–ãªæ•µã‚’å–å¾— ---
         List<Transform> activeEnemies = new List<Transform>();
         if (isEnemyMissing == false)
         {
@@ -328,7 +328,7 @@ public class PlayerAgent : Agent
             }
         }
 
-        // --- —š—ğXVi‡˜‚ÉˆË‘¶‚µ‚È‚¢j ---
+        // --- å±¥æ­´æ›´æ–°ï¼ˆé †åºã«ä¾å­˜ã—ãªã„ï¼‰ ---
         foreach (var enemy in activeEnemies)
         {
             if (!enemyHistory.TryGetValue(enemy, out var h))
@@ -348,7 +348,7 @@ public class PlayerAgent : Agent
             h[0] = enemy.position;
         }
 
-        // --- ”jŠü‚³‚ê‚½“G‚ğ—š—ğ‚©‚çíœ ---
+        // --- ç ´æ£„ã•ã‚ŒãŸæ•µã‚’å±¥æ­´ã‹ã‚‰å‰Šé™¤ ---
         List<Transform> enemyRemoveList = new List<Transform>();
         foreach (var kvp in enemyHistory)
         {
@@ -362,7 +362,7 @@ public class PlayerAgent : Agent
             enemyHistory.Remove(key);
         }
 
-        // --- ƒvƒŒƒCƒ„[‚É‹ß‚¢‡‚É•À‚Ñ‘Ö‚¦iŠÏ‘ªê—pj ---
+        // --- ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã«è¿‘ã„é †ã«ä¸¦ã³æ›¿ãˆï¼ˆè¦³æ¸¬å°‚ç”¨ï¼‰ ---
         activeEnemies.Sort((a, b) =>
         {
             float da = (a.position - playerPos).sqrMagnitude;
@@ -370,7 +370,7 @@ public class PlayerAgent : Agent
             return da.CompareTo(db);
         });
 
-        // --- ŠÏ‘ª—pƒŠƒXƒgì¬i‡˜ŒÅ’èj ---
+        // --- è¦³æ¸¬ç”¨ãƒªã‚¹ãƒˆä½œæˆï¼ˆé †åºå›ºå®šï¼‰ ---
         enemyTrackedPositions.Clear();
         for (int i = 0; i < enemyTrackCount; i++)
         {
@@ -388,7 +388,7 @@ public class PlayerAgent : Agent
             }
         }
 
-        // --- “G‚ÌŠÏ‘ª“o˜^ ---
+        // --- æ•µã®è¦³æ¸¬ç™»éŒ² ---
         if (isEnemyMissing == false)
         {
             foreach (var (now, prev1, prev2) in enemyTrackedPositions)
@@ -423,10 +423,10 @@ public class PlayerAgent : Agent
         }
 
         // =========================
-        // ’eˆ—i“G‚ÆŠ®‘S‘ÎÌj
+        // å¼¾å‡¦ç†ï¼ˆæ•µã¨å®Œå…¨å¯¾ç§°ï¼‰
         // =========================
 
-        // --- ƒAƒNƒeƒBƒu‚È’e‚ğæ“¾ ---
+        // --- ã‚¢ã‚¯ãƒ†ã‚£ãƒ–ãªå¼¾ã‚’å–å¾— ---
         List<Transform> activeBullets = new List<Transform>();
         if (isBulletMissing == false)
         {
@@ -438,7 +438,7 @@ public class PlayerAgent : Agent
             }
         }
 
-        // --- —š—ğXV ---
+        // --- å±¥æ­´æ›´æ–° ---
         foreach (var bullet in activeBullets)
         {
             if (!bulletHistory.TryGetValue(bullet, out var h))
@@ -458,7 +458,7 @@ public class PlayerAgent : Agent
             h[0] = bullet.position;
         }
 
-        // --- ”jŠü‚³‚ê‚½’e‚ğ—š—ğ‚©‚çíœ ---
+        // --- ç ´æ£„ã•ã‚ŒãŸå¼¾ã‚’å±¥æ­´ã‹ã‚‰å‰Šé™¤ ---
         List<Transform> bulletRemoveList = new List<Transform>();
         foreach (var kvp in bulletHistory)
         {
@@ -472,7 +472,7 @@ public class PlayerAgent : Agent
             bulletHistory.Remove(key);
         }
 
-        // --- ƒvƒŒƒCƒ„[‚É‹ß‚¢‡ ---
+        // --- ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã«è¿‘ã„é † ---
         activeBullets.Sort((a, b) =>
         {
             float da = (a.position - playerPos).sqrMagnitude;
@@ -480,7 +480,7 @@ public class PlayerAgent : Agent
             return da.CompareTo(db);
         });
 
-        // --- ŠÏ‘ª—pƒŠƒXƒgì¬ ---
+        // --- è¦³æ¸¬ç”¨ãƒªã‚¹ãƒˆä½œæˆ ---
         bulletTrackedPositions.Clear();
         for (int i = 0; i < bulletTrackCount; i++)
         {
@@ -498,7 +498,7 @@ public class PlayerAgent : Agent
             }
         }
 
-        // --- ’e‚ÌŠÏ‘ª“o˜^ ---
+        // --- å¼¾ã®è¦³æ¸¬ç™»éŒ² ---
         if (isBulletMissing == false)
         {
             foreach (var (now, prev1, prev2) in bulletTrackedPositions)
@@ -533,19 +533,19 @@ public class PlayerAgent : Agent
         }
     }
 
-    // s“®Œˆ’è‚ÉŒÄ‚Î‚ê‚é
+    // è¡Œå‹•æ±ºå®šæ™‚ã«å‘¼ã°ã‚Œã‚‹
     public override void OnActionReceived(ActionBuffers actionBuffers)
     {
-        // ’á‘¬ƒ‚[ƒh‚àÀ‘•‚·‚é‚±‚Æ
+        // ä½é€Ÿãƒ¢ãƒ¼ãƒ‰ã‚‚å®Ÿè£…ã™ã‚‹ã“ã¨
 
-        // s“®F˜A‘±’l2‚Âi‰¡Ecj‚ğæ“¾
+        // è¡Œå‹•ï¼šé€£ç¶šå€¤2ã¤ï¼ˆæ¨ªãƒ»ç¸¦ï¼‰ã‚’å–å¾—
         float h = Mathf.Clamp(actionBuffers.ContinuousActions[0], -1f, 1f);
         float v = Mathf.Clamp(actionBuffers.ContinuousActions[1], -1f, 1f);
 
-        // ˆÚ“®
+        // ç§»å‹•
         playerMoveControllerScript.MovePlayer(h, v);
 
-        // ƒVƒ‡ƒbƒg‚·‚é‚©‚Ç‚¤‚©‚Ì’l‚ğæ“¾(³‚Ì’l‚ğƒVƒ‡ƒbƒg‰Â‚Æ‚·‚é)
+        // ã‚·ãƒ§ãƒƒãƒˆã™ã‚‹ã‹ã©ã†ã‹ã®å€¤ã‚’å–å¾—(æ­£ã®å€¤ã‚’ã‚·ãƒ§ãƒƒãƒˆå¯ã¨ã™ã‚‹)
         float rawValue = Mathf.Clamp(actionBuffers.ContinuousActions[2], -1f, 1f);
         bool isShot = false;
         if (rawValue > 0)
@@ -556,19 +556,19 @@ public class PlayerAgent : Agent
         {
             isShot = false;
         }
-        isShot = true;                                          // Œã‚Åâ‘ÎÁ‚¹(ƒVƒ‡ƒbƒgí‚Éo‚é‰»ƒ‚[ƒh)
-        // ƒVƒ‡ƒbƒg
+        isShot = true;                                          // å¾Œã§çµ¶å¯¾æ¶ˆã›(ã‚·ãƒ§ãƒƒãƒˆå¸¸ã«å‡ºã‚‹åŒ–ãƒ¢ãƒ¼ãƒ‰)
+        // ã‚·ãƒ§ãƒƒãƒˆ
         playerShotControllerScript.ShotTrigger(isShot);
 
-        // •ñVİŒv
-        // ¶‘¶•ñV +1.0
+        // å ±é…¬è¨­è¨ˆ
+        // ç”Ÿå­˜å ±é…¬ +1.0
         rewardManagerScript.AddReward(RewardType.SurvivalReward);
-        // •ñVc”í’e(•‰)A“G‚É’e‚ğ“–‚Ä‚é
+        // å ±é…¬â€¦è¢«å¼¾(è² )ã€æ•µã«å¼¾ã‚’å½“ã¦ã‚‹
 
 
-        // ƒGƒsƒ\[ƒhI—¹
+        // ã‚¨ãƒ”ã‚½ãƒ¼ãƒ‰çµ‚äº†
         /*
-        // HP‚ª0‚Ì‚Æ‚«
+        // HPãŒ0ã®ã¨ã
         if (playerBaseScript.CurrentHP <= 0)  
         {
             EndEpisode();
@@ -577,19 +577,19 @@ public class PlayerAgent : Agent
             SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         }
         */
-        // ŠJnŠÔ‚©‚ç30•bŒo‚Á‚½‚Æ‚«
+        // é–‹å§‹æ™‚é–“ã‹ã‚‰30ç§’çµŒã£ãŸã¨ã
         //if (gameTimer >= 30.0f) 
-        // ŠwK
+        // å­¦ç¿’æ™‚
         if (gameManager.StageID == 0) 
         {
-            // HP‚ª0‚É‚È‚Á‚½‚Æ‚«A‚à‚µ‚­‚Í60•b‚ªŒo‰ß‚µ‚½‚Æ‚«
+            // HPãŒ0ã«ãªã£ãŸã¨ãã€ã‚‚ã—ãã¯60ç§’ãŒçµŒéã—ãŸã¨ã
             if (playerBaseScript.CurrentHP <= 0 || gameTimer >= 60.0f)
             {
                 /*
-                // ƒQ[ƒ€I—¹‚ğ’Ê’m
+                // ã‚²ãƒ¼ãƒ çµ‚äº†ã‚’é€šçŸ¥
                 gameManager.EndGame();
 
-                // ƒGƒsƒ\[ƒh‚ÌI—¹
+                // ã‚¨ãƒ”ã‚½ãƒ¼ãƒ‰ã®çµ‚äº†
                 EndEpisode();
 
                 gameTimer = 0;
@@ -598,17 +598,17 @@ public class PlayerAgent : Agent
                 gameManager.RequestSafeDelayedReset();
             }
         }
-        // ƒvƒŒƒC
+        // ãƒ—ãƒ¬ã‚¤æ™‚
         else 
         {
-            // 60•b‚ªŒo‰ß‚µ‚½‚Æ‚«
+            // 60ç§’ãŒçµŒéã—ãŸã¨ã
             if (gameTimer >= 60.0f)
             {
                 /*
-                // ƒQ[ƒ€I—¹‚ğ’Ê’m
+                // ã‚²ãƒ¼ãƒ çµ‚äº†ã‚’é€šçŸ¥
                 gameManager.EndGame();
 
-                // ƒGƒsƒ\[ƒh‚ÌI—¹
+                // ã‚¨ãƒ”ã‚½ãƒ¼ãƒ‰ã®çµ‚äº†
                 EndEpisode();
 
                 gameTimer = 0;
@@ -620,43 +620,43 @@ public class PlayerAgent : Agent
         
         gameTimer += Time.fixedDeltaTime;
 
-        // è“®•]‰¿ƒ{ƒ^ƒ“(Œã‚ÅÁ‚·‚±‚Æ)
+        // æ‰‹å‹•è©•ä¾¡ãƒœã‚¿ãƒ³(å¾Œã§æ¶ˆã™ã“ã¨)
         if (Input.GetKeyDown(KeyCode.O) == true)
         {
-            // •ñVE“V—S
+            // å ±é…¬ãƒ»å¤©ç¥
             rewardManagerScript.AddReward(RewardType.GraceReward);
         }
         if (Input.GetKeyDown(KeyCode.L) == true)
         {
-            // •ñVE_”±
+            // å ±é…¬ãƒ»ç¥ç½°
             rewardManagerScript.AddReward(RewardType.PunishPenalty);
         }
     }
 
-    // ƒqƒ…[ƒŠƒXƒeƒBƒbƒNƒ‚[ƒh
+    // ãƒ’ãƒ¥ãƒ¼ãƒªã‚¹ãƒ†ã‚£ãƒƒã‚¯ãƒ¢ãƒ¼ãƒ‰
     public override void Heuristic(in ActionBuffers actionBuffers)
     {
         var actionsOut = actionBuffers.ContinuousActions;
-        // ˆÚ“®
+        // ç§»å‹•
         actionsOut[0] = Input.GetAxis("Horizontal");
         actionsOut[1] = Input.GetAxis("Vertical");
-        // ƒVƒ‡ƒbƒg
-        actionsOut[2] = Input.GetKey(KeyCode.Z) ? 1f : -1f; // true‚Í1Afalse‚Í-1‚ğo—Í‚·‚éB
-        // ’á‘¬ƒ‚[ƒh
-        //actionsOut[3] = Input.GetKey(KeyCode.LeftShift) ? 1f : -1f; // true‚Í1Afalse‚Í-1‚ğo—Í‚·‚éB
+        // ã‚·ãƒ§ãƒƒãƒˆ
+        actionsOut[2] = Input.GetKey(KeyCode.Z) ? 1f : -1f; // trueã¯1ã€falseã¯-1ã‚’å‡ºåŠ›ã™ã‚‹ã€‚
+        // ä½é€Ÿãƒ¢ãƒ¼ãƒ‰
+        //actionsOut[3] = Input.GetKey(KeyCode.LeftShift) ? 1f : -1f; // trueã¯1ã€falseã¯-1ã‚’å‡ºåŠ›ã™ã‚‹ã€‚
     }
 
-    // ƒQ[ƒ€I—¹(ƒƒO‚È‚Ç‚ğæ‚é)
+    // ã‚²ãƒ¼ãƒ çµ‚äº†æ™‚(ãƒ­ã‚°ãªã©ã‚’å–ã‚‹)
     public void EndGame()
     {
         if (isExported == false)
         {
             currentStep = Academy.Instance.StepCount;
 
-            // CSV‚ÉHPE•ñVEó‘Ô‚ğo—Í
+            // CSVã«HPãƒ»å ±é…¬ãƒ»çŠ¶æ…‹ã‚’å‡ºåŠ›
             learningLogCSVScript.UpdateData(currentStep, gameTimer, playerBaseScript.CurrentHP, "Training");
 
-            // Tensor‚Éo—Í(ŠwK’†‚Ì‚İ)
+            // Tensorã«å‡ºåŠ›(å­¦ç¿’ä¸­ã®ã¿)
             if (behaviorParameters.BehaviorType == BehaviorType.Default)
             {
                 Academy.Instance.StatsRecorder.Add("Player/GameTimer", gameTimer);
@@ -670,7 +670,7 @@ public class PlayerAgent : Agent
                 Academy.Instance.StatsRecorder.Add("Player/PunishPenalty", rewardManager.GetRewardCount(RewardType.PunishPenalty));
                 Academy.Instance.StatsRecorder.Add("Player/GraceReward", rewardManager.GetRewardCount(RewardType.GraceReward));
 
-                // ActionLogŠÖŒW
+                // ActionLogé–¢ä¿‚
                 // System
                 Academy.Instance.StatsRecorder.Add("Player/EnemyCount", ActionLogController.Instance.EnemyCount);
                 // Total
@@ -685,12 +685,12 @@ public class PlayerAgent : Agent
                 Academy.Instance.StatsRecorder.Add("Player/T_escapedPartnerKilledSelf", ActionLogController.Instance.StatsTotal.escapedPartnerKilledSelf);
                 Academy.Instance.StatsRecorder.Add("Player/T_escapedSelfKilledSelf", ActionLogController.Instance.StatsTotal.escapedSelfKilledSelf);
 
-                // 0œZ–h~
+                // 0é™¤ç®—é˜²æ­¢
                 if (_totalStatFrames > 0)
                 {
                     var stats = Academy.Instance.StatsRecorder;
 
-                    // A. 9€–Ú‚ÌÚ×o—Í (CSV•ªÍ—p)
+                    // A. 9é …ç›®ã®è©³ç´°å‡ºåŠ› (CSVåˆ†æç”¨)
                     string[] xNames = { "Left", "Center", "Right" };
                     string[] yNames = { "Bottom", "Middle", "Top" };
 
@@ -699,15 +699,15 @@ public class PlayerAgent : Agent
                         for (int y = 0; y < 3; y++)
                         {
                             float rate = (float)_gridCounts[x, y] / _totalStatFrames;
-                            // —á: Player/Grid_Left_Top
+                            // ä¾‹: Player/Grid_Left_Top
                             stats.Add($"{statsNamePrefix}/Grid_{xNames[x]}_{yNames[y]}", rate);
                         }
                     }
 
-                    // B. 6€–Ú‚Ì‚Ü‚Æ‚ßo—Í (TensorBoard—p)
-                    //    9‚Â‚Ìƒ}ƒX‚ğ‘«‚µZ‚µ‚ÄZo‚·‚é
+                    // B. 6é …ç›®ã®ã¾ã¨ã‚å‡ºåŠ› (TensorBoardç”¨)
+                    //    9ã¤ã®ãƒã‚¹ã‚’è¶³ã—ç®—ã—ã¦ç®—å‡ºã™ã‚‹
 
-                    // Y²‚ÌWŒvi‰¡ˆê—ñ‚ğ‘«‚·FBottom‚È‚ç (0,0)+(1,0)+(2,0) j
+                    // Yè»¸ã®é›†è¨ˆï¼ˆæ¨ªä¸€åˆ—ã‚’è¶³ã™ï¼šBottomãªã‚‰ (0,0)+(1,0)+(2,0) ï¼‰
                     float stayBottom = (float)(_gridCounts[0, 0] + _gridCounts[1, 0] + _gridCounts[2, 0]) / _totalStatFrames;
                     float stayMiddleY = (float)(_gridCounts[0, 1] + _gridCounts[1, 1] + _gridCounts[2, 1]) / _totalStatFrames;
                     float stayTop = (float)(_gridCounts[0, 2] + _gridCounts[1, 2] + _gridCounts[2, 2]) / _totalStatFrames;
@@ -716,7 +716,7 @@ public class PlayerAgent : Agent
                     stats.Add($"{statsNamePrefix}/Pos_Middle_Y", stayMiddleY);
                     stats.Add($"{statsNamePrefix}/Pos_Top", stayTop);
 
-                    // X²‚ÌWŒvicˆê—ñ‚ğ‘«‚·j
+                    // Xè»¸ã®é›†è¨ˆï¼ˆç¸¦ä¸€åˆ—ã‚’è¶³ã™ï¼‰
                     float stayLeft = (float)(_gridCounts[0, 0] + _gridCounts[0, 1] + _gridCounts[0, 2]) / _totalStatFrames;
                     float stayCenterX = (float)(_gridCounts[1, 0] + _gridCounts[1, 1] + _gridCounts[1, 2]) / _totalStatFrames;
                     float stayRight = (float)(_gridCounts[2, 0] + _gridCounts[2, 1] + _gridCounts[2, 2]) / _totalStatFrames;
@@ -725,11 +725,11 @@ public class PlayerAgent : Agent
                     stats.Add($"{statsNamePrefix}/Pos_Center_X", stayCenterX);
                     stats.Add($"{statsNamePrefix}/Pos_Right", stayRight);
                 }
-                // --- ƒJƒEƒ“ƒ^[‚ÌƒŠƒZƒbƒg ---
+                // --- ã‚«ã‚¦ãƒ³ã‚¿ãƒ¼ã®ãƒªã‚»ãƒƒãƒˆ ---
                 _gridCounts = new int[3, 3];
                 _totalStatFrames = 0;
 
-                // —»‹@‚Æ‚ÌˆÊ’uŠÖŒW‚ÌƒŠƒZƒbƒg
+                // åƒšæ©Ÿã¨ã®ä½ç½®é–¢ä¿‚ã®ãƒªã‚»ãƒƒãƒˆ
                 _cumulativeDistance = 0f;
                 _spreadFrames = 0;
             }
@@ -738,48 +738,48 @@ public class PlayerAgent : Agent
         }
     }
 
-    // ƒV[ƒ“‚ğŒ×‚®—pF–ˆ‰ñŒÄ‚ÔuƒŠƒ“ƒNÄÚ‘±vˆ—
+    // ã‚·ãƒ¼ãƒ³ã‚’è·¨ãç”¨ï¼šæ¯å›å‘¼ã¶ã€Œãƒªãƒ³ã‚¯å†æ¥ç¶šã€å‡¦ç†
     private bool TryAcquireReferences()
     {
-        // 1. ƒvƒŒƒCƒ„[‚Ì¶‘¶Šm”FEID®‡«ƒ`ƒFƒbƒN
+        // 1. ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®ç”Ÿå­˜ç¢ºèªãƒ»IDæ•´åˆæ€§ãƒã‚§ãƒƒã‚¯
         if (playerBaseScript != null && playerBaseScript.gameObject != null)
         {
-            // ˆá‚¤ID‚ÌƒvƒŒƒCƒ„[‚ğ‘€ì‚µ‚Ä‚µ‚Ü‚Á‚Ä‚¢‚½‚çƒŠƒZƒbƒg
+            // é•ã†IDã®ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã‚’æ“ä½œã—ã¦ã—ã¾ã£ã¦ã„ãŸã‚‰ãƒªã‚»ãƒƒãƒˆ
             if (targetPlayerID != -1 && playerBaseScript.PlayerID != targetPlayerID)
             {
                 playerBaseScript = null;
             }
             else
             {
-                return true; // ³í‚ÉƒŠƒ“ƒN‚³‚ê‚Ä‚¢‚é‚Ì‚ÅI—¹
+                return true; // æ­£å¸¸ã«ãƒªãƒ³ã‚¯ã•ã‚Œã¦ã„ã‚‹ã®ã§çµ‚äº†
             }
         }
 
-        // ƒvƒŒƒCƒ„[‚Ì“Á’èiIDd‹j
+        // ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®ç‰¹å®šï¼ˆIDé‡è¦–ï¼‰
         GameObject parentObj = GameObject.Find("PlayerParent");
-        if (parentObj == null) return false; // ‚Ü‚¾ƒ[ƒh‚³‚ê‚Ä‚¢‚È‚¢
+        if (parentObj == null) return false; // ã¾ã ãƒ­ãƒ¼ãƒ‰ã•ã‚Œã¦ã„ãªã„
 
-        // eƒIƒuƒWƒFƒNƒg‚ÌQÆ‚àXV‚µ‚Ä‚¨‚­iGetPartnerPlayer‚Åg‚¤‚½‚ßj
+        // è¦ªã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®å‚ç…§ã‚‚æ›´æ–°ã—ã¦ãŠãï¼ˆGetPartnerPlayerã§ä½¿ã†ãŸã‚ï¼‰
         playerParentObj = parentObj;
 
-        // e‚Ìq‹Ÿ‚Ì’†‚©‚çPlayerBase‚ğ‚·‚×‚Äæ“¾i”ñƒAƒNƒeƒBƒuŠÜ‚Şj
+        // è¦ªã®å­ä¾›ã®ä¸­ã‹ã‚‰PlayerBaseã‚’ã™ã¹ã¦å–å¾—ï¼ˆéã‚¢ã‚¯ãƒ†ã‚£ãƒ–å«ã‚€ï¼‰
         PlayerBase foundPlayer = null;
         PlayerBase[] allPlayers = parentObj.GetComponentsInChildren<PlayerBase>(true);
 
         foreach (var p in allPlayers)
         {
-            // y‰‰ñzID‚ª‚Ü‚¾Œˆ‚Ü‚Á‚Ä‚¢‚È‚¢
+            // ã€åˆå›ã€‘IDãŒã¾ã æ±ºã¾ã£ã¦ã„ãªã„æ™‚
             if (targetPlayerID == -1)
             {
-                // Å‰‚©‚çƒAƒNƒeƒBƒu‚É‚È‚Á‚Ä‚¢‚é‹@‘Ì‚ğu©•ª‚Ì‹@‘Ìv‚ÆŒˆ‚ß‚é
+                // æœ€åˆã‹ã‚‰ã‚¢ã‚¯ãƒ†ã‚£ãƒ–ã«ãªã£ã¦ã„ã‚‹æ©Ÿä½“ã‚’ã€Œè‡ªåˆ†ã®æ©Ÿä½“ã€ã¨æ±ºã‚ã‚‹
                 if (p.gameObject.activeInHierarchy)
                 {
-                    targetPlayerID = p.PlayerID; // ID‚ğ“o˜^I
+                    targetPlayerID = p.PlayerID; // IDã‚’ç™»éŒ²ï¼
                     foundPlayer = p;
                     break;
                 }
             }
-            // y2‰ñ–ÚˆÈ~z‹L‰¯‚µ‚½ID‚Æ“¯‚¶‹@‘Ì‚ğ’T‚·
+            // ã€2å›ç›®ä»¥é™ã€‘è¨˜æ†¶ã—ãŸIDã¨åŒã˜æ©Ÿä½“ã‚’æ¢ã™
             else
             {
                 if (p.PlayerID == targetPlayerID)
@@ -790,21 +790,21 @@ public class PlayerAgent : Agent
             }
         }
 
-        // Œ©‚Â‚©‚ç‚È‚¯‚ê‚Î¡‰ñ‚ÍŒ©‘—‚è
+        // è¦‹ã¤ã‹ã‚‰ãªã‘ã‚Œã°ä»Šå›ã¯è¦‹é€ã‚Š
         if (foundPlayer == null) return false;
 
-        // 3. ƒRƒ“ƒ|[ƒlƒ“ƒg‚ÌƒŠƒ“ƒN‚Æ‰Šú‰»i‚±‚±‚ª”²‚¯‚Ä‚¢‚Ü‚µ‚½Ij
+        // 3. ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆã®ãƒªãƒ³ã‚¯ã¨åˆæœŸåŒ–ï¼ˆã“ã“ãŒæŠœã‘ã¦ã„ã¾ã—ãŸï¼ï¼‰
         playerBaseScript = foundPlayer;
         playerMoveControllerScript = foundPlayer.GetComponent<PlayerMoveController>();
         playerShotControllerScript = foundPlayer.GetComponent<PlayerShotController>();
 
-        // ŠwK’†‚Ì‚İ(—˜‚«èŒ»Û‚Ì‘Îô)
+        // å­¦ç¿’ä¸­ã®ã¿(åˆ©ãæ‰‹ç¾è±¡ã®å¯¾ç­–)
         if (behaviorParameters.BehaviorType == BehaviorType.Default)
         {
             playerMoveControllerScript.IsDefaultBehavior = true;
         }
 
-        // 4. ƒ}ƒl[ƒWƒƒ[—Ş‚ÌÄæ“¾
+        // 4. ãƒãƒãƒ¼ã‚¸ãƒ£ãƒ¼é¡ã®å†å–å¾—
         if (rewardManagerScript == null)
             rewardManagerScript = FindObjectOfType<RewardManager>();
 
@@ -814,7 +814,7 @@ public class PlayerAgent : Agent
         if (learningLogCSVScript == null)
             learningLogCSVScript = FindObjectOfType<LearningLogCSV>();
 
-        // ’e‚â“G‚Ìe
+        // å¼¾ã‚„æ•µã®è¦ª
         if (bulletParent == null)
         {
             GameObject bp = GameObject.Find("BulletParent");
@@ -826,17 +826,17 @@ public class PlayerAgent : Agent
             if (ep != null) enemyParent = ep.transform;
         }
 
-        // —š—ğ‚ÌƒŠƒZƒbƒgiƒV[ƒ“‘JˆÚ’¼Œã‚È‚Ì‚ÅƒNƒŠƒAj
+        // å±¥æ­´ã®ãƒªã‚»ãƒƒãƒˆï¼ˆã‚·ãƒ¼ãƒ³é·ç§»ç›´å¾Œãªã®ã§ã‚¯ãƒªã‚¢ï¼‰
         bulletHistory.Clear();
         enemyHistory.Clear();
 
-        return true; // Ú‘±¬Œ÷
+        return true; // æ¥ç¶šæˆåŠŸ
     }
 
-    // —»‹@‚Ìæ“¾ieƒIƒuƒWƒFƒNƒg‚ªXV‚³‚ê‚Ä‚¢‚é‘O’ñj
+    // åƒšæ©Ÿã®å–å¾—ï¼ˆè¦ªã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆãŒæ›´æ–°ã•ã‚Œã¦ã„ã‚‹å‰æï¼‰
     public void GetPartnerPlayer()
     {
-        // e‚ªæ‚ê‚Ä‚¢‚È‚¢‚È‚ç’T‚·
+        // è¦ªãŒå–ã‚Œã¦ã„ãªã„ãªã‚‰æ¢ã™
         if (playerParentObj == null)
         {
             playerParentObj = GameObject.Find("PlayerParent");
@@ -848,18 +848,18 @@ public class PlayerAgent : Agent
         {
             if (child.gameObject.activeSelf)
             {
-                // ©•ª©g‚ÌID‚Æ‚Íˆá‚¤ID‚ğ‚Â‹@‘Ì‚ğ’T‚·
-                // (playerBaseScript‚ªnull‚Ìê‡‚Í”äŠr‚Å‚«‚È‚¢‚Ì‚Åƒ`ƒFƒbƒN)
+                // è‡ªåˆ†è‡ªèº«ã®IDã¨ã¯é•ã†IDã‚’æŒã¤æ©Ÿä½“ã‚’æ¢ã™
+                // (playerBaseScriptãŒnullã®å ´åˆã¯æ¯”è¼ƒã§ããªã„ã®ã§ãƒã‚§ãƒƒã‚¯)
                 if (playerBaseScript != null && child.gameObject.GetComponent<PlayerBase>().PlayerID != playerBaseScript.PlayerID)
                 {
                     partnerPlayerObj = child.gameObject;
-                    // Debug.Log("—»‹@‚ğæ“¾‚µ‚Ü‚µ‚½: " + child.name);
-                    return; // Œ©‚Â‚©‚Á‚½‚çI—¹
+                    // Debug.Log("åƒšæ©Ÿã‚’å–å¾—ã—ã¾ã—ãŸ: " + child.name);
+                    return; // è¦‹ã¤ã‹ã£ãŸã‚‰çµ‚äº†
                 }
             }
         }
     }
-    // ˆÊ’uŠÖŒW
+    // ä½ç½®é–¢ä¿‚
     public List<float> ExportPosValue()
     {
         var statsValue = new List<float>(new float[17]);
@@ -871,7 +871,7 @@ public class PlayerAgent : Agent
 
         //var stats = Academy.Instance.StatsRecorder;
 
-        // A. 9€–Ú‚ÌÚ×o—Í (CSV•ªÍ—p)
+        // A. 9é …ç›®ã®è©³ç´°å‡ºåŠ› (CSVåˆ†æç”¨)
         string[] xNames = { "Left", "Center", "Right" };
         string[] yNames = { "Bottom", "Middle", "Top" };
 
@@ -880,17 +880,17 @@ public class PlayerAgent : Agent
             for (int y = 0; y < 3; y++)
             {
                 float rate = (float)_gridCounts[x, y] / _totalStatFrames;
-                // —á: Player/Grid_Left_Top
+                // ä¾‹: Player/Grid_Left_Top
                 //stats.Add($"{statsNamePrefix}/Grid_{xNames[x]}_{yNames[y]}", rate);
                 //statsValue.Add(rate);
                 statsValue[y + x * 3] = rate;
             }
         }
 
-        // B. 6€–Ú‚Ì‚Ü‚Æ‚ßo—Í (TensorBoard—p)
-        //    9‚Â‚Ìƒ}ƒX‚ğ‘«‚µZ‚µ‚ÄZo‚·‚é
+        // B. 6é …ç›®ã®ã¾ã¨ã‚å‡ºåŠ› (TensorBoardç”¨)
+        //    9ã¤ã®ãƒã‚¹ã‚’è¶³ã—ç®—ã—ã¦ç®—å‡ºã™ã‚‹
 
-        // Y²‚ÌWŒvi‰¡ˆê—ñ‚ğ‘«‚·FBottom‚È‚ç (0,0)+(1,0)+(2,0) j
+        // Yè»¸ã®é›†è¨ˆï¼ˆæ¨ªä¸€åˆ—ã‚’è¶³ã™ï¼šBottomãªã‚‰ (0,0)+(1,0)+(2,0) ï¼‰
         float stayBottom = (float)(_gridCounts[0, 0] + _gridCounts[1, 0] + _gridCounts[2, 0]) / _totalStatFrames;
         float stayMiddleY = (float)(_gridCounts[0, 1] + _gridCounts[1, 1] + _gridCounts[2, 1]) / _totalStatFrames;
         float stayTop = (float)(_gridCounts[0, 2] + _gridCounts[1, 2] + _gridCounts[2, 2]) / _totalStatFrames;
@@ -905,7 +905,7 @@ public class PlayerAgent : Agent
         statsValue[10] = stayMiddleY;
         statsValue[11] = stayTop;
 
-        // X²‚ÌWŒvicˆê—ñ‚ğ‘«‚·j
+        // Xè»¸ã®é›†è¨ˆï¼ˆç¸¦ä¸€åˆ—ã‚’è¶³ã™ï¼‰
         float stayLeft = (float)(_gridCounts[0, 0] + _gridCounts[0, 1] + _gridCounts[0, 2]) / _totalStatFrames;
         float stayCenterX = (float)(_gridCounts[1, 0] + _gridCounts[1, 1] + _gridCounts[1, 2]) / _totalStatFrames;
         float stayRight = (float)(_gridCounts[2, 0] + _gridCounts[2, 1] + _gridCounts[2, 2]) / _totalStatFrames;
@@ -922,14 +922,14 @@ public class PlayerAgent : Agent
 
         if (partnerPlayerObj != null)
         {
-            // 1. •½‹Ï‹——£
+            // 1. å¹³å‡è·é›¢
             float avgDist = _cumulativeDistance / _totalStatFrames;
 
             //stats.Add($"{statsNamePrefix}/Relationship_Avg_Distance", avgDist);
             //statsValue.Add(avgDist);
             statsValue[15] = avgDist;
 
-            // 2. “WŠJ—¦ (Spread Rate)
+            // 2. å±•é–‹ç‡ (Spread Rate)
             float spreadRate = (float)_spreadFrames / _totalStatFrames;
             // stats.Add($"{statsNamePrefix}/Relationship_Spread_Rate", spreadRate);
             //statsValue.Add(spreadRate);

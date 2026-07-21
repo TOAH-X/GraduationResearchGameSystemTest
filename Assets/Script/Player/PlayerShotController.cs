@@ -1,17 +1,17 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
 public class PlayerShotController : MonoBehaviour
 {
-    [Header("ƒVƒ‡ƒbƒgƒvƒŒƒnƒu")]
+    [Header("ã‚·ãƒ§ãƒƒãƒˆãƒ—ãƒ¬ãƒãƒ–")]
     [SerializeField] GameObject shotPrefab;
     [Header("PlayerID")]
     [SerializeField] int playerID;
-    [Header("PlayerAgentƒXƒNƒŠƒvƒg")]
+    [Header("PlayerAgentã‚¹ã‚¯ãƒªãƒ—ãƒˆ")]
     [SerializeField] RewardManager rewardManager;
-    [Header("PlayerBaseƒXƒNƒŠƒvƒg")]
+    [Header("PlayerBaseã‚¹ã‚¯ãƒªãƒ—ãƒˆ")]
     [SerializeField] PlayerBase playerBaseScript;
 
-    [Header("ƒVƒ‡ƒbƒgŠi”[æ(e)")]
+    [Header("ã‚·ãƒ§ãƒƒãƒˆæ ¼ç´å…ˆ(è¦ª)")]
     [SerializeField] GameObject shotParentObj;
 
     float timer = 0;
@@ -27,7 +27,7 @@ public class PlayerShotController : MonoBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
-        // ”O‚Ìˆ×QÆ(Start‚Å‚à—Ç‚¢‚©‚à)
+        // å¿µã®ç‚ºå‚ç…§(Startã§ã‚‚è‰¯ã„ã‹ã‚‚)
         playerID = playerBaseScript.PlayerID;
 
         if (timer >= 0.1f)
@@ -36,12 +36,12 @@ public class PlayerShotController : MonoBehaviour
             {
                 bool isSlow = false;
 
-                // ”ñ’á‘¬ƒ‚[ƒh(ŠgUƒVƒ‡ƒbƒg)
+                // éä½é€Ÿãƒ¢ãƒ¼ãƒ‰(æ‹¡æ•£ã‚·ãƒ§ãƒƒãƒˆ)
                 if (Input.GetKey(KeyCode.LeftShift) == false)
                 {
                     isSlow = false;
                 }
-                // ’á‘¬ƒ‚[ƒh(W’†ƒVƒ‡ƒbƒg)
+                // ä½é€Ÿãƒ¢ãƒ¼ãƒ‰(é›†ä¸­ã‚·ãƒ§ãƒƒãƒˆ)
                 else
                 {
                     isSlow = true;
@@ -57,18 +57,18 @@ public class PlayerShotController : MonoBehaviour
 
     }
 
-    // ƒVƒ‡ƒbƒgƒgƒŠƒK[(agent—p)
+    // ã‚·ãƒ§ãƒƒãƒˆãƒˆãƒªã‚¬ãƒ¼(agentç”¨)
     public void ShotTrigger(bool isShot) 
     {
         isShotTrigger = isShot;
     }
 
-    // ƒVƒ‡ƒbƒg
+    // ã‚·ãƒ§ãƒƒãƒˆ
     public void ShotGroup(bool isSlow) 
     {
         if (playerBaseScript.IsRestart == false) 
         {
-            //’†‰›ƒVƒ‡ƒbƒg
+            //ä¸­å¤®ã‚·ãƒ§ãƒƒãƒˆ
             GenerateShot(new Vector3(-0.25f, 0), 20f, 0f);
             GenerateShot(new Vector3(0.25f, 0), 20f, 0f);
             GenerateShot(new Vector3(-0.125f, 0), 20f, 0f);
@@ -77,7 +77,7 @@ public class PlayerShotController : MonoBehaviour
             GenerateShot(new Vector3(-0.375f, 0), 20f, 0f);
             GenerateShot(new Vector3(0.375f, 0), 20f, 0f);
 
-            // ”ñ’á‘¬ƒ‚[ƒh
+            // éä½é€Ÿãƒ¢ãƒ¼ãƒ‰
             if (isSlow == false)
             {
                 /*
@@ -87,7 +87,7 @@ public class PlayerShotController : MonoBehaviour
                 GenerateShot(new Vector3(0.5f, 0.5f), 20f, -15f);
                 */
             }
-            //’á‘¬ƒ‚[ƒh
+            //ä½é€Ÿãƒ¢ãƒ¼ãƒ‰
             else
             {
                 /*
@@ -101,27 +101,27 @@ public class PlayerShotController : MonoBehaviour
     }
 
     /// <summary>
-    /// ƒVƒ‡ƒbƒg‚Ì¶¬
+    /// ã‚·ãƒ§ãƒƒãƒˆã®ç”Ÿæˆ
     /// </summary>
-    /// <param name="pos">¶¬ˆÊ’u</param>
-    /// <param name="moveSpeed">”­Ë‘ª“x</param>
-    /// <param name="angleDegree">”­ËŠp“x</param>
+    /// <param name="pos">ç”Ÿæˆä½ç½®</param>
+    /// <param name="moveSpeed">ç™ºå°„æ¸¬åº¦</param>
+    /// <param name="angleDegree">ç™ºå°„è§’åº¦</param>
     public void GenerateShot(Vector3 pos, float moveSpeed, float angleDegree)
     {
-        // ƒVƒ‡ƒbƒg¶¬
+        // ã‚·ãƒ§ãƒƒãƒˆç”Ÿæˆ
         //Vector2 pos = transform.position + new Vector3(0.25f, 0);
         if (shotParentObj == null)
         {
-            shotParentObj = GameObject.Find("ShotParent");      //d‚¢‚Ì‚Å—]—T‚ª‚ ‚ê‚ÎƒCƒ“ƒXƒ^ƒ“ƒX‰»
+            shotParentObj = GameObject.Find("ShotParent");      //é‡ã„ã®ã§ä½™è£•ãŒã‚ã‚Œã°ã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹åŒ–
         }
         //var shotPrefabs = Instantiate(shotPrefab, transform.position + pos, Quaternion.identity, shotParentObj.transform);
-        //shotPrefabs.transform.localEulerAngles = new Vector3(0, 0, angleDegree);                    //¶¬êŠ‚Å‘‚«Š·‚¦‚Ü‚µ‚å‚¤B–³‘Ê‚Ès‚Å‚·B
+        //shotPrefabs.transform.localEulerAngles = new Vector3(0, 0, angleDegree);                    //ç”Ÿæˆå ´æ‰€ã§æ›¸ãæ›ãˆã¾ã—ã‚‡ã†ã€‚ç„¡é§„ãªè¡Œã§ã™ã€‚
         //ShotController shotControllerScript = shotPrefabs.GetComponent<ShotController>();
         //shotControllerScript.MoveSpeed = moveSpeed;
         //shotControllerScript.AngleDegree = angleDegree;
         //shotControllerScript.PlayerID = playerID;
 
-        // ƒv[ƒ‹‚©‚çæ“¾‚µ‚Äİ’è
+        // ãƒ—ãƒ¼ãƒ«ã‹ã‚‰å–å¾—ã—ã¦è¨­å®š
         var shotObj = ShotPooler.Instance.GetShot();
         shotObj.transform.SetParent(shotParentObj.transform);
         shotObj.transform.position = transform.position + pos;

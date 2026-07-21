@@ -1,4 +1,4 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -6,7 +6,7 @@ public class GrazeController : MonoBehaviour
 {
     [SerializeField] RewardManager rewardManager;
 
-    [Header("PlayerTypeAPlayer‚©SubPlayer‚©Bæ“¾‚Å‚«‚é‚æ‚¤‚É•ÏX‚µ‚Ä‚¨‚­‚±‚Æ")]
+    [Header("PlayerTypeã€Playerã‹SubPlayerã‹ã€‚å–å¾—ã§ãã‚‹ã‚ˆã†ã«å¤‰æ›´ã—ã¦ãŠãã“ã¨")]
     [SerializeField] string playerType;
 
     // Start is called before the first frame update
@@ -21,10 +21,10 @@ public class GrazeController : MonoBehaviour
         
     }
 
-    // •K‚¸ƒŠƒtƒ@ƒNƒ^ƒŠƒ“ƒO‚ğs‚¤‚±‚Æ
+    // å¿…ãšãƒªãƒ•ã‚¡ã‚¯ã‚¿ãƒªãƒ³ã‚°ã‚’è¡Œã†ã“ã¨
     public void AddReward() 
     {
-        // ƒOƒŒƒCƒY‚·‚é‚Æ•‰‚Ì•ñV
+        // ã‚°ãƒ¬ã‚¤ã‚ºã™ã‚‹ã¨è² ã®å ±é…¬
         rewardManager.AddReward(RewardType.GrazePenalty);
     }
 }

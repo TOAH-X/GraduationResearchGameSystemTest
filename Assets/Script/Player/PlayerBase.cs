@@ -1,21 +1,21 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using System.Threading;
 
 
 public class PlayerBase : MonoBehaviour
 {
-    [Header("ƒvƒŒƒCƒ„[‚Ì–¼‘O")]
+    [Header("ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®åå‰")]
     [SerializeField] string playerName;
-    [Header("ƒvƒŒƒCƒ„[ID")]
+    [Header("ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ID")]
     [SerializeField] int playerID = 1;
-    [Header("PlayerTypeAƒvƒŒƒCƒ„[ID‚Æ“‡‚µ‚Ä‚¨‚­‚±‚Æ")]
+    [Header("PlayerTypeã€ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼IDã¨çµ±åˆã—ã¦ãŠãã“ã¨")]
     [SerializeField] string playerType;
-    [Header("Œ»İ‚Ìc‹@")]
+    [Header("ç¾åœ¨ã®æ®‹æ©Ÿ")]
     [SerializeField] int currentHp = 10;
     
     [SerializeField] PlayerMoveController playerMoveController;
 
-    [SerializeField] InvincibilityController invincibilityControllerScript; // InvincibilityTime‚ÌƒXƒNƒŠƒvƒg
+    [SerializeField] InvincibilityController invincibilityControllerScript; // InvincibilityTimeã®ã‚¹ã‚¯ãƒªãƒ—ãƒˆ
 
     [SerializeField] RewardManager rewardManager;
 
@@ -24,7 +24,7 @@ public class PlayerBase : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        // ƒŠƒXƒ^[ƒg
+        // ãƒªã‚¹ã‚¿ãƒ¼ãƒˆ
         cts = new CancellationTokenSource();
         playerMoveController.RestartAsync(true, cts.Token).Forget();
     }
@@ -36,19 +36,19 @@ public class PlayerBase : MonoBehaviour
     }
 
     /// <summary>
-    /// ƒvƒŒƒCƒ„[‚Ì”íƒ_ƒ[ƒW
+    /// ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®è¢«ãƒ€ãƒ¡ãƒ¼ã‚¸
     /// </summary>
-    /// <param name="damage">ƒ_ƒ[ƒW—Ê</param>
+    /// <param name="damage">ãƒ€ãƒ¡ãƒ¼ã‚¸é‡</param>
     public void Damage(int damage) 
     {
         if (invincibilityControllerScript.IsInvincibility() == false)  
         {
-            currentHp -= damage;                                        // ƒ_ƒ[ƒW”½‰f
-            invincibilityControllerScript.UpdateInvincibility(3.0f);    // –³“GŠÔXV
-                                                                        // ”í’e‚µ‚½‚Æ‚«‚Ì•ñVŒ¸­
+            currentHp -= damage;                                        // ãƒ€ãƒ¡ãƒ¼ã‚¸åæ˜ 
+            invincibilityControllerScript.UpdateInvincibility(3.0f);    // ç„¡æ•µæ™‚é–“æ›´æ–°
+                                                                        // è¢«å¼¾ã—ãŸã¨ãã®å ±é…¬æ¸›å°‘
             rewardManager.AddReward(RewardType.HitPenalty);
 
-            // ƒŠƒXƒ^[ƒg
+            // ãƒªã‚¹ã‚¿ãƒ¼ãƒˆ
             cts = new CancellationTokenSource();
             playerMoveController.RestartAsync(false, cts.Token).Forget();
         }
@@ -59,27 +59,27 @@ public class PlayerBase : MonoBehaviour
     {
         IsRestart = true;
 
-        Vector3 startPos = new Vector3(0, -3.0f);           // ŠJnˆÊ’u
-        Vector3 resetPos = new Vector3(0, -6.0f);           // ‰æ–ÊŠOˆÊ’u
+        Vector3 startPos = new Vector3(0, -3.0f);           // é–‹å§‹ä½ç½®
+        Vector3 resetPos = new Vector3(0, -6.0f);           // ç”»é¢å¤–ä½ç½®
 
         try
         {
-            // ŠJn‚É‰ŠúˆÊ’u‚ğİ’è
+            // é–‹å§‹æ™‚ã«åˆæœŸä½ç½®ã‚’è¨­å®š
             transform.position = resetPos;
 
-            float duration = 1f; // ˆÚ“®‚É‚©‚¯‚éŠÔ(•b)
+            float duration = 1f; // ç§»å‹•ã«ã‹ã‘ã‚‹æ™‚é–“(ç§’)
             float elapsed = 0f;
 
             while (elapsed < duration)
             {
-                await UniTask.Yield(PlayerLoopTiming.FixedUpdate, token); // FixedUpdateƒ^ƒCƒ~ƒ“ƒO‚Å“®‚©‚·
+                await UniTask.Yield(PlayerLoopTiming.FixedUpdate, token); // FixedUpdateã‚¿ã‚¤ãƒŸãƒ³ã‚°ã§å‹•ã‹ã™
                 elapsed += Time.fixedDeltaTime;
 
                 float t = Mathf.Clamp01(elapsed / duration);
                 transform.position = Vector3.Lerp(resetPos, startPos, t);
             }
 
-            // I—¹‚ÉŠmÀ‚ÉƒŠƒZƒbƒgˆÊ’u‚Ö
+            // çµ‚äº†æ™‚ã«ç¢ºå®Ÿã«ãƒªã‚»ãƒƒãƒˆä½ç½®ã¸
             transform.position = startPos;
         }
         catch (System.OperationCanceledException)
@@ -91,23 +91,23 @@ public class PlayerBase : MonoBehaviour
     }
     */
 
-    // playerIDQÆ(getset)
+    // playerIDå‚ç…§(getset)
     public int PlayerID
     {
         get { return playerID; }
         set { playerID = value; }
     }
-    // currentHPQÆ(getset)
+    // currentHPå‚ç…§(getset)
     public int CurrentHP
     {
         get { return currentHp; }
         set { currentHp= value; }
     }
 
-    // ƒŠƒZƒbƒgó‘Ô‚©‚Ç‚¤‚©
+    // ãƒªã‚»ãƒƒãƒˆçŠ¶æ…‹ã‹ã©ã†ã‹
     public bool IsRestart { get; set; } = false;
 
-    // playerNameQÆ(getset)
+    // playerNameå‚ç…§(getset)
     public string PlayerName
     {
         get { return playerName; }

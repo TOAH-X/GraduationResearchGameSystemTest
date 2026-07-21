@@ -1,21 +1,21 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
 public class ShotController : MonoBehaviour
 {
-    [Header("ˆÚ“®‘¬“x")]
+    [Header("ç§»å‹•é€Ÿåº¦")]
     [SerializeField] float moveSpeed = 20.0f;
-    [Header("Šp“x")]
+    [Header("è§’åº¦")]
     [SerializeField] float angleDegree = 30.0f;
     float timer = 0;
 
     [SerializeField] GameObject shotEffectObj;
     [SerializeField] GameObject shotEffectParentObj;
 
-    [Header("ƒVƒ‡ƒbƒg‚ÌƒvƒŒƒCƒ„[ID")]
+    [Header("ã‚·ãƒ§ãƒƒãƒˆã®ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ID")]
     [SerializeField] int playerID = 0;
     RewardManager rewardManager;
 
-    // ‰æ–ÊŠO‚Ì”ÍˆÍ
+    // ç”»é¢å¤–ã®ç¯„å›²
     float minX = -6.5f;
     float maxX = 6.5f;
     float minY = -5.0f;
@@ -30,10 +30,10 @@ public class ShotController : MonoBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
-        // ˆÚ“®
+        // ç§»å‹•
         Move();
 
-        // ‰æ–ÊŠOˆ—
+        // ç”»é¢å¤–å‡¦ç†
         Vector3 pos = transform.position;
         if (pos.x < minX || pos.x > maxX || pos.y < minY || pos.y > maxY)
         {
@@ -46,79 +46,79 @@ public class ShotController : MonoBehaviour
         this.rewardManager = rewardManager;
     }
 
-    // ˆÚ“®
+    // ç§»å‹•
     public void Move()
     {
-        Vector2 moveDirection;          // Œü‚«
-        // Y²iã•ûŒüj‚ğŠî€‚Æ‚µ‚ÄŠp“x‚ğ”½‰f
+        Vector2 moveDirection;          // å‘ã
+        // Yè»¸ï¼ˆä¸Šæ–¹å‘ï¼‰ã‚’åŸºæº–ã¨ã—ã¦è§’åº¦ã‚’åæ˜ 
         float angleRad = -angleDegree * Mathf.Deg2Rad;
         moveDirection = new Vector2(Mathf.Sin(angleRad), Mathf.Cos(angleRad)).normalized;
 
-        // Z²‰ñ“]iŒ©‚½–Ú‚ÌŒü‚«j‚à‡‚í‚¹‚é
+        // Zè»¸å›è»¢ï¼ˆè¦‹ãŸç›®ã®å‘ãï¼‰ã‚‚åˆã‚ã›ã‚‹
         transform.rotation = Quaternion.Euler(0f, 0f, angleDegree);
 
         transform.position += (Vector3)(moveDirection * moveSpeed * Time.deltaTime);
     }
 
-    // “G‚É“–‚½‚Á‚½‚Æ‚«
+    // æ•µã«å½“ãŸã£ãŸã¨ã
     void OnTriggerEnter2D(Collider2D other)
     {
         if (other.gameObject.CompareTag("Enemy"))
         {
-            // “G‚ÌHP”»’è(ƒI[ƒo[ƒLƒ‹–h~)
+            // æ•µã®HPåˆ¤å®š(ã‚ªãƒ¼ãƒãƒ¼ã‚­ãƒ«é˜²æ­¢)
             EnemyBase enemyBase = other.GetComponent<EnemyBase>();
             if (enemyBase.CurrentHP <= 0) 
             {
                 return;
             }
 
-            // ƒVƒ‡ƒbƒgƒGƒtƒFƒNƒg‚Ì¶¬
+            // ã‚·ãƒ§ãƒƒãƒˆã‚¨ãƒ•ã‚§ã‚¯ãƒˆã®ç”Ÿæˆ
             var shotEffectObjs = Instantiate(shotEffectObj);
             //shotEffectObjs.transform.SetParent(shotEffectParentObj.transform);
             shotEffectObjs.transform.position = transform.position;
 
-            // ƒVƒ‡ƒbƒg‚Ì‰¹‚ÌÄ¶
+            // ã‚·ãƒ§ãƒƒãƒˆã®éŸ³ã®å†ç”Ÿ
             SoundManager.PlaySE(SEType.Shot1);
 
-            // ƒ_ƒ[ƒW‚ğ—^‚¦‚é
-            //int statusNum = (int)(other.GetComponent<EnemyBase>()?.Damage(1, playerID));       //ƒ_ƒ[ƒW‚ğ1‚Æ‰¼’è
+            // ãƒ€ãƒ¡ãƒ¼ã‚¸ã‚’ä¸ãˆã‚‹
+            //int statusNum = (int)(other.GetComponent<EnemyBase>()?.Damage(1, playerID));       //ãƒ€ãƒ¡ãƒ¼ã‚¸ã‚’1ã¨ä»®å®š
             int statusNum = (int)(enemyBase?.Damage(1, playerID));
 
-            // •ñV
+            // å ±é…¬
             if (statusNum == 0)
             {
                 rewardManager.AddReward(RewardType.AttackReward);
             }
-            // “G‚Ì€–S
+            // æ•µã®æ­»äº¡
             if (statusNum == 1)
             {
                 rewardManager.AddReward(RewardType.KillReward);
             }
 
-            // ŠÑ’Ê‚µ‚È‚¢ê‡
+            // è²«é€šã—ãªã„å ´åˆ
             Death();
         }
     }
 
-    // Á–Å
+    // æ¶ˆæ»…
     public void Death() 
     {
         ShotPooler.Instance.ReturnShot(gameObject);
     }
 
-    // moveSpeedQÆ(getset)
+    // moveSpeedå‚ç…§(getset)
     public float MoveSpeed
     {
         get { return moveSpeed; }
         set { moveSpeed = value; }
     }
-    // angleDegreeQÆ(getset)
+    // angleDegreeå‚ç…§(getset)
     public float AngleDegree
     {
         get { return angleDegree; }
         set { angleDegree = value; }
     }
-    // playerIDQÆ(getset)
+    // playerIDå‚ç…§(getset)
     public int PlayerID
     {
         get { return playerID; }

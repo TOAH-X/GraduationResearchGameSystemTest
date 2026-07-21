@@ -1,10 +1,10 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using UnityEngine.SceneManagement;
 
-// SafeSingleton‚ğŒp³‚µ‚Äì¬
+// SafeSingletonã‚’ç¶™æ‰¿ã—ã¦ä½œæˆ
 public class SubjectManager : SafeSingleton<SubjectManager>
 {
-    [Header("”íŒ±Òî•ñ")]
+    [Header("è¢«é¨“è€…æƒ…å ±")]
     public int subjectID = -1;
     public int trialCount = 1;
 
@@ -12,52 +12,52 @@ public class SubjectManager : SafeSingleton<SubjectManager>
 
 
 
-    [Header("‰i‘±‰»İ’è")]
+    [Header("æ°¸ç¶šåŒ–è¨­å®š")]
     public bool shouldPersist = true;
 
     protected override void OnSingletonAwake()
     {
-        // ƒV[ƒ“‚ğ‚Ü‚½‚¢‚Å‚àÁ‚¦‚È‚¢‚æ‚¤‚Éİ’è
+        // ã‚·ãƒ¼ãƒ³ã‚’ã¾ãŸã„ã§ã‚‚æ¶ˆãˆãªã„ã‚ˆã†ã«è¨­å®š
         if (shouldPersist)
         {
             DontDestroyOnLoad(gameObject);
         }
 
-        // Debug.Log($"SubjectManager‚ª‹N“®‚µ‚Ü‚µ‚½BŒ»İ‚ÌID: {subjectID}");
+        // Debug.Log($"SubjectManagerãŒèµ·å‹•ã—ã¾ã—ãŸã€‚ç¾åœ¨ã®ID: {subjectID}");
     }
 
-    // ID‚ğXV‚·‚éƒƒ\ƒbƒhiUI‚È‚Ç‚©‚çŒÄ‚Ô—pj
+    // IDã‚’æ›´æ–°ã™ã‚‹ãƒ¡ã‚½ãƒƒãƒ‰ï¼ˆUIãªã©ã‹ã‚‰å‘¼ã¶ç”¨ï¼‰
     public void SetSubjectID(int newID)
     {
         subjectID = newID;
-        // Debug.Log($"”íŒ±ÒID‚ªXV‚³‚ê‚Ü‚µ‚½: {subjectID}");
+        // Debug.Log($"è¢«é¨“è€…IDãŒæ›´æ–°ã•ã‚Œã¾ã—ãŸ: {subjectID}");
     }
 
     void FixedUpdate()
     {
-        // 1. ShiftƒL[‚ª‰Ÿ‚³‚ê‚Ä‚¢‚é‚©ƒ`ƒFƒbƒN (¶‰E‚Ç‚¿‚ç‚ÌShift‚Å‚à‰Â)
+        // 1. Shiftã‚­ãƒ¼ãŒæŠ¼ã•ã‚Œã¦ã„ã‚‹ã‹ãƒã‚§ãƒƒã‚¯ (å·¦å³ã©ã¡ã‚‰ã®Shiftã§ã‚‚å¯)
         bool isShiftPressed = Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
 
         if (isShiftPressed)
         {
-            // 2. ”šƒL[‚Ì“ü—Í‚ğó‚¯•t‚¯‚é
+            // 2. æ•°å­—ã‚­ãƒ¼ã®å…¥åŠ›ã‚’å—ã‘ä»˜ã‘ã‚‹
             for (int i = 0; i <= 9; i++)
             {
                 if (Input.GetKeyDown(KeyCode.Alpha0 + i) || Input.GetKeyDown(KeyCode.Keypad0 + i))
                 {
                     inputBuffer += i.ToString();
-                    // Debug.Log($"“ü—Í’†‚Ì”’l: {inputBuffer}");
+                    // Debug.Log($"å…¥åŠ›ä¸­ã®æ•°å€¤: {inputBuffer}");
                 }
             }
 
-            // 3. Backspace ‚Åˆê•¶šÁ‹
+            // 3. Backspace ã§ä¸€æ–‡å­—æ¶ˆå»
             if (Input.GetKeyDown(KeyCode.Backspace) && inputBuffer.Length > 0)
             {
                 inputBuffer = inputBuffer.Substring(0, inputBuffer.Length - 1);
-                // Debug.Log($"Á‹Œã‚Ìƒoƒbƒtƒ@: {inputBuffer}");
+                // Debug.Log($"æ¶ˆå»å¾Œã®ãƒãƒƒãƒ•ã‚¡: {inputBuffer}");
             }
 
-            // 4. EnterƒL[‚ÅŠm’è
+            // 4. Enterã‚­ãƒ¼ã§ç¢ºå®š
             if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
             {
                 if (inputBuffer.Length > 0)
@@ -70,28 +70,28 @@ public class SubjectManager : SafeSingleton<SubjectManager>
 
     void ConfirmID()
     {
-        // •¶š—ñ‚ğ int ‚É•ÏŠ·‚µ‚Ä•Û‘¶
+        // æ–‡å­—åˆ—ã‚’ int ã«å¤‰æ›ã—ã¦ä¿å­˜
         if (int.TryParse(inputBuffer, out int result))
         {
             subjectID = result;
-            // Debug.Log($"šIDŠm’è: {subjectID} (intŒ^)");
+            // Debug.Log($"â˜…IDç¢ºå®š: {subjectID} (intå‹)");
 
-            inputBuffer = ""; // ƒoƒbƒtƒ@ƒNƒŠƒA
+            inputBuffer = ""; // ãƒãƒƒãƒ•ã‚¡ã‚¯ãƒªã‚¢
 
-            // •K—v‚Å‚ ‚ê‚Î‚±‚±‚ÅƒV[ƒ“‘JˆÚ
+            // å¿…è¦ã§ã‚ã‚Œã°ã“ã“ã§ã‚·ãƒ¼ãƒ³é·ç§»
             // SceneManager.LoadScene(experimentSceneName);
         }
     }
 
-    // ƒfƒoƒbƒO•\¦—pi‰æ–Ê¶ãj
+    // ãƒ‡ãƒãƒƒã‚°è¡¨ç¤ºç”¨ï¼ˆç”»é¢å·¦ä¸Šï¼‰
     void OnGUI()
     {
         string status = (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
-                        ? "<color=red>“ü—Í—LŒø</color>" : "Shift‚Å“ü—ÍŠJn";
+                        ? "<color=red>å…¥åŠ›æœ‰åŠ¹</color>" : "Shiftã§å…¥åŠ›é–‹å§‹";
 
         GUI.Box(new Rect(10, 10 + 1000, 200, 60), "Subject ID Manager");
-        GUI.Label(new Rect(20, 30 + 1000, 180, 20), $"ó‘Ô: {status}");
-        GUI.Label(new Rect(20, 50 + 1000, 180, 20), $"Œ»İ‚Ìƒoƒbƒtƒ@: {inputBuffer}");
+        GUI.Label(new Rect(20, 30 + 1000, 180, 20), $"çŠ¶æ…‹: {status}");
+        GUI.Label(new Rect(20, 50 + 1000, 180, 20), $"ç¾åœ¨ã®ãƒãƒƒãƒ•ã‚¡: {inputBuffer}");
     }
 
     public int SubjectID

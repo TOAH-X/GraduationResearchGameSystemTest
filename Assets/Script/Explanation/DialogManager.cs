@@ -1,4 +1,4 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using System.Collections;
@@ -16,44 +16,44 @@ public class DialogManager : MonoBehaviour
     private bool isTyping = false;
     private bool cancelTyping = false;
 
-    [SerializeField] private DialogData startDialogData;        // à–¾+ƒ`ƒ…[ƒgƒŠƒAƒ‹‰ï˜b
-    [SerializeField] private DialogData play1DialogData;        // ‹¦—ÍƒvƒŒƒC1‚Ì‰ï˜b
-    [SerializeField] private DialogData play2DialogData;        // ‹¦—ÍƒvƒŒƒC2‚Ì‰ï˜b
-    [SerializeField] private DialogData finishDialogData;       // I‚í‚è‚Ì‰ï˜b
+    [SerializeField] private DialogData startDialogData;        // èª¬æ˜+ãƒãƒ¥ãƒ¼ãƒˆãƒªã‚¢ãƒ«ä¼šè©±
+    [SerializeField] private DialogData play1DialogData;        // å”åŠ›ãƒ—ãƒ¬ã‚¤1ã®ä¼šè©±
+    [SerializeField] private DialogData play2DialogData;        // å”åŠ›ãƒ—ãƒ¬ã‚¤2ã®ä¼šè©±
+    [SerializeField] private DialogData finishDialogData;       // çµ‚ã‚ã‚Šã®ä¼šè©±
 
     private void Start()
     {
-        // ƒ`ƒ…[ƒgƒŠƒAƒ‹‘O‚Ì‰ï˜b
+        // ãƒãƒ¥ãƒ¼ãƒˆãƒªã‚¢ãƒ«å‰ã®ä¼šè©±
         if (StageManager.Instance.PhaseID == 1)
         {
-            // Ä¶
+            // å†ç”Ÿ
             if (startDialogData != null)
             {
                 StartDialog(startDialogData);
             }
         }
-        // 1‰ñ–Ú‹¦—ÍƒvƒŒƒC‘O‚Ì‰ï˜b
+        // 1å›ç›®å”åŠ›ãƒ—ãƒ¬ã‚¤å‰ã®ä¼šè©±
         else if (StageManager.Instance.PhaseID == 2)
         {
-            // Ä¶
+            // å†ç”Ÿ
             if (play1DialogData != null)
             {
                 StartDialog(play1DialogData);
             }
         }
-        // 2‰ñ–Ú‹¦—ÍƒvƒŒƒC‘O‚Ì‰ï˜b
+        // 2å›ç›®å”åŠ›ãƒ—ãƒ¬ã‚¤å‰ã®ä¼šè©±
         else if (StageManager.Instance.PhaseID == 3)
         {
-            // Ä¶
+            // å†ç”Ÿ
             if (play2DialogData != null)
             {
                 StartDialog(play2DialogData);
             }
         }
-        // I—¹Œã‚Ì‰ï˜b
+        // çµ‚äº†å¾Œã®ä¼šè©±
         else if (StageManager.Instance.PhaseID == 4)
         {
-            // Ä¶
+            // å†ç”Ÿ
             if (finishDialogData != null)
             {
                 StartDialog(finishDialogData);
@@ -71,17 +71,17 @@ public class DialogManager : MonoBehaviour
 
     void Update()
     {
-        // ƒNƒŠƒbƒNAZAEnter‚Ì‚¢‚¸‚ê‚©‚ğ—£‚µ‚½uŠÔ
+        // ã‚¯ãƒªãƒƒã‚¯ã€Zã€Enterã®ã„ãšã‚Œã‹ã‚’é›¢ã—ãŸç¬é–“
         if (Input.GetKeyUp(KeyCode.Z) || Input.GetKeyUp(KeyCode.Return) || Input.GetMouseButtonUp(0))
         {
             if (isTyping)
             {
-                // •¶š‘—‚è’†‚É‰Ÿ‚³‚ê‚½‚çu‘S•¶•\¦vƒtƒ‰ƒO‚ğ—§‚Ä‚é
+                // æ–‡å­—é€ã‚Šä¸­ã«æŠ¼ã•ã‚ŒãŸã‚‰ã€Œå…¨æ–‡è¡¨ç¤ºã€ãƒ•ãƒ©ã‚°ã‚’ç«‹ã¦ã‚‹
                 cancelTyping = true;
             }
             else
             {
-                // ‘S•¶•\¦Ï‚İ‚È‚çuŸ‚ÌƒZƒŠƒtv‚Ö
+                // å…¨æ–‡è¡¨ç¤ºæ¸ˆã¿ãªã‚‰ã€Œæ¬¡ã®ã‚»ãƒªãƒ•ã€ã¸
                 lineIndex++;
                 if (lineIndex < currentData.lines.Length)
                 {
@@ -109,7 +109,7 @@ public class DialogManager : MonoBehaviour
         {
             messageText.text += c;
 
-            // ƒXƒLƒbƒv‚ª‰Ÿ‚³‚ê‚½‚çƒ‹[ƒv‚ğ”²‚¯‚Ä‘S•¶•\¦
+            // ã‚¹ã‚­ãƒƒãƒ—ãŒæŠ¼ã•ã‚ŒãŸã‚‰ãƒ«ãƒ¼ãƒ—ã‚’æŠœã‘ã¦å…¨æ–‡è¡¨ç¤º
             if (cancelTyping)
             {
                 messageText.text = line.message;
@@ -121,23 +121,23 @@ public class DialogManager : MonoBehaviour
         isTyping = false;
     }
 
-    // ‰ï˜bI—¹
+    // ä¼šè©±çµ‚äº†æ™‚
     void EndDialog()
     {
-        // ‰ï˜bI—¹‚Ìˆ—iUI‚ğÁ‚·‚È‚Çj
+        // ä¼šè©±çµ‚äº†æ™‚ã®å‡¦ç†ï¼ˆUIã‚’æ¶ˆã™ãªã©ï¼‰
         gameObject.SetActive(false);
 
-        // i’»ƒŒƒxƒ‹‚ği‚ß‚é
+        // é€²æ—ãƒ¬ãƒ™ãƒ«ã‚’é€²ã‚ã‚‹
         string targetScene = "GameScene";
         if (StageManager.Instance.PhaseID == 1)
         {
-            // ƒ`ƒ…[ƒgƒŠƒAƒ‹
+            // ãƒãƒ¥ãƒ¼ãƒˆãƒªã‚¢ãƒ«
             StageManager.Instance.PhaseID = 2;
             targetScene = "TutorialScene";
         }
         else if (StageManager.Instance.PhaseID == 2)
         {
-            // ‹¦—ÍƒvƒŒƒC1‰ñ–Ú
+            // å”åŠ›ãƒ—ãƒ¬ã‚¤1å›ç›®
             StageManager.Instance.PhaseID = 3;
             if (SubjectManager.Instance.SubjectID % 2 == 1)  
             {
@@ -150,7 +150,7 @@ public class DialogManager : MonoBehaviour
         }
         else if (StageManager.Instance.PhaseID == 3)
         {
-            // ‹¦—ÍƒvƒŒƒC2‰ñ–Ú
+            // å”åŠ›ãƒ—ãƒ¬ã‚¤2å›ç›®
             StageManager.Instance.PhaseID = 4;
             if (SubjectManager.Instance.SubjectID % 2 == 0)
             {
@@ -163,7 +163,7 @@ public class DialogManager : MonoBehaviour
         }
         else if (StageManager.Instance.PhaseID == 4)
         {
-            // I—¹
+            // çµ‚äº†
             StageManager.Instance.PhaseID = 5;
             targetScene = "TitleScene";
         }
@@ -173,7 +173,7 @@ public class DialogManager : MonoBehaviour
             StageManager.Instance.PhaseID = 0;
         }
 
-        // ‘JˆÚ
+        // é·ç§»
         sceneController.ChangeScene(targetScene);
     }
 }

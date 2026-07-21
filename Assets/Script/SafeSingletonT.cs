@@ -1,4 +1,4 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
 public class SafeSingleton<T> : MonoBehaviour where T : MonoBehaviour
 {
@@ -33,6 +33,6 @@ public class SafeSingleton<T> : MonoBehaviour where T : MonoBehaviour
 
     protected virtual void OnSingletonAwake()
     {
-        // qƒNƒ‰ƒX‚Ì‰Šú‰»—p
+        // å­ã‚¯ãƒ©ã‚¹ã®åˆæœŸåŒ–ç”¨
     }
 }

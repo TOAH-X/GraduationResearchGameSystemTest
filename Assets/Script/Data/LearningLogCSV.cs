@@ -1,4 +1,4 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using System.IO;
 using System;
 using Unity.MLAgents;
@@ -15,7 +15,7 @@ public class LearningLogCSV : MonoBehaviour
 
     void Awake()
     {
-        // ŠwKŠÖŒW‚ª“®‚¢‚Ä‚¢‚é‚Æ‚«‚Í~‚ß‚é(‘½d‹N“®‚ÅŒÌá‚ğ–h‚®‚½‚ß)
+        // å­¦ç¿’é–¢ä¿‚ãŒå‹•ã„ã¦ã„ã‚‹ã¨ãã¯æ­¢ã‚ã‚‹(å¤šé‡èµ·å‹•ã§æ•…éšœã‚’é˜²ããŸã‚)
         if (Academy.Instance.IsCommunicatorOn == true) return;
 
         fileName = playerBase.PlayerName;
@@ -39,21 +39,21 @@ public class LearningLogCSV : MonoBehaviour
         
     }
 
-    // ‘‚«‚İ(step,time,hp,reward,state)
+    // æ›¸ãè¾¼ã¿(step,time,hp,reward,state)
     public void UpdateData(int step, float time, float hp, string state)
     {
-        // ŠwKŠÖŒW‚ª“®‚¢‚Ä‚¢‚é‚Æ‚«‚Í~‚ß‚é(‘½d‹N“®‚ÅŒÌá‚ğ–h‚®‚½‚ß)
+        // å­¦ç¿’é–¢ä¿‚ãŒå‹•ã„ã¦ã„ã‚‹ã¨ãã¯æ­¢ã‚ã‚‹(å¤šé‡èµ·å‹•ã§æ•…éšœã‚’é˜²ããŸã‚)
         if (Academy.Instance.IsCommunicatorOn == true) return;
 
-        // ƒpƒX‚ª–¢İ’è‚È‚ç‚»‚Ìê‚Åì‚éiâ‘Î‚ÉNull‚ğ‰ñ”ğ‚·‚éj
+        // ãƒ‘ã‚¹ãŒæœªè¨­å®šãªã‚‰ãã®å ´ã§ä½œã‚‹ï¼ˆçµ¶å¯¾ã«Nullã‚’å›é¿ã™ã‚‹ï¼‰
         if (string.IsNullOrEmpty(logFilePath)) 
         {
             string pName = (playerBase != null) ? playerBase.PlayerName : "UnknownPlayer";
-            // dataPath‚æ‚è‚à‘‚«‚İŒ ŒÀ‚ªˆÀ’è‚µ‚Ä‚¢‚é persistentDataPath ‚ğ„§
+            // dataPathã‚ˆã‚Šã‚‚æ›¸ãè¾¼ã¿æ¨©é™ãŒå®‰å®šã—ã¦ã„ã‚‹ persistentDataPath ã‚’æ¨å¥¨
             logFilePath = Path.Combine(Application.persistentDataPath, pName + "StatsLog.csv");
         }
 
-        // ƒwƒbƒ_[‚ª‚È‚¢iƒtƒ@ƒCƒ‹‚ª‚È‚¢jê‡‚Íì¬
+        // ãƒ˜ãƒƒãƒ€ãƒ¼ãŒãªã„ï¼ˆãƒ•ã‚¡ã‚¤ãƒ«ãŒãªã„ï¼‰å ´åˆã¯ä½œæˆ
         if (!File.Exists(logFilePath))
         {
             File.WriteAllText(logFilePath, "JST,Step,Time,HP,reward,AttackReward,KillReward,SurvivalReward,GrazePenalty,HitPenalty,PunishPenalty,GraceReward,State\n");
@@ -77,22 +77,22 @@ public class LearningLogCSV : MonoBehaviour
 
         try
         {
-            // ‘‚«‚İ
+            // æ›¸ãè¾¼ã¿
             File.AppendAllText(logFilePath, line);
         }
         catch (Exception e)
         {
-            Debug.LogError($"CSV‘‚«‚İ¸”s: {e.Message}");
+            Debug.LogError($"CSVæ›¸ãè¾¼ã¿å¤±æ•—: {e.Message}");
         }
     }
 
-    // “ú–{‚ÌŒ»İŠÔ‚Ìæ“¾
+    // æ—¥æœ¬ã®ç¾åœ¨æ™‚é–“ã®å–å¾—
     public string GetCurrentJST() 
     {
-        // ‹¦’è¢ŠE (UTC) ‚ğæ“¾
+        // å”å®šä¸–ç•Œæ™‚ (UTC) ã‚’å–å¾—
         DateTime utcNow = DateTime.UtcNow;
 
-        // JST‚ÍUTC+9ŠÔ‚È‚Ì‚ÅA9ŠÔ‚ğ‰ÁZ‚·‚é
+        // JSTã¯UTC+9æ™‚é–“ãªã®ã§ã€9æ™‚é–“ã‚’åŠ ç®—ã™ã‚‹
         DateTime jstTime = utcNow.AddHours(9);
 
         return jstTime.ToString("yyyy/MM/dd HH:mm:ss");

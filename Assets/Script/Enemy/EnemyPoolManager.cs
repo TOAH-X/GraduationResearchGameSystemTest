@@ -1,4 +1,4 @@
-/*
+ï»¿/*
 using UnityEngine;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
@@ -6,21 +6,21 @@ using System.Threading;
 using System;
 
 /// <summary>
-/// š V‹K^·‚µ‘Ö‚¦—p‚ÌˆÀ’è‚µ‚½“Gƒv[ƒ‹ƒ}ƒl[ƒWƒƒ
-/// - PoolItemiobj, script, inUsej‚ÅŠÇ—
-/// - GetEnemy() ‚Í“à•”‰Šú‰»‚ğs‚¢AÅŒã‚É SetActive(true) ‚Å•Ô‚·iŒÄ‚Ño‚µ‘¤‚ÍˆÊ’uİ’èŒã‚É SetActive(true) ‚·‚é•û®‚à‰Â”\jB
-/// - ReleaseEnemy() ‚Å inUse ‚ğØ‚èASetActive(false) ‚Å–ß‚·
-/// - GroupSpawn ‚Í UniTask + CancellationToken ‘Î‰iŒÄ‚Ño‚µ‚É token ‚ğ“n‚·j
+/// â˜… æ–°è¦ï¼å·®ã—æ›¿ãˆç”¨ã®å®‰å®šã—ãŸæ•µãƒ—ãƒ¼ãƒ«ãƒãƒãƒ¼ã‚¸ãƒ£
+/// - PoolItemï¼ˆobj, script, inUseï¼‰ã§ç®¡ç†
+/// - GetEnemy() ã¯å†…éƒ¨åˆæœŸåŒ–ã‚’è¡Œã„ã€æœ€å¾Œã« SetActive(true) ã§è¿”ã™ï¼ˆå‘¼ã³å‡ºã—å´ã¯ä½ç½®è¨­å®šå¾Œã« SetActive(true) ã™ã‚‹æ–¹å¼ã‚‚å¯èƒ½ï¼‰ã€‚
+/// - ReleaseEnemy() ã§ inUse ã‚’åˆ‡ã‚Šã€SetActive(false) ã§æˆ»ã™
+/// - GroupSpawn ã¯ UniTask + CancellationToken å¯¾å¿œï¼ˆå‘¼ã³å‡ºã—æ™‚ã« token ã‚’æ¸¡ã™ï¼‰
 /// </summary>
 public class EnemyPoolManager : MonoBehaviour
 {
     public static EnemyPoolManager Instance { get; private set; }
 
-    [Header("ƒGƒlƒ~[ƒvƒŒƒnƒu")]
+    [Header("ã‚¨ãƒãƒŸãƒ¼ãƒ—ãƒ¬ãƒãƒ–")]
     [SerializeField] GameObject enemyPrefab;
-    [Header("ƒGƒlƒ~[Ši”[æ(e)")]
+    [Header("ã‚¨ãƒãƒŸãƒ¼æ ¼ç´å…ˆ(è¦ª)")]
     [SerializeField] GameObject enemyParentObj;
-    [Header("‰Šúƒv[ƒ‹”")]
+    [Header("åˆæœŸãƒ—ãƒ¼ãƒ«æ•°")]
     [SerializeField] int initialPoolSize = 50;
 
     // internal pool item
@@ -33,7 +33,7 @@ public class EnemyPoolManager : MonoBehaviour
 
     private readonly List<PoolItem> pool = new List<PoolItem>();
 
-    // --- ”ñ“¯Šú§Œä—piƒXƒ|[ƒ“‚ÌƒLƒƒƒ“ƒZƒ‹ŠÇ—j ---
+    // --- éåŒæœŸåˆ¶å¾¡ç”¨ï¼ˆã‚¹ãƒãƒ¼ãƒ³ã®ã‚­ãƒ£ãƒ³ã‚»ãƒ«ç®¡ç†ï¼‰ ---
     private CancellationTokenSource cts = null;
 
     private void Awake()
@@ -58,7 +58,7 @@ public class EnemyPoolManager : MonoBehaviour
 
         if (enemyParentObj == null)
         {
-            // ƒV[ƒ““à‚É parent ‚ª–³‚¯‚ê‚Îì‚éiInspector‚ÅŠ„‚è“–‚Ä‚Ä‚¢‚é‚È‚ç•s—vj
+            // ã‚·ãƒ¼ãƒ³å†…ã« parent ãŒç„¡ã‘ã‚Œã°ä½œã‚‹ï¼ˆInspectorã§å‰²ã‚Šå½“ã¦ã¦ã„ã‚‹ãªã‚‰ä¸è¦ï¼‰
             var go = GameObject.Find("EnemyParent");
             if (go == null)
             {
@@ -80,7 +80,7 @@ public class EnemyPoolManager : MonoBehaviour
         }
     }
 
-    // ƒv[ƒ‹‰Šú‰»
+    // ãƒ—ãƒ¼ãƒ«åˆæœŸåŒ–
     private void InitializePool()
     {
         pool.Clear();
@@ -90,7 +90,7 @@ public class EnemyPoolManager : MonoBehaviour
         }
     }
 
-    // V‚µ‚¢ƒv[ƒ‹ƒAƒCƒeƒ€‚ğì‚éi“à•”—pj
+    // æ–°ã—ã„ãƒ—ãƒ¼ãƒ«ã‚¢ã‚¤ãƒ†ãƒ ã‚’ä½œã‚‹ï¼ˆå†…éƒ¨ç”¨ï¼‰
     private PoolItem CreateNewItem()
     {
         GameObject obj = Instantiate(enemyPrefab);
@@ -114,14 +114,14 @@ public class EnemyPoolManager : MonoBehaviour
     }
 
     /// <summary>
-    /// g—p‰Â”\‚È“G‚ğæ“¾‚·‚éiGet -> “à•”ƒŠƒZƒbƒg -> SetActive(true)j
-    /// ŒÄ‚Ño‚µ‘¤‚Íæ“¾Œã‚É transform.position “™‚ğİ’è‚µ‚Ä‚à—Ç‚¢i‚½‚¾‚µ SetActive(true) ‚Ìƒ^ƒCƒ~ƒ“ƒO‚ğ‹C‚É‚·‚é‚È‚ç
-    /// ResetEnemy_InternalOnly ‚ğ—pˆÓ‚µ‚Ä‚¢‚é‚Ì‚ÅAGetEnemy ‚ÍƒAƒNƒeƒBƒu‰»‚¹‚¸•Ô‚·İŒv‚É‚à•ÏX‚Å‚«‚Ü‚·jB
-    /// ‚±‚±‚Å‚Íu“à•”‚ÅÅ’áŒÀ‚Ì‰Šú‰»‚ğÏ‚Ü‚¹‚Ä‚©‚çƒAƒNƒeƒBƒu‰»‚µ‚Ä•Ô‚·v•û®‚É‚µ‚Ä‚¢‚Ü‚·B
+    /// ä½¿ç”¨å¯èƒ½ãªæ•µã‚’å–å¾—ã™ã‚‹ï¼ˆGet -> å†…éƒ¨ãƒªã‚»ãƒƒãƒˆ -> SetActive(true)ï¼‰
+    /// å‘¼ã³å‡ºã—å´ã¯å–å¾—å¾Œã« transform.position ç­‰ã‚’è¨­å®šã—ã¦ã‚‚è‰¯ã„ï¼ˆãŸã ã— SetActive(true) ã®ã‚¿ã‚¤ãƒŸãƒ³ã‚°ã‚’æ°—ã«ã™ã‚‹ãªã‚‰
+    /// ResetEnemy_InternalOnly ã‚’ç”¨æ„ã—ã¦ã„ã‚‹ã®ã§ã€GetEnemy ã¯ã‚¢ã‚¯ãƒ†ã‚£ãƒ–åŒ–ã›ãšè¿”ã™è¨­è¨ˆã«ã‚‚å¤‰æ›´ã§ãã¾ã™ï¼‰ã€‚
+    /// ã“ã“ã§ã¯ã€Œå†…éƒ¨ã§æœ€ä½é™ã®åˆæœŸåŒ–ã‚’æ¸ˆã¾ã›ã¦ã‹ã‚‰ã‚¢ã‚¯ãƒ†ã‚£ãƒ–åŒ–ã—ã¦è¿”ã™ã€æ–¹å¼ã«ã—ã¦ã„ã¾ã™ã€‚
     /// </summary>
     public GameObject GetEnemy()
     {
-        // 1. –¢g—pƒIƒuƒWƒFƒNƒg‚ğ’T‚·
+        // 1. æœªä½¿ç”¨ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’æ¢ã™
         foreach (var item in pool)
         {
             if (item.obj != null && !item.inUse)
@@ -132,7 +132,7 @@ public class EnemyPoolManager : MonoBehaviour
             }
         }
 
-        // 2. ‚È‚¯‚ê‚Î‘‚â‚·
+        // 2. ãªã‘ã‚Œã°å¢—ã‚„ã™
         var newItem = CreateNewItem();
         newItem.inUse = true;
         newItem.script.ResetEnemy_Internal();
@@ -140,7 +140,7 @@ public class EnemyPoolManager : MonoBehaviour
     }
 
     /// <summary>
-    /// ƒv[ƒ‹‚Ö•Ô‹piReleasej
+    /// ãƒ—ãƒ¼ãƒ«ã¸è¿”å´ï¼ˆReleaseï¼‰
     /// </summary>
     public void ReleaseEnemy(GameObject obj)
     {
@@ -155,8 +155,8 @@ public class EnemyPoolManager : MonoBehaviour
         }
     }
 
-    // --- ˆÈ‰ºFg‚¢‚â‚·‚¢ƒXƒ|[ƒ“/ƒOƒ‹[ƒvŠÖ”iŒÄ‚Ño‚µ‘¤‚Í CancellationToken ‚ğ“n‚·j ---
-    // ’P‘ÌƒXƒ|[ƒ“iˆÊ’u‚Í‚±‚±‚Åİ’è‚µ‚ÄÅI“I‚ÉƒAƒNƒeƒBƒu‰»j
+    // --- ä»¥ä¸‹ï¼šä½¿ã„ã‚„ã™ã„ã‚¹ãƒãƒ¼ãƒ³/ã‚°ãƒ«ãƒ¼ãƒ—é–¢æ•°ï¼ˆå‘¼ã³å‡ºã—å´ã¯ CancellationToken ã‚’æ¸¡ã™ï¼‰ ---
+    // å˜ä½“ã‚¹ãƒãƒ¼ãƒ³ï¼ˆä½ç½®ã¯ã“ã“ã§è¨­å®šã—ã¦æœ€çµ‚çš„ã«ã‚¢ã‚¯ãƒ†ã‚£ãƒ–åŒ–ï¼‰
     public GameObject SpawnEnemyAt(int enemyID, Vector3 pos)
     {
         var obj = GetEnemy();
@@ -206,7 +206,7 @@ public class EnemyPoolManager : MonoBehaviour
         }
         catch (OperationCanceledException)
         {
-            // ˆÓ}“IƒLƒƒƒ“ƒZƒ‹‚Í–³‹
+            // æ„å›³çš„ã‚­ãƒ£ãƒ³ã‚»ãƒ«ã¯ç„¡è¦–
         }
         catch (Exception ex)
         {
@@ -225,7 +225,7 @@ public class EnemyPoolManager : MonoBehaviour
 
     // helper to start a pattern and cancel previous
     /// <summary>
-    /// š •Ö—˜ƒƒ\ƒbƒhF‘O‚ÌŒQ¶¬‚ª‘–‚Á‚Ä‚¢‚ê‚ÎƒLƒƒƒ“ƒZƒ‹‚µ‚Ä‚©‚çŠJn‚·‚é
+    /// â˜… ä¾¿åˆ©ãƒ¡ã‚½ãƒƒãƒ‰ï¼šå‰ã®ç¾¤ç”ŸæˆãŒèµ°ã£ã¦ã„ã‚Œã°ã‚­ãƒ£ãƒ³ã‚»ãƒ«ã—ã¦ã‹ã‚‰é–‹å§‹ã™ã‚‹
     /// </summary>
     public void StartGroupSpawn(int patternId, int enemySpawnCount = 5, float interval = 0.2f)
     {
@@ -243,7 +243,7 @@ public class EnemyPoolManager : MonoBehaviour
     }
 
     /// <summary>
-    /// ƒV[ƒ“Ä‰Šú‰»‚ª•K—v‚È‚Æ‚«iŠO•”‚©‚çŒÄ‚Ôj
+    /// ã‚·ãƒ¼ãƒ³å†åˆæœŸåŒ–ãŒå¿…è¦ãªã¨ãï¼ˆå¤–éƒ¨ã‹ã‚‰å‘¼ã¶ï¼‰
     /// </summary>
     public void ResetPool()
     {
@@ -265,18 +265,18 @@ using System;
 using UnityEngine.SceneManagement;
 
 /// <summary>
-/// š V‹K^·‚µ‘Ö‚¦—p‚ÌˆÀ’è‚µ‚½“Gƒv[ƒ‹ƒ}ƒl[ƒWƒƒ
-/// i¦‚ ‚È‚½‚Ì\‘¢‚»‚Ì‚Ü‚ÜˆÛj
+/// â˜… æ–°è¦ï¼å·®ã—æ›¿ãˆç”¨ã®å®‰å®šã—ãŸæ•µãƒ—ãƒ¼ãƒ«ãƒãƒãƒ¼ã‚¸ãƒ£
+/// ï¼ˆâ€»ã‚ãªãŸã®æ§‹é€ ãã®ã¾ã¾ç¶­æŒï¼‰
 /// </summary>
 public class EnemyPoolManager : MonoBehaviour
 {
     public static EnemyPoolManager Instance { get; private set; }
 
-    [Header("ƒGƒlƒ~[ƒvƒŒƒnƒu")]
+    [Header("ã‚¨ãƒãƒŸãƒ¼ãƒ—ãƒ¬ãƒãƒ–")]
     [SerializeField] GameObject enemyPrefab;
-    [Header("ƒGƒlƒ~[Ši”[æ(e)")]
+    [Header("ã‚¨ãƒãƒŸãƒ¼æ ¼ç´å…ˆ(è¦ª)")]
     [SerializeField] GameObject enemyParentObj;
-    [Header("‰Šúƒv[ƒ‹”")]
+    [Header("åˆæœŸãƒ—ãƒ¼ãƒ«æ•°")]
     [SerializeField] int initialPoolSize = 50;
 
     // internal pool item
@@ -362,7 +362,7 @@ public class EnemyPoolManager : MonoBehaviour
         return item;
     }
 
-    /// ššš C³‚Í‚±‚±‚¾‚¯ ššš
+    /// â˜…â˜…â˜… ä¿®æ­£ã¯ã“ã“ã ã‘ â˜…â˜…â˜…
     public GameObject GetEnemy()
     {
         foreach (var item in pool)
@@ -372,7 +372,7 @@ public class EnemyPoolManager : MonoBehaviour
                 item.inUse = true;
                 item.script.ResetEnemy_Internal();
 
-                item.obj.SetActive(true);  // š ’Ç‰ÁFŠmÀ‚ÉŠˆ«‰»
+                item.obj.SetActive(true);  // â˜… è¿½åŠ ï¼šç¢ºå®Ÿã«æ´»æ€§åŒ–
 
                 return item.obj;
             }
@@ -382,11 +382,11 @@ public class EnemyPoolManager : MonoBehaviour
         newItem.inUse = true;
         newItem.script.ResetEnemy_Internal();
 
-        newItem.obj.SetActive(true);  // š ’Ç‰ÁF¶¬‚àŠˆ«‰»
+        newItem.obj.SetActive(true);  // â˜… è¿½åŠ ï¼šç”Ÿæˆæ™‚ã‚‚æ´»æ€§åŒ–
 
         return newItem.obj;
     }
-    /// ššš C³‚Í‚±‚±‚¾‚¯ ššš
+    /// â˜…â˜…â˜… ä¿®æ­£ã¯ã“ã“ã ã‘ â˜…â˜…â˜…
 
     public void ReleaseEnemy(GameObject obj)
     {
@@ -420,7 +420,7 @@ public class EnemyPoolManager : MonoBehaviour
     {
         try
         {
-            // š’Ç‰ÁF¶¬‚ğŠJn‚·‚é‘O‚ÉAw’è‚³‚ê‚½•b”‚¾‚¯‘Ò‚Âi¶‰E‚ÌƒYƒŒ‚ğì‚éj
+            // â˜…è¿½åŠ ï¼šç”Ÿæˆã‚’é–‹å§‹ã™ã‚‹å‰ã«ã€æŒ‡å®šã•ã‚ŒãŸç§’æ•°ã ã‘å¾…ã¤ï¼ˆå·¦å³ã®ã‚ºãƒ¬ã‚’ä½œã‚‹ï¼‰
             if (initialDelay > 0)
             {
                 await UniTask.Delay(TimeSpan.FromSeconds(initialDelay), cancellationToken: token);
@@ -484,10 +484,10 @@ public class EnemyPoolManager : MonoBehaviour
 
     public void StartGroupSpawn(int patternId, int enemySpawnCount, float interval, float initialDelay)
     {
-        // ƒ}ƒl[ƒWƒƒ[‚ª”jŠü‚³‚ê‚½‚É~‚Ü‚é‹¤’Ê‚Ìƒg[ƒNƒ“‚ğæ“¾
+        // ãƒãƒãƒ¼ã‚¸ãƒ£ãƒ¼ãŒç ´æ£„ã•ã‚ŒãŸæ™‚ã«æ­¢ã¾ã‚‹å…±é€šã®ãƒˆãƒ¼ã‚¯ãƒ³ã‚’å–å¾—
         var token = this.GetCancellationTokenOnDestroy();
 
-        // ‘O‚Ìˆ—‚ğƒLƒƒƒ“ƒZƒ‹‚¹‚¸AV‚µ‚¢ƒ^ƒXƒN‚ğ•À—ñ‚ÅŠJn‚·‚é
+        // å‰ã®å‡¦ç†ã‚’ã‚­ãƒ£ãƒ³ã‚»ãƒ«ã›ãšã€æ–°ã—ã„ã‚¿ã‚¹ã‚¯ã‚’ä¸¦åˆ—ã§é–‹å§‹ã™ã‚‹
         GroupSpawnPattern(patternId, enemySpawnCount, interval, initialDelay, token).Forget();
     }
 
@@ -511,26 +511,26 @@ public class EnemyPoolManager : MonoBehaviour
         SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 
-    // š ƒV[ƒ““Ç‚İ‚İ‚²‚Æ‚É EnemyParent ‚ğì‚è‚È‚¨‚µA
-    // š ‘S‚Ä‚Ì“G‚ğ‚»‚Ìq‚Æ‚µ‚ÄÄƒAƒ^ƒbƒ`‚·‚é
+    // â˜… ã‚·ãƒ¼ãƒ³èª­ã¿è¾¼ã¿ã”ã¨ã« EnemyParent ã‚’ä½œã‚ŠãªãŠã—ã€
+    // â˜… å…¨ã¦ã®æ•µã‚’ãã®å­ã¨ã—ã¦å†ã‚¢ã‚¿ãƒƒãƒã™ã‚‹
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        // š’Ç‰ÁF‰ï˜bƒV[ƒ“i–¼‘O‚Í“K‹X‡‚í‚¹‚Ä‚­‚¾‚³‚¢j‚È‚ç©•ª‚ğÁ‚µ‚ÄI—¹
+        // â˜…è¿½åŠ ï¼šä¼šè©±ã‚·ãƒ¼ãƒ³ï¼ˆåå‰ã¯é©å®œåˆã‚ã›ã¦ãã ã•ã„ï¼‰ãªã‚‰è‡ªåˆ†ã‚’æ¶ˆã—ã¦çµ‚äº†
         if (scene.name == "StartScene" || scene.name == "TitleScene")
         {
-            // ƒv[ƒ‹“à‚Ì“G‚ğ•¨—“I‚Éíœ
+            // ãƒ—ãƒ¼ãƒ«å†…ã®æ•µã‚’ç‰©ç†çš„ã«å‰Šé™¤
             foreach (var item in pool)
             {
                 if (item.obj != null) Destroy(item.obj);
             }
             pool.Clear();
 
-            // ©•ª©giManagerj‚ğíœ
+            // è‡ªåˆ†è‡ªèº«ï¼ˆManagerï¼‰ã‚’å‰Šé™¤
             Destroy(this.gameObject);
             return;
         }
 
-        // --- EnemyParent ‚ÌÄæ“¾‚Ü‚½‚Íì¬ ---
+        // --- EnemyParent ã®å†å–å¾—ã¾ãŸã¯ä½œæˆ ---
         GameObject parent = GameObject.Find("EnemyParent");
 
         if (parent == null)
@@ -540,7 +540,7 @@ public class EnemyPoolManager : MonoBehaviour
 
         enemyParentObj = parent;
 
-        // --- ƒv[ƒ‹“à‚Ì‘S“G‚ğ‹­§“I‚É‚±‚Ì EnemyParent ‚Ìq‚É‚·‚é ---
+        // --- ãƒ—ãƒ¼ãƒ«å†…ã®å…¨æ•µã‚’å¼·åˆ¶çš„ã«ã“ã® EnemyParent ã®å­ã«ã™ã‚‹ ---
         foreach (var item in pool)
         {
             if (item.obj != null)

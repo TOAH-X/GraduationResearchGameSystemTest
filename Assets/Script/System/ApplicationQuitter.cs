@@ -1,7 +1,7 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
-// w’è‚ÌƒL[‚ğ“ü—Í‚·‚é‚ÆƒQ[ƒ€‚ğI—¹‚µ‚Ü‚·
-// Unity‚ÌƒvƒƒWƒFƒNƒgƒtƒHƒ‹ƒ_“à‚É“ü‚ê‚é‚¾‚¯‚Å‹@”\‚µ‚Ü‚·
+// æŒ‡å®šã®ã‚­ãƒ¼ã‚’å…¥åŠ›ã™ã‚‹ã¨ã‚²ãƒ¼ãƒ ã‚’çµ‚äº†ã—ã¾ã™
+// Unityã®ãƒ—ãƒ­ã‚¸ã‚§ã‚¯ãƒˆãƒ•ã‚©ãƒ«ãƒ€å†…ã«å…¥ã‚Œã‚‹ã ã‘ã§æ©Ÿèƒ½ã—ã¾ã™
 public class ApplicationQuitter : MonoBehaviour
 {
     readonly KeyCode quitKey = KeyCode.Escape;
@@ -23,7 +23,7 @@ public class ApplicationQuitter : MonoBehaviour
 #endif
     }
 
-    // ƒQ[ƒ€‚ÌŠJn‚ÉƒCƒ“ƒXƒ^ƒ“ƒX‚ğì¬‚µ‚Ü‚·
+    // ã‚²ãƒ¼ãƒ ã®é–‹å§‹æ™‚ã«ã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹ã‚’ä½œæˆã—ã¾ã™
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     static void CreateInstanceOnLoad()
     {

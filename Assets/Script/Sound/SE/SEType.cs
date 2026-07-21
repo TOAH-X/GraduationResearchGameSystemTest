@@ -1,8 +1,8 @@
-public enum SEType
+ï»¿public enum SEType
 {
     None,
-    Shot1,          // ƒVƒ‡ƒbƒg‰¹1
-    EnemyDeath,     // “G€–S‰¹
-    Damage,         // ƒ_ƒ[ƒW‚ğó‚¯‚½‰¹
-    ItemGet         // ƒAƒCƒeƒ€æ“¾‰¹
+    Shot1,          // ã‚·ãƒ§ãƒƒãƒˆéŸ³1
+    EnemyDeath,     // æ•µæ­»äº¡éŸ³
+    Damage,         // ãƒ€ãƒ¡ãƒ¼ã‚¸ã‚’å—ã‘ãŸéŸ³
+    ItemGet         // ã‚¢ã‚¤ãƒ†ãƒ å–å¾—éŸ³
 }

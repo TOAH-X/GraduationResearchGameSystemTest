@@ -1,21 +1,21 @@
-using Cysharp.Threading.Tasks;
+ï»¿using Cysharp.Threading.Tasks;
 using System.Threading;
 using UnityEngine;
 
 public class PlayerMoveController : MonoBehaviour
 {
-    [Header("ˆÚ“®‘¬“x")]
+    [Header("ç§»å‹•é€Ÿåº¦")]
     [SerializeField] float moveSpeed = 5.0f;
-    [Header("’á‘¬ƒ‚[ƒh‚Ì’á‘¬—¦")]
+    [Header("ä½é€Ÿãƒ¢ãƒ¼ãƒ‰ã®ä½é€Ÿç‡")]
     [SerializeField] float slowSpeedRate = 0.5f;
 
-    [SerializeField] PlayerSpriteController playerSpriteControllerScript;   // PlayerSpriteController‚ÌƒXƒNƒŠƒvƒg
+    [SerializeField] PlayerSpriteController playerSpriteControllerScript;   // PlayerSpriteControllerã®ã‚¹ã‚¯ãƒªãƒ—ãƒˆ
 
     [SerializeField] PlayerBase playerBaseScript;
 
-    [Header("è“®“ü—Í‚ğó‚¯•t‚¯‚é‚©‚Ç‚¤‚©Bè“®‚ÍtrueA‹@ŠBŠwK‚ÍfalseB•K‚¸•ÏX‚·‚é‚±‚Æ")]
+    [Header("æ‰‹å‹•å…¥åŠ›ã‚’å—ã‘ä»˜ã‘ã‚‹ã‹ã©ã†ã‹ã€‚æ‰‹å‹•ã¯trueã€æ©Ÿæ¢°å­¦ç¿’ã¯falseã€‚å¿…ãšå¤‰æ›´ã™ã‚‹ã“ã¨")]
     [SerializeField] bool isMove = true;
-    [Header("‚¢‚¸‚ê‚©‚Ì‹@‘Ì‚ªŠwK’†‚©‚Ç‚¤‚©(À¿“I‚É‚Íƒ‰ƒ“ƒ_ƒ€oŒ»‚ğ—LŒø‰»‚·‚éƒtƒ‰ƒO)")]
+    [Header("ã„ãšã‚Œã‹ã®æ©Ÿä½“ãŒå­¦ç¿’ä¸­ã‹ã©ã†ã‹(å®Ÿè³ªçš„ã«ã¯ãƒ©ãƒ³ãƒ€ãƒ å‡ºç¾ã‚’æœ‰åŠ¹åŒ–ã™ã‚‹ãƒ•ãƒ©ã‚°)")]
     [SerializeField] bool isDefaultBehavior = false;
 
     // Start is called before the first frame update
@@ -29,7 +29,7 @@ public class PlayerMoveController : MonoBehaviour
     {
         if (isMove == true) 
         {
-            // “ü—Íæ“¾iã‰º¶‰Ej
+            // å…¥åŠ›å–å¾—ï¼ˆä¸Šä¸‹å·¦å³ï¼‰
             float h = Input.GetAxisRaw("Horizontal");
             float v = Input.GetAxisRaw("Vertical");
 
@@ -37,25 +37,25 @@ public class PlayerMoveController : MonoBehaviour
         }
     }
 
-    // ˆÚ“®
+    // ç§»å‹•
     public void MovePlayer(float h, float v) 
     {
-        // ƒŠƒZƒbƒg‚Ì‹““®§Œä
+        // ãƒªã‚»ãƒƒãƒˆæ™‚ã®æŒ™å‹•åˆ¶å¾¡
         if (playerBaseScript.IsRestart == false)
         {
-            // ƒvƒŒƒCƒ„[‚ÌƒXƒvƒ‰ƒCƒg‚ÌXV
+            // ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®ã‚¹ãƒ—ãƒ©ã‚¤ãƒˆã®æ›´æ–°
             playerSpriteControllerScript.UpdateSprite(h);
 
-            // ˆÚ“®ƒxƒNƒgƒ‹‚Ìì¬
+            // ç§»å‹•ãƒ™ã‚¯ãƒˆãƒ«ã®ä½œæˆ
             Vector2 inputDir = new Vector2(h, v);
 
-            // ³‹K‰»iÎ‚ßˆÚ“®‚Ì‘¬‚³‚ğˆê’è‚É‚·‚éj
+            // æ­£è¦åŒ–ï¼ˆæ–œã‚ç§»å‹•ã®é€Ÿã•ã‚’ä¸€å®šã«ã™ã‚‹ï¼‰
             if (inputDir.magnitude > 1f)
             {
                 inputDir = inputDir.normalized;
             }
 
-            // ˆÚ“®
+            // ç§»å‹•
             if (Input.GetKey(KeyCode.LeftShift) == false)
             {
                 transform.position += (Vector3)(inputDir * moveSpeed * Time.fixedDeltaTime);
@@ -65,7 +65,7 @@ public class PlayerMoveController : MonoBehaviour
                 transform.position += (Vector3)(inputDir * moveSpeed * Time.fixedDeltaTime * slowSpeedRate);
             }
 
-            // ˆÚ“®§ŒÀ
+            // ç§»å‹•åˆ¶é™
             Vector3 pos = transform.position;
             pos.x = Mathf.Clamp(pos.x, -5.5f, 5.5f);
             pos.y = Mathf.Clamp(pos.y, -4.0f, 4.0f);
@@ -73,10 +73,10 @@ public class PlayerMoveController : MonoBehaviour
         }
     }
 
-    // •œ‹AˆÚ“®(“oêŠÜ‚Ş)
+    // å¾©å¸°ç§»å‹•(ç™»å ´å«ã‚€)
     public async UniTaskVoid RestartAsync(bool isStart, CancellationToken token)
     {
-        // ŠJn‚É©•ª‚ª‚·‚Å‚É‚¢‚È‚¯‚ê‚ÎI—¹
+        // é–‹å§‹æ™‚ã«è‡ªåˆ†ãŒã™ã§ã«ã„ãªã‘ã‚Œã°çµ‚äº†
         if (this == null || playerBaseScript == null) return;
 
         playerBaseScript.IsRestart = true;
@@ -84,59 +84,59 @@ public class PlayerMoveController : MonoBehaviour
         Vector3 startPos;
         Vector3 resetPos;
 
-        // Å‰‚É“oê‚·‚éê‡
+        // æœ€åˆã«ç™»å ´ã™ã‚‹å ´åˆ
         /*
         if (isStart == true)
         {
             float posX = this.transform.position.x;
-            startPos = new Vector3(posX, -3.0f);        // ŠJnˆÊ’u
-            resetPos = new Vector3(posX, -6.0f);        // ‰æ–ÊŠOˆÊ’u
+            startPos = new Vector3(posX, -3.0f);        // é–‹å§‹ä½ç½®
+            resetPos = new Vector3(posX, -6.0f);        // ç”»é¢å¤–ä½ç½®
         }
-        // ƒŠƒXƒ|[ƒ“
+        // ãƒªã‚¹ãƒãƒ¼ãƒ³æ™‚
         else 
         {
-            startPos = new Vector3(0, -3.0f);           // ŠJnˆÊ’u
-            resetPos = new Vector3(0, -6.0f);           // ‰æ–ÊŠOˆÊ’u
+            startPos = new Vector3(0, -3.0f);           // é–‹å§‹ä½ç½®
+            resetPos = new Vector3(0, -6.0f);           // ç”»é¢å¤–ä½ç½®
         }*/
 
-        // ŠwK’†‚Å‚Í‚È‚¢(’Êí)
+        // å­¦ç¿’ä¸­ã§ã¯ãªã„(é€šå¸¸)
         if (IsDefaultBehavior == false) 
         {
-            startPos = new Vector3(0f, -3.0f);          // ŠJnˆÊ’u
-            resetPos = new Vector3(0f, -6.0f);          // ‰æ–ÊŠOˆÊ’u
+            startPos = new Vector3(0f, -3.0f);          // é–‹å§‹ä½ç½®
+            resetPos = new Vector3(0f, -6.0f);          // ç”»é¢å¤–ä½ç½®
         }
-        // ŠwK’†(ƒ‰ƒ“ƒ_ƒ€)
+        // å­¦ç¿’ä¸­(ãƒ©ãƒ³ãƒ€ãƒ )
         else
         {
             float noisePosX = UnityEngine.Random.Range(-4.0f, 4.0f);
             float posX = noisePosX;
-            startPos = new Vector3(posX, -3.0f);        // ŠJnˆÊ’u
-            resetPos = new Vector3(posX, -6.0f);        // ‰æ–ÊŠOˆÊ’u
+            startPos = new Vector3(posX, -3.0f);        // é–‹å§‹ä½ç½®
+            resetPos = new Vector3(posX, -6.0f);        // ç”»é¢å¤–ä½ç½®
         }
 
-        playerSpriteControllerScript.UpdateCenterSprite();  // ’†‰›·•ª‚Éã‘‚«
+        playerSpriteControllerScript.UpdateCenterSprite();  // ä¸­å¤®å·®åˆ†ã«ä¸Šæ›¸ã
 
         try
         {
-            // ŠJn‚É‰ŠúˆÊ’u‚ğİ’è
+            // é–‹å§‹æ™‚ã«åˆæœŸä½ç½®ã‚’è¨­å®š
             transform.position = resetPos;
 
-            float duration = 1f; // ˆÚ“®‚É‚©‚¯‚éŠÔ(•b)
+            float duration = 1f; // ç§»å‹•ã«ã‹ã‘ã‚‹æ™‚é–“(ç§’)
             float elapsed = 0f;
 
             while (elapsed < duration)
             {
-                await UniTask.Yield(PlayerLoopTiming.FixedUpdate, token); // FixedUpdateƒ^ƒCƒ~ƒ“ƒO‚Å“®‚©‚·
+                await UniTask.Yield(PlayerLoopTiming.FixedUpdate, token); // FixedUpdateã‚¿ã‚¤ãƒŸãƒ³ã‚°ã§å‹•ã‹ã™
                 elapsed += Time.fixedDeltaTime;
 
-                // --- d—vF•œ‹A’¼Œã‚É©•ª‚ª¶‚«‚Ä‚¢‚é‚©Šm”F ---
+                // --- é‡è¦ï¼šå¾©å¸°ç›´å¾Œã«è‡ªåˆ†ãŒç”Ÿãã¦ã„ã‚‹ã‹ç¢ºèª ---
                 if (this == null) return;
 
                 float t = Mathf.Clamp01(elapsed / duration);
                 transform.position = Vector3.Lerp(resetPos, startPos, t);
             }
 
-            // I—¹‚ÉŠmÀ‚ÉƒŠƒZƒbƒgˆÊ’u‚Ö
+            // çµ‚äº†æ™‚ã«ç¢ºå®Ÿã«ãƒªã‚»ãƒƒãƒˆä½ç½®ã¸
             transform.position = startPos;
         }
         catch (System.OperationCanceledException)

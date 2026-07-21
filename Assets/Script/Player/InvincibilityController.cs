@@ -1,10 +1,10 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
 public class InvincibilityController : MonoBehaviour
 {
-    [Header("–³“GŠÔ")]
+    [Header("ç„¡æ•µæ™‚é–“")]
     [SerializeField] float invincibilityTime = 1.0f;
-    [Header("–³“GŠÔ‚Ìƒ^ƒCƒ}[")]
+    [Header("ç„¡æ•µæ™‚é–“ã®ã‚¿ã‚¤ãƒãƒ¼")]
     [SerializeField] float invincibilityTimer;
 
 
@@ -23,22 +23,22 @@ public class InvincibilityController : MonoBehaviour
         }
     }
 
-    // –³“G‚©‚Ç‚¤‚©
+    // ç„¡æ•µã‹ã©ã†ã‹
     public bool IsInvincibility() 
     { 
-        // –³“G
+        // ç„¡æ•µ
         if(invincibilityTimer > 0) 
         {
             return true;
         }
-        // –³“G‚¶‚á‚È‚¢
+        // ç„¡æ•µã˜ã‚ƒãªã„
         else 
         {
             return false;
         }
     }
 
-    // –³“GŠÔXV
+    // ç„¡æ•µæ™‚é–“æ›´æ–°
     public void UpdateInvincibility(float num) 
     {
         if (invincibilityTimer <= num) 

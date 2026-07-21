@@ -1,16 +1,16 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
 public class EnemyDeathEffect: MonoBehaviour
 {
     public static EnemyDeathEffect Instance { get; private set; }
 
-    [Header("€–SƒGƒtƒFƒNƒg")]
+    [Header("æ­»äº¡ã‚¨ãƒ•ã‚§ã‚¯ãƒˆ")]
     [SerializeField] ParticleSystem enemyDeathEffectParticle;
     [SerializeField] private Transform particleParent;
 
     void Awake()
     {
-        // ƒVƒ“ƒOƒ‹ƒgƒ“
+        // ã‚·ãƒ³ã‚°ãƒ«ãƒˆãƒ³
         if (Instance == null)
         {
             Instance = this;
@@ -33,15 +33,15 @@ public class EnemyDeathEffect: MonoBehaviour
         
     }
 
-    // €–SƒGƒtƒFƒNƒg‚Ì¶¬
+    // æ­»äº¡ã‚¨ãƒ•ã‚§ã‚¯ãƒˆã®ç”Ÿæˆ
     public void PlayEffect(Vector2 position) 
     {
-        // ¶¬
+        // ç”Ÿæˆ
         Quaternion rotation = Quaternion.Euler(0f, 0f, 0f);
         ParticleSystem enemyDeathEffectParticleInstance = Instantiate(enemyDeathEffectParticle, position, rotation, particleParent);
-        // Ä¶
+        // å†ç”Ÿ
         enemyDeathEffectParticleInstance.Play();
-        // Ä¶I—¹ŒãÁ‹
+        // å†ç”Ÿçµ‚äº†å¾Œæ¶ˆå»
         Destroy(enemyDeathEffectParticleInstance.gameObject, enemyDeathEffectParticleInstance.main.duration + enemyDeathEffectParticleInstance.main.startLifetime.constantMax);
     }
 }

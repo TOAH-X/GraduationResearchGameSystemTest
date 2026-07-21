@@ -1,12 +1,12 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
 [System.Serializable]
 public struct DialogLine
 {
-    public string name;           // –¼‘O
+    public string name;           // åå‰
     [TextArea(5, 10)]
-    public string message;        // “à—e
-    public Sprite characterImage; // —§‚¿ŠGi•\î·•ª‚Í‚±‚±‚ÅSprite‚ğ·‚µ‘Ö‚¦‚éj
+    public string message;        // å†…å®¹
+    public Sprite characterImage; // ç«‹ã¡çµµï¼ˆè¡¨æƒ…å·®åˆ†ã¯ã“ã“ã§Spriteã‚’å·®ã—æ›¿ãˆã‚‹ï¼‰
 }
 
 [CreateAssetMenu(fileName = "NewDialog", menuName = "DialogData")]

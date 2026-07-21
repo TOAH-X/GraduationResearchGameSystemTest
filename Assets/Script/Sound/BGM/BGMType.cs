@@ -1,6 +1,6 @@
-public enum BGMType
+ï»¿public enum BGMType
 {
     None,
-    Title,          // ƒ^ƒCƒgƒ‹‰æ–Ê‚ÌBGM
-    GameMain1,      // ƒQ[ƒ€–{•Ò‚ÌBGM
+    Title,          // ã‚¿ã‚¤ãƒˆãƒ«ç”»é¢ã®BGM
+    GameMain1,      // ã‚²ãƒ¼ãƒ æœ¬ç·¨ã®BGM
 }

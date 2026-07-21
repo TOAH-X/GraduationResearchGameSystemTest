@@ -1,4 +1,4 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -6,13 +6,13 @@ using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
-    [Header("”{‘¬")]
+    [Header("å€é€Ÿ")]
     [SerializeField] float simulationSpeed = 1f;
-    [Header("ƒXƒe[ƒWID")]      // -1FƒGƒ‰[A0FŠwKŠÂ‹«A1Fƒ`ƒ…[ƒgƒŠƒAƒ‹A2F”íx‰‡ƒG[ƒWƒFƒ“ƒgA3Fx‰‡ƒG[ƒWƒFƒ“ƒg
+    [Header("ã‚¹ãƒ†ãƒ¼ã‚¸ID")]      // -1ï¼šã‚¨ãƒ©ãƒ¼ã€0ï¼šå­¦ç¿’ç’°å¢ƒã€1ï¼šãƒãƒ¥ãƒ¼ãƒˆãƒªã‚¢ãƒ«ã€2ï¼šè¢«æ”¯æ´ã‚¨ãƒ¼ã‚¸ã‚§ãƒ³ãƒˆã€3ï¼šæ”¯æ´ã‚¨ãƒ¼ã‚¸ã‚§ãƒ³ãƒˆ
     [SerializeField] int stageID = -1;
     public int StageID => stageID;
 
-    // ƒQ[ƒ€I—¹—p
+    // ã‚²ãƒ¼ãƒ çµ‚äº†ç”¨
     [SerializeField] GameObject playerObj;
     [SerializeField] GameObject playerAnotherObj;
     [SerializeField] GameObject subPlayerObj;
@@ -23,18 +23,18 @@ public class GameManager : MonoBehaviour
     [SerializeField] SubPlayerAgent subPlayerAgent_SubPlayer;
     [SerializeField] SubPlayerAgent subPlayerAgent_SubPlayerAnother;
 
-    private bool isResetting = false;       // “ñdƒŠƒZƒbƒg–h~—p
+    private bool isResetting = false;       // äºŒé‡ãƒªã‚»ãƒƒãƒˆé˜²æ­¢ç”¨
 
     [SerializeField] PlayerBase playerBase_Player;
     [SerializeField] PlayerBase playerBase_PlayerAnother;
     [SerializeField] PlayerBase playerBase_SubPlayer;
     [SerializeField] PlayerBase playerBase_SubPlayerAnother;
-    [Header("ƒŠƒ[ƒh‚Å‚«‚é‚æ‚¤‚É‚·‚é‚©")]
+    [Header("ãƒªãƒ­ãƒ¼ãƒ‰ã§ãã‚‹ã‚ˆã†ã«ã™ã‚‹ã‹")]
     [SerializeField] bool isReload = false;
 
     void Awake()
     {
-        // ŠwKŠJn‚ÉŠÔƒXƒP[ƒ‹‚ğİ’è‚·‚é
+        // å­¦ç¿’é–‹å§‹æ™‚ã«æ™‚é–“ã‚¹ã‚±ãƒ¼ãƒ«ã‚’è¨­å®šã™ã‚‹
         if (simulationSpeed != 1) 
         {
             Time.timeScale = simulationSpeed;
@@ -53,13 +53,13 @@ public class GameManager : MonoBehaviour
         
     }
 
-    // ƒQ[ƒ€I—¹ˆ—A‰Â”\‚È‚çƒfƒŠƒQ[ƒg‚É‘‚«Š·‚¦‚é‚±‚Æ
+    // ã‚²ãƒ¼ãƒ çµ‚äº†æ™‚å‡¦ç†ã€å¯èƒ½ãªã‚‰ãƒ‡ãƒªã‚²ãƒ¼ãƒˆã«æ›¸ãæ›ãˆã‚‹ã“ã¨
     public void EndGame() 
     {
         
         Debug.Log("TTP" + playerAgent_Player.ExportPosValue()[12]);
         Debug.Log("TTS" + subPlayerAgent_SubPlayerAnother.ExportPosValue()[12]);
-        // ’l‚Ìæ“¾
+        // å€¤ã®å–å¾—
         if (playerObj.activeSelf == true)
         {
             ActionLogController.Instance.ActionLog_PlayerID_A = 1;
@@ -93,16 +93,16 @@ public class GameManager : MonoBehaviour
             //subPlayerAgent_SubPlayerAnother.EndGame();
         }
 
-        // î•ñ‚ÌûW
+        // æƒ…å ±ã®åé›†
         ActionLogController.Instance.ActionLog_StageID = stageID;
         ActionLogController.Instance.ActionLog_Score_Total = ScoreSystemController.Instance.TotalScore;
         ActionLogController.Instance.ActionLog_Score_A = ScoreSystemController.Instance.Player1Score;
         ActionLogController.Instance.ActionLog_Score_B = ScoreSystemController.Instance.Player2Score;
 
-        // ƒAƒNƒVƒ‡ƒ“ƒƒO‚Éo—Í
+        // ã‚¢ã‚¯ã‚·ãƒ§ãƒ³ãƒ­ã‚°ã«å‡ºåŠ›
         ActionLogController.Instance.ExportData();
 
-        // EndGame‚Ì’Ê’m
+        // EndGameã®é€šçŸ¥
         if (playerObj != null)
         {
             playerAgent_Player.EndGame();
@@ -121,34 +121,34 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    // Agent‚©‚çŒÄ‚Î‚ê‚éuˆÀ‘S‚ÈƒŠƒZƒbƒg—v‹vƒƒ\ƒbƒh
+    // Agentã‹ã‚‰å‘¼ã°ã‚Œã‚‹ã€Œå®‰å…¨ãªãƒªã‚»ãƒƒãƒˆè¦æ±‚ã€ãƒ¡ã‚½ãƒƒãƒ‰
     public void RequestSafeDelayedReset()
     {
-        if (isResetting) return; // Šù‚ÉƒŠƒZƒbƒgˆ—’†‚È‚ç–³‹
+        if (isResetting) return; // æ—¢ã«ãƒªã‚»ãƒƒãƒˆå‡¦ç†ä¸­ãªã‚‰ç„¡è¦–
         StartCoroutine(SafeResetCoroutine());
     }
 
     IEnumerator SafeResetCoroutine()
     {
         isResetting = true;
-        Debug.Log("ƒŠƒZƒbƒgƒV[ƒPƒ“ƒXŠJn");
+        Debug.Log("ãƒªã‚»ãƒƒãƒˆã‚·ãƒ¼ã‚±ãƒ³ã‚¹é–‹å§‹");
 
-        // 1. ƒƒOo—ÍiŒÂ•Ê‚ÅTry-Catch‚µ‚ÄA1‚Â‚ÌƒƒO¸”s‚ÅƒŠƒZƒbƒg‚ª~‚Ü‚ç‚È‚¢‚æ‚¤‚É‚·‚éj
-        try { EndGame(); } catch (System.Exception e) { Debug.LogError("EndGameƒGƒ‰[: " + e.Message); }
+        // 1. ãƒ­ã‚°å‡ºåŠ›ï¼ˆå€‹åˆ¥ã§Try-Catchã—ã¦ã€1ã¤ã®ãƒ­ã‚°å¤±æ•—ã§ãƒªã‚»ãƒƒãƒˆãŒæ­¢ã¾ã‚‰ãªã„ã‚ˆã†ã«ã™ã‚‹ï¼‰
+        try { EndGame(); } catch (System.Exception e) { Debug.LogError("EndGameã‚¨ãƒ©ãƒ¼: " + e.Message); }
 
-        // 2. ML-Agents’Ê’miˆÀ‘S‚ÈŒÄ‚Ño‚µj
-        // ƒG[ƒWƒFƒ“ƒg‚ª—LŒø‚ÅA‚©‚Â‰Šú‰»‚ªŠ®—¹‚µ‚Ä‚¢‚éê‡‚Ì‚İŒÄ‚Ô
+        // 2. ML-Agentsé€šçŸ¥ï¼ˆå®‰å…¨ãªå‘¼ã³å‡ºã—ï¼‰
+        // ã‚¨ãƒ¼ã‚¸ã‚§ãƒ³ãƒˆãŒæœ‰åŠ¹ã§ã€ã‹ã¤åˆæœŸåŒ–ãŒå®Œäº†ã—ã¦ã„ã‚‹å ´åˆã®ã¿å‘¼ã¶
         SafeEndEpisode(playerAgent_Player);
         SafeEndEpisode(playerAgent_PlayerAnother);
         SafeEndEpisode(subPlayerAgent_SubPlayer);
         SafeEndEpisode(subPlayerAgent_SubPlayerAnother);
 
-        // 3. ŠmÀ‚É1ƒtƒŒ[ƒ€‘Ò‚Â
+        // 3. ç¢ºå®Ÿã«1ãƒ•ãƒ¬ãƒ¼ãƒ å¾…ã¤
         yield return new WaitForFixedUpdate();
 
-        Debug.Log("ƒV[ƒ“‘JˆÚÀs");
+        Debug.Log("ã‚·ãƒ¼ãƒ³é·ç§»å®Ÿè¡Œ");
 
-        // ƒŠƒ[ƒh‚·‚é
+        // ãƒªãƒ­ãƒ¼ãƒ‰ã™ã‚‹
         if (isReload == true)
         {
             SceneManager.LoadScene(SceneManager.GetActiveScene().name);
@@ -157,12 +157,12 @@ public class GameManager : MonoBehaviour
         {
             if (StageID <= 0)
             {
-                // ŠwKAƒGƒ‰[‚ÍƒŠƒ[ƒh
+                // å­¦ç¿’æ™‚ã€ã‚¨ãƒ©ãƒ¼æ™‚ã¯ãƒªãƒ­ãƒ¼ãƒ‰
                 SceneManager.LoadScene(SceneManager.GetActiveScene().name);
             }
             else
             {
-                // ³‹K‚Í‰ï˜b‰æ–Ê‚Ö
+                // æ­£è¦ã¯ä¼šè©±ç”»é¢ã¸
                 SceneManager.LoadScene("StartScene");
             }
         }
@@ -170,7 +170,7 @@ public class GameManager : MonoBehaviour
 
     private void SafeEndEpisode(Unity.MLAgents.Agent agent)
     {
-        // agent©‘Ì‚ªNull‚Å‚È‚­A‚©‚ÂGameObject‚ªActiveiƒV[ƒ“‚É‘¶İj‚µ‚Ä‚¢‚é‚©
+        // agentè‡ªä½“ãŒNullã§ãªãã€ã‹ã¤GameObjectãŒActiveï¼ˆã‚·ãƒ¼ãƒ³ã«å­˜åœ¨ï¼‰ã—ã¦ã„ã‚‹ã‹
         if (agent != null && agent.gameObject.activeInHierarchy)
         {
             try
@@ -179,7 +179,7 @@ public class GameManager : MonoBehaviour
             }
             catch (System.Exception e)
             {
-                Debug.LogWarning($"{agent.name} ‚ÌI—¹ˆ—‚É¸”s: {e.Message}");
+                Debug.LogWarning($"{agent.name} ã®çµ‚äº†å‡¦ç†ã«å¤±æ•—: {e.Message}");
             }
         }
     }

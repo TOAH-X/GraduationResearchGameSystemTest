@@ -1,11 +1,11 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
 public class PlayerSpriteController : MonoBehaviour
 {
     [SerializeField] SpriteRenderer spriteRenderer;
-    [SerializeField] Sprite playerCenterSprite;         // ’†‰›‰æ‘œ
-    [SerializeField] Sprite playerLeftSprite;           // ¶‰æ‘œ
-    [SerializeField] Sprite playerRIghtSprite;          // ‰E‰æ‘œ
+    [SerializeField] Sprite playerCenterSprite;         // ä¸­å¤®ç”»åƒ
+    [SerializeField] Sprite playerLeftSprite;           // å·¦ç”»åƒ
+    [SerializeField] Sprite playerRIghtSprite;          // å³ç”»åƒ
 
     // Start is called before the first frame update
     void Start()
