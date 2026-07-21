@@ -31,6 +31,8 @@ public class GameManager : MonoBehaviour
     [SerializeField] PlayerBase playerBase_SubPlayerAnother;
     [Header("リロードできるようにするか")]
     [SerializeField] bool isReload = false;
+    [Header("ゲーム終了後の戻り先シーン名")]
+    [SerializeField] string startSceneName = "StartScene";
 
     void Awake()
     {
@@ -162,8 +164,8 @@ public class GameManager : MonoBehaviour
             }
             else
             {
-                // 正規は会話画面へ
-                SceneManager.LoadScene("StartScene");
+                // 正規は会話画面へ（未設定なら従来通りStartSceneへ）
+                SceneManager.LoadScene(string.IsNullOrEmpty(startSceneName) ? "StartScene" : startSceneName);
             }
         }
     }

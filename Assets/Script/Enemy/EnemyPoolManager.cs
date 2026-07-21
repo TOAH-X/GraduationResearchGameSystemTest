@@ -516,7 +516,8 @@ public class EnemyPoolManager : MonoBehaviour
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         // ★追加：会話シーン（名前は適宜合わせてください）なら自分を消して終了
-        if (scene.name == "StartScene" || scene.name == "TitleScene")
+        if (scene.name == "StartScene" || scene.name == "TitleScene"
+            || scene.name == "OpenCampusStartScene" || scene.name == "OpenCampusTitleScene")
         {
             // プール内の敵を物理的に削除
             foreach (var item in pool)
