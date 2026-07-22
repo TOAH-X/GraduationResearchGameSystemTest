@@ -12,12 +12,17 @@ public class SoundManager : MonoBehaviour
     [SerializeField] private List<BGMData> bgmList = new List<BGMData>();
     private AudioSource bgmSource;
     private Dictionary<BGMType, AudioClip> bgmClips = new Dictionary<BGMType, AudioClip>();
+    private Dictionary<BGMType, float> bgmVolumes = new Dictionary<BGMType, float>();
 
     // SE設定
     [Header("SE Settings")]
     [SerializeField] private List<SEData> seList = new List<SEData>();
     [SerializeField] private int audioSourcePoolSize = 5;
+    [Header("同一SEの多重再生を間引く間隔(秒)")]
+    [SerializeField] private float seRepeatInterval = 0.05f;
     private Dictionary<SEType, AudioClip> seClips = new Dictionary<SEType, AudioClip>();
+    private Dictionary<SEType, float> seVolumes = new Dictionary<SEType, float>();
+    private Dictionary<SEType, float> seLastPlayTimes = new Dictionary<SEType, float>();
     private Queue<AudioSource> audioSourcePool = new Queue<AudioSource>();
 
     private CancellationToken destroyToken;
@@ -56,6 +61,7 @@ public class SoundManager : MonoBehaviour
             if (data.type != BGMType.None && !bgmClips.ContainsKey(data.type))
             {
                 bgmClips.Add(data.type, data.clip);
+                bgmVolumes.Add(data.type, data.volume);
             }
         }
 
@@ -65,6 +71,7 @@ public class SoundManager : MonoBehaviour
             if (data.type != SEType.None && !seClips.ContainsKey(data.type))
             {
                 seClips.Add(data.type, data.clip);
+                seVolumes.Add(data.type, data.volume);
             }
         }
         for (int i = 0; i < audioSourcePoolSize; i++)
@@ -104,7 +111,7 @@ public class SoundManager : MonoBehaviour
 
         // 再生ロジック
         Instance.bgmSource.clip = clip;
-        Instance.bgmSource.volume = 1.0f; // BGMDataから音量を設定することも可能
+        Instance.bgmSource.volume = Instance.bgmVolumes[type]; // BGMDataで設定した音量を適用
         Instance.bgmSource.Play();
     }
 
@@ -122,9 +129,17 @@ public class SoundManager : MonoBehaviour
     {
         if (Instance == null || !Instance.seClips.ContainsKey(type) || Instance.audioSourcePool.Count == 0) return;
 
+        // 同一SEがごく短時間に重複再生されるのを間引く（音圧の飽和でBGMがかき消される対策）
+        if (Instance.seLastPlayTimes.TryGetValue(type, out float lastTime)
+            && Time.unscaledTime - lastTime < Instance.seRepeatInterval)
+        {
+            return;
+        }
+        Instance.seLastPlayTimes[type] = Time.unscaledTime;
+
         AudioSource source = Instance.audioSourcePool.Dequeue();
         source.clip = Instance.seClips[type];
-        source.volume = 1.0f;
+        source.volume = Instance.seVolumes[type]; // SEDataで設定した音量を適用
 
         source.Play();
 
