@@ -6,6 +6,9 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
+    path: Assets/Scenes/OpenCampus/OpenCampusTitleScene.unity
+    guid: a51ee4367c632b44b86c25850b39e42e
+  - enabled: 1
     path: Assets/Scenes/TitleScene.unity
     guid: 7cb3d77be01650e45ba2f919b1572e90
   - enabled: 1
@@ -23,9 +26,6 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/TutorialScene.unity
     guid: 0bf68b8059e3a68499062b7ab8671606
-  - enabled: 1
-    path: Assets/Scenes/OpenCampus/OpenCampusTitleScene.unity
-    guid: a51ee4367c632b44b86c25850b39e42e
   - enabled: 1
     path: Assets/Scenes/OpenCampus/OpenCampusStartScene.unity
     guid: 67df28796d66d7f4d94a156b628c5853

@@ -50,8 +50,11 @@ public class OpenCampusDialogManager : MonoBehaviour
         // 会話データ未設定なら何もしない
         if (currentData == null) return;
 
-        // クリック、Z、Enterのいずれかを離した瞬間
-        if (Input.GetKeyUp(KeyCode.Z) || Input.GetKeyUp(KeyCode.Return) || Input.GetMouseButtonUp(0))
+        // クリック、Z、Enter、パッドのボタン(0〜3)のいずれかを離した瞬間
+        bool padButtonUp = Input.GetKeyUp(KeyCode.JoystickButton0) || Input.GetKeyUp(KeyCode.JoystickButton1)
+                        || Input.GetKeyUp(KeyCode.JoystickButton2) || Input.GetKeyUp(KeyCode.JoystickButton3);
+
+        if (Input.GetKeyUp(KeyCode.Z) || Input.GetKeyUp(KeyCode.Return) || Input.GetMouseButtonUp(0) || padButtonUp)
         {
             if (isTyping)
             {
@@ -83,15 +86,24 @@ public class OpenCampusDialogManager : MonoBehaviour
         nameText.text = line.name;
         characterIcon.sprite = line.characterImage;
 
+        // セリフ中のスコア用の目印を直近ゲームのスコアに置換
+        string message = line.message;
+        if (OpenCampusManager.IsAvailable())
+        {
+            message = message.Replace("{TotalScore}", OpenCampusManager.Instance.LastTotalScore.ToString())
+                             .Replace("{Player1Score}", OpenCampusManager.Instance.LastPlayer1Score.ToString())
+                             .Replace("{Player2Score}", OpenCampusManager.Instance.LastPlayer2Score.ToString());
+        }
+
         messageText.text = "";
-        foreach (char c in line.message.ToCharArray())
+        foreach (char c in message.ToCharArray())
         {
             messageText.text += c;
 
             // スキップが押されたらループを抜けて全文表示
             if (cancelTyping)
             {
-                messageText.text = line.message;
+                messageText.text = message;
                 break;
             }
             yield return new WaitForSeconds(0.02f);
