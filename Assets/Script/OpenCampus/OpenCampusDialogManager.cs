@@ -26,13 +26,12 @@ public class OpenCampusDialogManager : MonoBehaviour
     [SerializeField] private string gameSceneName = "OpenCampusGameScene";
     [SerializeField] private string titleSceneName = "OpenCampusTitleScene";
 
-    // ゲームを終えて戻ってきたか（シーンをまたいで保持し、タイトルへ戻る際にリセット）
-    private static bool gamePlayed = false;
-
     private void Start()
     {
         // ゲーム前とゲーム後で再生する会話を切り替える
-        DialogData data = gamePlayed ? finishDialogData : startDialogData;
+        // （OpenCampusManager不在時＝シーン直接再生時はゲーム前扱い）
+        bool played = OpenCampusManager.IsAvailable() && OpenCampusManager.Instance.GamePlayed;
+        DialogData data = played ? finishDialogData : startDialogData;
         if (data != null)
         {
             StartDialog(data);
@@ -107,16 +106,20 @@ public class OpenCampusDialogManager : MonoBehaviour
         // 会話終了時の処理（UI消したりなど）
         gameObject.SetActive(false);
 
-        if (gamePlayed)
+        bool played = OpenCampusManager.IsAvailable() && OpenCampusManager.Instance.GamePlayed;
+        if (played)
         {
             // ゲーム後の会話が終わったのでタイトルへ戻る（次のプレイに備えて状態をリセット）
-            gamePlayed = false;
+            OpenCampusManager.Instance.GamePlayed = false;
             sceneController.ChangeScene(titleSceneName);
         }
         else
         {
             // ゲーム前の会話が終わったのでゲームへ
-            gamePlayed = true;
+            if (OpenCampusManager.IsAvailable())
+            {
+                OpenCampusManager.Instance.GamePlayed = true;
+            }
             sceneController.ChangeScene(gameSceneName);
         }
     }
