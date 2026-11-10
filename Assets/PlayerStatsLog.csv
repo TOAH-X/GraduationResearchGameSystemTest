@@ -1,1 +1,4 @@
 JST,Step,Time,HP,reward,AttackReward,KillReward,SurvivalReward,GrazePenalty,HitPenalty,PunishPenalty,GraceReward,State
+2026/07/22 01:18:29,0,60.00,1.0,976.927,625,129,3001,6,1,0,0,Training
+2026/07/22 01:23:37,0,60.00,0.0,939.629,611,125,3001,9,2,0,0,Training
+2026/07/22 01:24:43,0,60.00,0.0,1023.630,679,135,3001,9,2,0,0,Training
