@@ -3,7 +3,7 @@
 Python を橋渡しにして、LLM（OpenAI API）が選んだ「意図」を Unity ML-Agents のゲームに送る仕組みを作る。
 
 - 作成日：2026-11-11（同日更新：モデルの決定、課題への対策を反映）
-- 状態：**計画中（実装はまだ）**
+- 状態：**段階1 完了**（§9）。段階2は未着手
 
 ---
 
@@ -99,7 +99,7 @@ Unity が Python と同期して止まるのは、`BehaviorType = Default` の�
 - 選んだ理由：最新世代でいちばん安い。公式が「速さと費用を重視するならこれ」と案内している。Chat Completions と Structured Outputs に対応している
 - `none` にする理由：推論の強さは `none / low / medium（標準）/ high / xhigh / max` から選べる。`none` なら思考を飛ばすので速く、思考に使うトークンの料金がかからない。さらに「出力の上限を思考で使い切って、応答が空になる」問題も起きない
 - 費用の目安：疎通確認1回で 0.001円未満、意図の選択1回で 0.01円程度、LLMプレイ1ゲーム（約20回）で 0.3円程度
-- **未確認**：公式ページは Responses API の書き方（`reasoning.effort`）でしか説明していない。Chat Completions でのパラメータ名（従来は `reasoning_effort`）と、出力上限のパラメータ名（`max_completion_tokens` か `max_tokens` か）は、段階1の実API呼び出しで確かめる。受け付けられなければ 400 で停止するので、費用は1回分で済む
+- **確認済み（2026-11-11）**：公式ページは Responses API の書き方（`reasoning.effort`）でしか説明していなかったが、段階1の実API呼び出しで、Chat Completions では `reasoning_effort` と `max_completion_tokens` がそのまま通ることを確かめた
 - 出典：[GPT-6 Luna](https://developers.openai.com/api/docs/models/gpt-6-luna.md)、[Pricing](https://developers.openai.com/api/docs/pricing)、[Deprecations](https://developers.openai.com/api/docs/deprecations)、[GPT-4o mini](https://developers.openai.com/api/docs/models/gpt-4o-mini)、[GPT-5 nano](https://developers.openai.com/api/docs/models/gpt-5-nano)
 
 ## 6. 段階ごとの計画
@@ -207,7 +207,7 @@ Git Bash で実行する場合は、パスを `../../helloworld/env/Scripts/pyth
 | 種類 | 対象 | 内容 | 段階 | 戻し方 |
 |---|---|---|---|---|
 | 新規 | `LLMBridge/` 一式 | Python 側のコード、この計画書 | 1〜3 | フォルダを削除 |
-| 追記 | `.gitignore` | `LLMBridge/.env` と `LLMBridge/logs/` を追加 | 1 | 追記した2行を削除 |
+| 追記 | `.gitignore` | `LLMBridge/.env`、`LLMBridge/logs/`、`LLMBridge/**/__pycache__/` を追加（コメント行を含む4行） | 1 | 末尾の LLMBridge のブロック（4行）を削除 |
 | 新規 | `Assets/Script/LLM/IntentBridge.cs`（＋.meta） | 同期用ダミーの生成と、意図の受信ログ。Python と接続しているときだけ動く | 3 | ファイルを削除 |
 | 新規 | `Assets/Scenes/LLM/LLMTestScene.unity`（＋.meta） | B_Scene の複製。CSV出力をOFF（5つ）、`isReload` を true | 3 | ファイルを削除 |
 
@@ -219,7 +219,7 @@ Git Bash で実行する場合は、パスを `../../helloworld/env/Scripts/pyth
 | 項目 | 状況 |
 |---|---|
 | ~~OpenAI のモデル名~~ | **決定**：`gpt-6-luna`、reasoning effort は `none`（§5.4） |
-| Chat Completions でのパラメータ名 | 推論の強さと出力上限の名前を、段階1の実API呼び出しで確定させる（§5.4） |
+| ~~Chat Completions でのパラメータ名~~ | **確定**：`max_completion_tokens` と `reasoning_effort` で通った（§9 段階1の結果） |
 | 意図の中身（選択肢） | 段階3まではランダムでよい。最終的には協調に関わる意図を想定（例：左側を担当、僚機の撃ち漏らしを拾う、回避を優先） |
 | 被支援プレイヤーが意図をどう実行するか | 未定（既存の Player モデルを使う／意図を観察に加えて再学習する／ルールで動かす など） |
 | 状況の送り方 | 推奨は自作サイドチャンネル（§5.3）。実装は後日 |
@@ -229,6 +229,34 @@ Git Bash で実行する場合は、パスを `../../helloworld/env/Scripts/pyth
 
 | 段階 | 状態 | 実施日 | 結果・ログ |
 |---|---|---|---|
-| 1. APIの疎通 | 未着手 | | |
+| 1. APIの疎通 | **完了** | 2026-11-11 | 下記 |
 | 2. 意図の選択 | 未着手 | | |
 | 3. Unityとの配線 | 未着手 | | |
+
+### 段階1の結果（2026-11-11）
+
+実行環境：`C:\Users\ikeda\helloworld\env`（Python 3.8.10）。パッケージの追加はなし。
+
+| # | 確認内容 | コマンド | 結果 |
+|---|---|---|---|
+| 1 | `.env` が無いときにキー未設定と表示される | `--real` | 成功：`失敗 [config] OPENAI_API_KEY が未設定です。` exit=2 |
+| 2 | モックで動く | （オプションなし） | 成功：`response: pong` exit=0 |
+| 2b | 偽の通信で正常な応答を処理できる | `--simulate ok` | 成功：`response: pong tokens(in/out)=12/2` exit=0 |
+| 3a | 上限1回では、429のあとに再試行せず終了する | `--simulate rate_limit` | 成功：`[budget_exceeded]` calls_used=1/1 exit=3 |
+| 3b | 429のあと Retry-After（1秒）だけ待って再試行する | `--simulate rate_limit --max-calls 3` | 成功：1.0秒待って2回目で成功。calls_used=2/3 exit=0 |
+| 3c | 残高不足はすぐに止まる | `--simulate quota --max-calls 3` | 成功：再試行なし。calls_used=1/3 exit=4 |
+| 3d | タイムアウトは2秒待って再試行する | `--simulate timeout --max-calls 3` | 成功：2回目で成功 exit=0 |
+| 3e | 500は2秒待って再試行する | `--simulate server_error --max-calls 3` | 成功：2回目で成功 exit=0 |
+| 3f | 401は再試行せず、メッセージ内のキーをマスクする | `--simulate auth --max-calls 3` | 成功：`sk-***` と表示。exit=4 |
+| 3g | 400は再試行しない | `--simulate bad_request --max-calls 3` | 成功：calls_used=1/3 exit=4 |
+| 3h | 空の応答（`finish_reason=length`）を知らせる | `--simulate empty` | 成功：`response: （空）` と注意を表示 |
+| 4 | ログと画面にキーが残らない | `grep` で確認 | 成功：ログ14行中、`sk-` は `sk-***` の1件だけ。ダミーキーの値、Authorization ヘッダーは0件 |
+| 5 | `.env`・`logs/`・`__pycache__/` がコミット対象外になる | `git check-ignore` | 成功 |
+| 6 | **実APIで1回呼ぶ** | `--real` | **成功**：`response: pong`、latency=1.96s、tokens(in/out)=13/4、attempts=1、calls_used=1/1、finish_reason=stop、exit=0。費用は約 $0.000003 |
+| 6b | 実API呼び出しのあともキーが漏れていない | ログを照合 | 成功：ログ中のキーの値0件、伏せ字になっていない `sk-` 0件。`.env` と `logs/` は `git status` に出ない |
+
+**パラメータ名の確定**（§5.4 の未確認事項）：`gpt-6-luna` の Chat Completions で、`max_completion_tokens` と `reasoning_effort: "none"` がそのまま受け付けられた（HTTP 200）。`none` のため出力4トークンで、思考に使うトークンは発生していない。
+
+実装中に見つけて直した点：
+- パイプでつないで実行すると、エラー行（stderr）が見出しの行より先に出ていた → 見出しの行を出した直後に flush するよう修正
+- `__pycache__/` が未追跡ファイルとして表示された → `.gitignore` に追加
