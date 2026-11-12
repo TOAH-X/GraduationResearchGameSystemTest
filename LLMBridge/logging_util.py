@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 """
 【このファイルの役割】
-LLM を呼んだ記録をファイルに残すことと、APIキーを伏せ字にすること。
-- JsonlLogger    : 1回の送信につき1行、logs/llm_YYYYMMDD.jsonl に追記する（JSONL＝1行に1つのJSON）
+LLM を呼んだ記録（や Unity との通信の記録）をファイルに残すことと、APIキーを伏せ字にすること。
+- JsonlLogger    : 1回の送信につき1行、logs/llm_YYYYMMDD.jsonl に追記する（JSONL＝1行に1つのJSON）。
+                   段階2a からは、Unity との通信の記録を logs/unity_YYYYMMDD.jsonl に書くのにも使う
 - mask_secrets() : 文字列の中のキー（sk- で始まるもの、登録したキーの値）を伏せ字にする
 
 ログは必ず mask_secrets() を通してから書き込む。画面に出すエラーメッセージも同様。
@@ -45,13 +46,16 @@ def mask_secrets(text):
 class JsonlLogger(object):
     """LLM 呼び出しの記録を、日付ごとのファイルに1行ずつ追記していく係。"""
 
-    def __init__(self, log_dir, stage):
-        # type: (str, str) -> None
-        """保存先のフォルダと段階名（例：step1）を受け取り、今日の日付のファイル名を決める。"""
+    def __init__(self, log_dir, stage, prefix="llm"):
+        # type: (str, str, str) -> None
+        """保存先のフォルダと段階名（例：step1）を受け取り、今日の日付のファイル名を決める。
+
+        prefix はファイル名の頭（既定 llm → llm_YYYYMMDD.jsonl。Unity との通信の記録は unity を使う）。
+        """
         self.log_dir = log_dir
         self.stage = stage
         today = datetime.datetime.now().strftime("%Y%m%d")
-        self.path = os.path.join(log_dir, "llm_{}.jsonl".format(today))
+        self.path = os.path.join(log_dir, "{}_{}.jsonl".format(prefix, today))
 
     def log(self, record):
         # type: (Dict[str, Any]) -> None
