@@ -2314,6 +2314,7 @@ Transform:
   - {fileID: 1491615384}
   - {fileID: 1104147300}
   - {fileID: 1179311034}
+  - {fileID: 994933541}
   m_Father: {fileID: 0}
   m_RootOrder: 19
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -2344,6 +2345,7 @@ MonoBehaviour:
   playerBase_SubPlayer: {fileID: 1022352617}
   playerBase_SubPlayerAnother: {fileID: 210556209}
   isReload: 1
+  startSceneName: StartScene
 --- !u!1 &920481899
 GameObject:
   m_ObjectHideFlags: 0
@@ -2613,6 +2615,52 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 17
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &994933540
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 994933541}
+  - component: {fileID: 994933542}
+  m_Layer: 0
+  m_Name: LLMBridgeManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &994933541
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 994933540}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 915512734}
+  m_RootOrder: 4
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &994933542
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 994933540}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fc57c9f3d7ae99c4badfc3b137c89dd2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  selfPlayerID: 1
+  playerParentName: PlayerParent
 --- !u!1 &995659605
 GameObject:
   m_ObjectHideFlags: 0
@@ -3787,13 +3835,18 @@ MonoBehaviour:
   seList:
   - type: 0
     clip: {fileID: 8300000, guid: e2453d25d71c85042a1217c9513a5436, type: 3}
+    volume: 1
   - type: 0
     clip: {fileID: 8300000, guid: 7ab5875fb41ad214889dd7d38df22f29, type: 3}
+    volume: 1
   - type: 2
     clip: {fileID: 8300000, guid: b7a928ae7106d9c4b820ab2101e62389, type: 3}
+    volume: 1
   - type: 1
     clip: {fileID: 8300000, guid: 573af6ee23d616f4c9ba0349546e0a5c, type: 3}
+    volume: 1
   audioSourcePoolSize: 100
+  seRepeatInterval: 0.05
 --- !u!1 &1596494287
 GameObject:
   m_ObjectHideFlags: 0

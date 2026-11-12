@@ -160,6 +160,37 @@ OpenAI の API は使わない。Unity Editor で `Assets/Scenes/LLM/LLMTestScen
 
 記録は `logs/unity_YYYYMMDD.jsonl` に残る。判断ごとに、通しのフレーム番号・判断番号・何ゲーム目か・そのゲームの中のフレーム番号・ゲーム内秒・今の間接操作・Player の位置・エージェントの ID と数。ほかに、間接操作の切り替え、区切り（種類つき）、長い停止の開始と終了。
 
+## 段階3a：状況の送信（通り道）
+
+OpenAI の API は使わない。LLMTestScene に置いた `LLMBridgeManager`（Unity 側）が、Python とつながっているときだけ、
+シーン読み込みの情報と毎フレームの情報（フレーム番号、時刻、自分と相方の位置）を自作サイドチャンネルで送る。
+Python なしで再生したときは何もしない。
+
+```powershell
+..\..\helloworld\env\Scripts\python.exe step3a_state.py --wait-sec 300
+```
+表示が出たら Editor の再生ボタンを押す。約90秒で終わる（長い停止はない）。
+
+| オプション | 既定 | 内容 |
+|---|---|---|
+| `--frames N` / `--sec S` | 4500フレーム（90秒） | 動かす長さ |
+| `--command-interval-frames N` / `--command-interval-sec S` | 150フレーム（3秒） | 間接操作を選び直す間隔 |
+| `--seed N` | なし | ランダムな選び方を再現したいとき |
+| `--wait-sec S` | 120 | Unity からの接続や応答を待つ上限（秒） |
+
+最後に5項目の確認結果を表示する（設定値の一致、フレームの抜け・重複、PlayerAgent の数、統計と警告、時間とデータ量）。
+
+| 終了コード | 意味 |
+|---|---|
+| 0 | すべて OK |
+| 2 | 設定エラー |
+| 5 | Unity との接続・通信のエラー |
+| 8 | 確認項目に NG がある |
+
+記録：
+- `logs/state_YYYYMMDD_HHMMSS.jsonl`：全フレームの情報（1回の実行で1ファイル。`type` が `frame`／`scene`／`stats`）
+- `logs/unity_YYYYMMDD.jsonl`：接続、区切り、シーン読み込み、統計、確認結果など
+
 ## ログ
 
 `logs/llm_YYYYMMDD.jsonl` に、HTTP の1試行につき1行を追記する（`logs/` は `.gitignore` 済み）。

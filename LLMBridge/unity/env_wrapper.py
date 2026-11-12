@@ -9,12 +9,15 @@ Unity Editor（ML-Agents）とのやり取りをまとめた部品。段階2a �
 - 判断の受け取り：Player が判断を求めてくるまで進め、観察を受け取る
 - 操作の送信：（横, 縦）の移動を Player に送り、1判断ぶん進める
 - フレームの数え方：通しのフレーム番号、判断番号、何ゲーム目か、そのゲームの中のフレーム番号
-  （今は「判断の回数 × DECISION_PERIOD」で求めた推定値。段階3で Unity の実測値に置き換える）
+  （段階3a から：シーンに LLMBridgeManager があれば、Unity が数えた実際のフレーム番号を使う。
+    無ければ、これまでどおり「判断の回数 × DECISION_PERIOD」で求めた推定値を使う）
 - 区切りの見分け：ゲーム終了（interrupted=False）と、MaxStep による20秒ごとの区切り（interrupted=True）
 - エージェント数の見張り：判断を求めてきたエージェントの数と ID を記録し、2体以上になったら知らせる
+- 状況の受け取り（段階3a から）：自作サイドチャンネル（state_channel.py）で届くフレームごとの情報と
+  シーン読み込みの情報、ML-Agents 標準の統計チャンネル（StatsSideChannel）で届くゲーム終了時の統計を受け取る
 
 【どこから使われるか】
-step2b_unity_loop.py（と、以降の段階のスクリプト）。
+step2b_unity_loop.py、step3a_state.py（と、以降の段階のスクリプト）。
 """
 from typing import Any, Dict, List, Optional, Set
 
@@ -22,8 +25,10 @@ import numpy as np
 from mlagents_envs.base_env import ActionTuple
 from mlagents_envs.environment import UnityEnvironment
 from mlagents_envs.exception import UnityTimeOutException, UnityWorkerInUseException
+from mlagents_envs.side_channel.stats_side_channel import StatsSideChannel
 
 import settings
+from unity.state_channel import StateChannel
 
 KIND_GAME_END = "game_end"   # 60秒でゲームが終わった（このあとシーンがやり直される）
 KIND_MAX_STEP = "max_step"   # MaxStep による20秒ごとの区切り
@@ -41,12 +46,23 @@ class UnityConnectError(Exception):
 class Decision(object):
     """1回の判断で受け取ったものをまとめた入れ物。"""
 
-    def __init__(self, obs, agent_ids, episode_ends):
-        # type: (np.ndarray, List[int], List[Dict[str, Any]]) -> None
-        """観察（先頭のエージェントの分）、判断を求めてきたエージェントの ID 一覧、この判断までに来た区切りを持つ。"""
+    def __init__(self, obs, agent_ids, episode_ends, frames=None, events=None, stats=None):
+        # type: (np.ndarray, List[int], List[Dict[str, Any]], Optional[List[Dict[str, Any]]], Optional[List[Dict[str, Any]]], Optional[Dict[str, Any]]) -> None
+        """この判断で受け取ったものを持つ。
+
+        obs          : 観察（先頭のエージェントの分）
+        agent_ids    : 判断を求めてきたエージェントの ID 一覧
+        episode_ends : この判断までに来た区切り
+        frames       : 前の判断から届いたフレームごとの情報（LLMBridgeManager が無ければ空）
+        events       : 前の判断から届いたシーン読み込みなどの情報
+        stats        : 前の判断から届いた統計（ゲーム終了時など。無ければ空）
+        """
         self.obs = obs
         self.agent_ids = agent_ids
         self.episode_ends = episode_ends
+        self.frames = frames or []
+        self.events = events or []
+        self.stats = stats or {}
 
     @property
     def n_agents(self):
@@ -82,13 +98,25 @@ class UnityConnection(object):
         self.max_agents = 0
         self.seen_agent_ids = set()  # type: Set[int]
         self.duplicate_frames = []  # type: List[int]
+        # 状況の受け取り（段階3a から）
+        self.state_channel = StateChannel()
+        self.stats_channel = StatsSideChannel()
+        self.unity_frame = None  # type: Optional[int]  # Unity から届いた最新のフレーム番号（届いていなければ None）
 
     # ---- 数え方 ----
     @property
     def frame(self):
         # type: () -> int
-        """通しのフレーム番号（判断の回数 × DECISION_PERIOD で求めた推定値）。"""
+        """通しのフレーム番号。Unity から届いていればその実測値、無ければ「判断の回数 × DECISION_PERIOD」の推定値。"""
+        if self.unity_frame is not None:
+            return self.unity_frame
         return self.decision * settings.DECISION_PERIOD
+
+    @property
+    def frame_source(self):
+        # type: () -> str
+        """フレーム番号がどちらから来ているか（"unity"＝実測値、"estimate"＝推定値）。"""
+        return "unity" if self.unity_frame is not None else "estimate"
 
     @property
     def frame_in_game(self):
@@ -112,7 +140,8 @@ class UnityConnection(object):
         # type: () -> Dict[str, Any]
         """再生ボタンが押されるのを待ってつなぎ、操作する behavior を探す。見つかった behavior の情報を返す。"""
         try:
-            self.env = UnityEnvironment(file_name=None, base_port=settings.EDITOR_PORT, timeout_wait=self.wait_sec)
+            self.env = UnityEnvironment(file_name=None, base_port=settings.EDITOR_PORT, timeout_wait=self.wait_sec,
+                                        side_channels=[self.state_channel, self.stats_channel])
         except UnityWorkerInUseException:
             raise UnityConnectError("ポート{}がほかのプログラム（mlagents-learn など）に使われています。".format(
                 settings.EDITOR_PORT))
@@ -147,7 +176,23 @@ class UnityConnection(object):
         # type: () -> Decision
         """Player が判断を求めてくるまで進め、観察を返す。途中で来た区切り（ゲーム終了／20秒）も一緒に返す。"""
         episode_ends = []  # type: List[Dict[str, Any]]
+        frames = []  # type: List[Dict[str, Any]]
+        events = []  # type: List[Dict[str, Any]]
+        stats = {}  # type: Dict[str, Any]
         while True:
+            # 自作チャンネルと統計チャンネルに届いたものを先に取り出す（区切りの記録に実際のフレーム番号を使うため）
+            got = self.state_channel.pop_frames()
+            if got:
+                frames.extend(got)
+                self.unity_frame = int(got[-1]["frame"])
+            for ev in self.state_channel.pop_events():
+                events.append(ev)
+                self._log(dict({"event": "unity_" + str(ev.get("type", "unknown")), "data": ev}, **self.timeline()))
+            new_stats = self._pop_stats()
+            if new_stats:
+                stats.update(new_stats)
+                self._log(dict({"event": "stats", "stats": new_stats}, **self.timeline()))
+
             decision_steps, terminal_steps = self.env.get_steps(self.behavior_name)
 
             if len(terminal_steps) > 0:
@@ -157,10 +202,28 @@ class UnityConnection(object):
                 agent_ids = [int(a) for a in decision_steps.agent_id]
                 self._watch_agents(agent_ids)
                 parts = [np.asarray(o[0], dtype=np.float64).ravel() for o in decision_steps.obs]
-                return Decision(np.concatenate(parts), agent_ids, episode_ends)
+                return Decision(np.concatenate(parts), agent_ids, episode_ends, frames, events, stats)
 
             # 判断を求めていない（区切りの直後など）。操作は送らずに進める
             self.env.step()
+
+    def _pop_stats(self):
+        # type: () -> Dict[str, List[float]]
+        """統計チャンネルに届いた統計を取り出し、「項目名 → 値の一覧」の形にして返す（無ければ空）。"""
+        raw = self.stats_channel.get_and_reset_stats()
+        return {key: [float(v) for v, _ in values] for key, values in raw.items()}
+
+    def check_config(self, scene_event):
+        # type: (Dict[str, Any]) -> List[str]
+        """Unity から届いた設定値を settings.py と比べ、食い違いの説明を返す（一致すれば空）。"""
+        problems = []
+        dt = scene_event.get("fixedDeltaTime")
+        if dt is not None and abs(float(dt) - settings.FIXED_DT) > 1e-6:
+            problems.append("fixedDeltaTime: Unity={} / settings.py={}".format(dt, settings.FIXED_DT))
+        dp = scene_event.get("decisionPeriod")
+        if dp is not None and int(dp) != settings.DECISION_PERIOD:
+            problems.append("DecisionPeriod: Unity={} / settings.py={}".format(dp, settings.DECISION_PERIOD))
+        return problems
 
     def _handle_episode_end(self, terminal_steps):
         # type: (Any) -> Dict[str, Any]
