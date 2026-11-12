@@ -191,6 +191,59 @@ Python なしで再生したときは何もしない。
 - `logs/state_YYYYMMDD_HHMMSS.jsonl`：全フレームの情報（1回の実行で1ファイル。`type` が `frame`／`scene`／`stats`）
 - `logs/unity_YYYYMMDD.jsonl`：接続、区切り、シーン読み込み、統計、確認結果など
 
+## 段階3b：状況の送信（中身）
+
+Unity の `LLMBridgeManager` が10フレームに1回、敵・敵の弾・自分・相方の位置と移動量、出来事を送る。
+`step3a_state.py` の流れに、確認6〜9を足したもの。
+
+```powershell
+..\..\helloworld\env\Scripts\python.exe step3b_state.py --wait-sec 300
+```
+
+記録（`logs/state_*.jsonl` の `frame`）の形：
+| 項目 | 形 |
+|---|---|
+| `self` / `partner` | `[x, y, 移動量x×10, 移動量y×10]`（移動量が無ければ `[x, y]`、見つからなければ `[]`） |
+| `enemies` / `bullets` | `[["E10", x, y, 移動量x×10, 移動量y×10], ...]`（敵は E、弾は B。現れた最初のフレームは `[ID, x, y]`） |
+| `events` | `{"kind": "hit/kill/escape", "who": "self/partner", "enemy": "E10", "frame": 起きたフレーム}` |
+
+移動量は「1フレームの移動量 × 10」（`settings.MOVE_SCALE`）。数字は小数2桁。
+
+## 段階3c：LLM との仮接続
+
+LLM が0.42秒（21フレーム）ごとに状況の要約を見て、止まる＋8方向から1つを選び、Player を動かす。
+LLM の返事を待つあいだ、ゲームは止まる（実時間で1ゲーム約4分）。
+
+```powershell
+..\..\helloworld\env\Scripts\python.exe step3c_llm_play.py --wait-sec 300                       # モック（API を使わない）
+..\..\helloworld\env\Scripts\python.exe step3c_llm_play.py --simulate transient --wait-sec 300   # 疑似エラー（API を使わない）
+..\..\helloworld\env\Scripts\python.exe step3c_llm_play.py --real --wait-sec 300                 # 実API（1ゲーム約143回、約1.5円）
+```
+
+| オプション | 既定 | 内容 |
+|---|---|---|
+| `--real` / `--simulate NAME` | モック | NAME：`transient`（タイムアウト・サーバーのエラー）、`invalid`（変な返事）、`auth`（キーが無効） |
+| `--frames N` / `--sec S` | 3000フレーム（60秒） | 動かす長さ |
+| `--command-interval-frames N` / `--command-interval-sec S` | 20フレーム（判断に合わせて21） | LLM に選ばせる間隔 |
+| `--max-calls N` | 350 | HTTP リクエストの上限（再試行・聞き直しも数える） |
+| `--no-reason` | 理由あり | 理由（reason）を返させない |
+| `--seed N` | 0 | モック・疑似エラーの乱数の種 |
+
+エラー時：変な返事は1回だけ聞き直し、だめなら前の操作を続ける。一時的なエラー（混雑・タイムアウト・サーバー）も前の操作を続ける。
+キーが無効・残高不足・回数上限のときは終了する。
+
+| 終了コード | 意味 |
+|---|---|
+| 0 | すべて OK |
+| 2 | 設定エラー |
+| 3 | 回数上限に達した |
+| 4 | API のエラーで終了（キーが無効など） |
+| 5 | Unity との接続・通信のエラー |
+| 8 | 確認項目に NG がある |
+
+最後に10項目の確認（3a の1〜5、3b の6〜9、9つの操作の向き）と、LLM の集計（正しい返事の割合、待ち時間、トークン数）を表示する。
+LLM に送った文章と返事は `logs/llm_YYYYMMDD.jsonl`、選んだ操作と理由は `logs/unity_YYYYMMDD.jsonl` に残る。
+
 ## ログ
 
 `logs/llm_YYYYMMDD.jsonl` に、HTTP の1試行につき1行を追記する（`logs/` は `.gitignore` 済み）。

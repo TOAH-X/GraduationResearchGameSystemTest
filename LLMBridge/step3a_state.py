@@ -136,7 +136,8 @@ class StateRecorder(object):
 
     def write(self, record):
         """1件を1行として書き出す（小数は4桁に丸めて、ファイルを小さくする）。"""
-        self._f.write(json.dumps(round_floats(record), ensure_ascii=False) + "\n")
+        # 区切りの後ろの空白を省いて、ファイルを小さくする（段階3c で変更。ユーザー了承）
+        self._f.write(json.dumps(round_floats(record), ensure_ascii=False, separators=(",", ":")) + "\n")
 
     def close(self):
         """ファイルを閉じる。"""
@@ -195,10 +196,17 @@ def main(argv=None, tag=None, stage="step3a", extra=None):
             TAG, os.path.relpath(logger.path, HERE), os.path.relpath(recorder.path, HERE)))
 
 
-def run_loop(conn, selector, plan, logger, recorder, warn_counter, extra=None):
-    """判断ごとに状況を受け取って保存し、間接操作を送る。最後に5項目（と追加の確認）を判定して表示する。"""
+def run_loop(conn, selector, plan, logger, recorder, warn_counter, extra=None, on_switch=None):
+    """判断ごとに状況を受け取って保存し、間接操作を送る。最後に5項目（と追加の確認）を判定して表示する。
+
+    選ぶ係（selector）には、最新の状況の記録と、前回の選択からの出来事を渡す（段階3c から。ランダム版は使わない）。
+    選ぶ係が None を返したら、前の操作を続ける（LLM が一時的に答えられなかったときなど）。
+    on_switch があれば、選んだあとに on_switch(フレーム, 操作, 選ぶ係) を呼ぶ（画面表示など）。
+    """
     current = None
     next_switch = 0
+    latest_record = None        # 最新の状況の記録（選ぶ係に渡す）
+    events_since_switch = []    # 前回の選択からの出来事（選ぶ係に渡す）
     frame_numbers = []          # 届いたフレーム番号（確認2）
     per_decision = Counter()    # 1回の判断で届いたフレームの数の分布（確認2）
     scenes = []                 # 届いたシーン読み込みの情報（確認1・3）
@@ -227,6 +235,8 @@ def run_loop(conn, selector, plan, logger, recorder, warn_counter, extra=None):
             frame_numbers.append(int(fr["frame"]))
             if extra is not None:
                 extra.on_frame(fr)
+            latest_record = fr
+            events_since_switch.extend(fr.get("events") or [])
         if conn.decision > 0:   # 接続直後（リセット時）の分は数えない
             per_decision[len(d.frames)] += 1
         if d.stats:
@@ -244,12 +254,28 @@ def run_loop(conn, selector, plan, logger, recorder, warn_counter, extra=None):
         if frame >= plan["total"]:
             break
 
-        # --- 間接操作（2b と同じ） ---
+        # --- 間接操作（2b と同じ。段階3c から、選ぶ係に状況を渡す） ---
         if frame >= next_switch:
-            current = selector.select()
-            next_switch = frame + plan["interval"]
-            logger.log(dict({"event": "command_switch", "command": current, "selector": selector.name},
-                            **conn.timeline()))
+            chosen = selector.select({"record": latest_record, "events": events_since_switch, "frame": frame})
+            events_since_switch = []
+            kept = chosen is None
+            if not kept:
+                current = chosen
+            elif current is None:
+                current = "止まる"   # 最初の選択から失敗したときは止まっておく
+            # 次の切り替えは「予定のフレーム＋間隔」にする（「今のフレーム＋間隔」だと、判断のタイミングとの
+            # ずれが毎回たまって間隔が延びるため）。大きく遅れたときだけ、今のフレームから数え直す
+            next_switch += plan["interval"]
+            if next_switch <= frame:
+                next_switch = frame + plan["interval"]
+            info = dict(getattr(selector, "last", None) or {})
+            info.pop("summary", None)   # 要約の全文は LLM の記録（llm_日付.jsonl）に残っているので、ここには入れない
+            logger.log(dict({"event": "command_switch", "command": current, "selector": selector.name,
+                             "kept_previous": kept, "detail": info}, **conn.timeline()))
+            if extra is not None and hasattr(extra, "on_switch"):
+                extra.on_switch(frame, current)
+            if on_switch is not None:
+                on_switch(frame, current, selector)
         h, v = movement_of(current)
         t0 = time.perf_counter()
         conn.act(h, v, d.n_agents)
