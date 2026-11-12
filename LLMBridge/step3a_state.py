@@ -8,11 +8,16 @@ LLMTestScene に置いた LLMBridgeManager が自作サイドチャンネルで�
 確かめること（PLAN.md 段階3a）:
 1. 接続時（シーン読み込み時）に設定値が届き、settings.py と一致する
 2. フレームごとの情報が抜けなく届く（フレーム番号に抜けや重複が無い。シーンのやり直しの前後も含む）
+   （段階3b から、記録は settings.STATE_INTERVAL_FRAMES フレームおきに届くので、その間隔で抜けが無いかを見る）
 3. シーンを読み込むたびに PlayerAgent の数が届く（古いエージェントが残るか）
 4. ゲーム終了時の統計が届き、「Unknown side channel」の警告が出ない
 5. 送ることで余計にかかる時間とデータの量
 
-全フレームの情報は logs/state_YYYYMMDD_HHMMSS.jsonl に、1回の実行で1ファイルとして保存する。
+全フレームの情報は logs/state_YYYYMMDD_HHMMSS.jsonl に、1回の実行で1ファイルとして保存する（小数は4桁に丸める）。
+
+段階3b からは、step3b_state.py がこのファイルの main() を「追加の確認係（extra）」つきで呼び出して使う。
+extra は on_frame(フレームの情報) で毎フレームの情報を、on_scene(シーン読み込みの情報) でシーンの読み込みを受け取り、
+results() で追加の確認結果を返す。
 それ以外の記録（接続、区切り、統計、判定結果など）は、これまでどおり logs/unity_YYYYMMDD.jsonl に残す。
 
 使い方（LLMBridge フォルダで実行し、表示が出たら Unity の再生ボタンを押す）:
@@ -106,6 +111,17 @@ def resolve(args):
     return plan
 
 
+def round_floats(value, digits=4):
+    """辞書や並びの中の小数を、すべて digits 桁に丸めた写しを返す（状況ログを小さくするため）。"""
+    if isinstance(value, float):
+        return round(value, digits)
+    if isinstance(value, dict):
+        return {k: round_floats(v, digits) for k, v in value.items()}
+    if isinstance(value, list):
+        return [round_floats(v, digits) for v in value]
+    return value
+
+
 class StateRecorder(object):
     """全フレームの情報を、1回の実行につき1ファイルの JSONL に書き出す係。"""
 
@@ -119,19 +135,23 @@ class StateRecorder(object):
         self._f = io.open(self.path, "a", encoding="utf-8")
 
     def write(self, record):
-        """1件を1行として書き出す。"""
-        self._f.write(json.dumps(record, ensure_ascii=False) + "\n")
+        """1件を1行として書き出す（小数は4桁に丸めて、ファイルを小さくする）。"""
+        self._f.write(json.dumps(round_floats(record), ensure_ascii=False) + "\n")
 
     def close(self):
         """ファイルを閉じる。"""
         self._f.close()
 
 
-def main(argv=None):
+def main(argv=None, tag=None, stage="step3a", extra=None):
     """全体の流れ：設定を決める → 接続する → 判断ごとに間接操作を送りつつ状況を受け取る → 5項目を判定して表示する。
 
+    tag・stage は表示と記録に使う名前（step3b から呼ぶときに変える）。extra は追加の確認係（無ければ None）。
     戻り値は終了コード（0=すべて OK / 2=設定エラー / 5=Unity との接続・通信のエラー / 8=確認項目に NG がある）。
     """
+    global TAG
+    if tag:
+        TAG = tag
     args = parse_args(argv)
     try:
         plan = resolve(args)
@@ -143,7 +163,7 @@ def main(argv=None):
     warn_counter = WarningCounter()
     logging.getLogger("mlagents_envs").addHandler(warn_counter)
 
-    logger = JsonlLogger(os.path.join(HERE, "logs"), stage="step3a", prefix="unity")
+    logger = JsonlLogger(os.path.join(HERE, "logs"), stage=stage, prefix="unity")
     recorder = StateRecorder(os.path.join(HERE, "logs"))
     print("{} 長さ={} 切り替え={}フレームごと FIXED_DT={} DECISION_PERIOD={}".format(
         TAG, settings.describe(plan["total"]), plan["interval"], settings.FIXED_DT, settings.DECISION_PERIOD), flush=True)
@@ -155,7 +175,7 @@ def main(argv=None):
         info = conn.connect()
         print("{} 接続しました。behavior: {} 観察={} 操作=連続{}".format(
             TAG, info["behavior"], info["obs_sizes"], info["continuous"]), flush=True)
-        return run_loop(conn, selector, plan, logger, recorder, warn_counter)
+        return run_loop(conn, selector, plan, logger, recorder, warn_counter, extra)
     except UnityConnectError as e:
         sys.stderr.write("{} 失敗: {}\n".format(TAG, e))
         logger.log({"event": "connect_failed", "message": str(e)})
@@ -175,8 +195,8 @@ def main(argv=None):
             TAG, os.path.relpath(logger.path, HERE), os.path.relpath(recorder.path, HERE)))
 
 
-def run_loop(conn, selector, plan, logger, recorder, warn_counter):
-    """判断ごとに状況を受け取って保存し、間接操作を送る。最後に5項目を判定して表示する。"""
+def run_loop(conn, selector, plan, logger, recorder, warn_counter, extra=None):
+    """判断ごとに状況を受け取って保存し、間接操作を送る。最後に5項目（と追加の確認）を判定して表示する。"""
     current = None
     next_switch = 0
     frame_numbers = []          # 届いたフレーム番号（確認2）
@@ -191,19 +211,24 @@ def run_loop(conn, selector, plan, logger, recorder, warn_counter):
         frame = conn.frame
 
         # --- 届いた情報の処理 ---
-        for fr in d.frames:
-            recorder.write(fr)
-            frame_numbers.append(int(fr["frame"]))
-        if conn.decision > 0:   # 接続直後（リセット時）の分は数えない
-            per_decision[len(d.frames)] += 1
+        # シーン読み込みの知らせを先に処理する（やり直し直後のフレームを、確認係が見分けられるように）
         for ev in d.events:
             recorder.write(ev)
             if ev.get("type") == "scene":
                 scenes.append(ev)
+                if extra is not None:
+                    extra.on_scene(ev)
                 show_scene(ev)
                 if config_problems is None:
                     config_problems = conn.check_config(ev)
                     show_config(ev, config_problems)
+        for fr in d.frames:
+            recorder.write(fr)
+            frame_numbers.append(int(fr["frame"]))
+            if extra is not None:
+                extra.on_frame(fr)
+        if conn.decision > 0:   # 接続直後（リセット時）の分は数えない
+            per_decision[len(d.frames)] += 1
         if d.stats:
             stats_games.append((frame, len(d.stats)))
             recorder.write({"type": "stats", "frame": frame, "stats": d.stats})
@@ -231,7 +256,7 @@ def run_loop(conn, selector, plan, logger, recorder, warn_counter):
         step_times.append(time.perf_counter() - t0)
 
     return report(conn, plan, frame_numbers, per_decision, scenes, stats_games, step_times,
-                  config_problems, warn_counter, logger, recorder)
+                  config_problems, warn_counter, logger, recorder, extra)
 
 
 def show_scene(ev):
@@ -258,21 +283,22 @@ def show_config(ev, problems):
 
 
 def report(conn, plan, frame_numbers, per_decision, scenes, stats_games, step_times,
-           config_problems, warn_counter, logger, recorder):
-    """5項目を判定して表示し、記録に残す。すべて OK なら終了コード0、NG があれば8を返す。"""
+           config_problems, warn_counter, logger, recorder, extra=None):
+    """5項目（と追加の確認係があればその結果）を判定して表示し、記録に残す。すべて OK なら終了コード0、NG があれば8を返す。"""
     results = []
 
     # 1. 設定値
     results.append(("設定値が届き settings.py と一致", config_problems is not None and not config_problems,
                     "届かず" if config_problems is None else ("一致" if not config_problems else "、".join(config_problems))))
 
-    # 2. フレームの抜けと重複
-    gaps = [b - a for a, b in zip(frame_numbers, frame_numbers[1:]) if b - a != 1]
+    # 2. フレームの抜けと重複（段階3b から、記録は STATE_INTERVAL_FRAMES フレームおきに届く）
+    step = settings.STATE_INTERVAL_FRAMES
+    gaps = [b - a for a, b in zip(frame_numbers, frame_numbers[1:]) if b - a != step]
     dup = len(frame_numbers) - len(set(frame_numbers))
-    expected = (frame_numbers[-1] - frame_numbers[0] + 1) if frame_numbers else 0
+    expected = ((frame_numbers[-1] - frame_numbers[0]) // step + 1) if frame_numbers else 0
     ok2 = bool(frame_numbers) and not gaps and dup == 0
-    results.append(("フレームの抜け・重複なし", ok2, "受け取り {}/{}（抜け{}・重複{}）、1判断あたりの件数の分布 {}".format(
-        len(frame_numbers), expected, len(gaps), dup, dict(sorted(per_decision.items())))))
+    results.append(("記録の抜け・重複なし", ok2, "{}フレームおきの記録 {}/{}件（抜け{}・重複{}）、1判断あたりの件数の分布 {}".format(
+        step, len(frame_numbers), expected, len(gaps), dup, dict(sorted(per_decision.items())))))
 
     # 3. シーン読み込みと PlayerAgent の数
     counts = ["{}回目={}体".format(s.get("loadCount"), s.get("playerAgentCount")) for s in scenes]
@@ -289,10 +315,15 @@ def report(conn, plan, frame_numbers, per_decision, scenes, stats_games, step_ti
     ch = conn.state_channel
     avg_ms = 1000.0 * sum(step_times) / max(1, len(step_times))
     parse_ms = 1000.0 * ch.parse_sec / max(1, len(step_times))
-    kb_per_game = (ch.total_bytes / 1024.0) * (3000.0 / max(1, len(frame_numbers)))
+    span = (frame_numbers[-1] - frame_numbers[0] + step) if frame_numbers else 0  # 受け取った記録が覆うフレーム数
+    kb_per_game = (ch.total_bytes / 1024.0) * (3000.0 / max(1, span))
     results.append(("時間とデータ量（参考）", True, "平均 {:.1f}ms/判断（うち受け取りの読み取り {:.3f}ms）、"
                     "{}件 {:.0f}KB 受信、1ゲーム（3000フレーム）あたり約{:.0f}KB、読めなかった件数 {}".format(
                         avg_ms, parse_ms, ch.total_messages, ch.total_bytes / 1024.0, kb_per_game, ch.bad_messages)))
+
+    # 追加の確認（段階3b など）
+    if extra is not None:
+        results.extend(extra.results())
 
     print("{} ---- 確認結果 ----".format(TAG), flush=True)
     for i, (name, ok, detail) in enumerate(results, 1):

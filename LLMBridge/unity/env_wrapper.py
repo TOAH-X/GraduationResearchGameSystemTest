@@ -102,14 +102,20 @@ class UnityConnection(object):
         self.state_channel = StateChannel()
         self.stats_channel = StatsSideChannel()
         self.unity_frame = None  # type: Optional[int]  # Unity から届いた最新のフレーム番号（届いていなければ None）
+        self.decision_at_unity_frame = 0  # 最新のフレーム番号が届いたときの判断の回数
 
     # ---- 数え方 ----
     @property
     def frame(self):
         # type: () -> int
-        """通しのフレーム番号。Unity から届いていればその実測値、無ければ「判断の回数 × DECISION_PERIOD」の推定値。"""
+        """通しのフレーム番号。
+
+        Unity から届いていれば、最後に届いた実測値に「その後の判断の回数 × DECISION_PERIOD」を足したもの
+        （段階3b から状況は10フレームに1回しか届かないため、そのあいだを補う）。
+        届いていなければ「判断の回数 × DECISION_PERIOD」の推定値。
+        """
         if self.unity_frame is not None:
-            return self.unity_frame
+            return self.unity_frame + (self.decision - self.decision_at_unity_frame) * settings.DECISION_PERIOD
         return self.decision * settings.DECISION_PERIOD
 
     @property
@@ -185,6 +191,7 @@ class UnityConnection(object):
             if got:
                 frames.extend(got)
                 self.unity_frame = int(got[-1]["frame"])
+                self.decision_at_unity_frame = self.decision
             for ev in self.state_channel.pop_events():
                 events.append(ev)
                 self._log(dict({"event": "unity_" + str(ev.get("type", "unknown")), "data": ev}, **self.timeline()))
@@ -223,6 +230,12 @@ class UnityConnection(object):
         dp = scene_event.get("decisionPeriod")
         if dp is not None and int(dp) != settings.DECISION_PERIOD:
             problems.append("DecisionPeriod: Unity={} / settings.py={}".format(dp, settings.DECISION_PERIOD))
+        si = scene_event.get("sendInterval")
+        if si is not None and int(si) != settings.STATE_INTERVAL_FRAMES:
+            problems.append("送る間隔: Unity={} / settings.py STATE_INTERVAL_FRAMES={}".format(si, settings.STATE_INTERVAL_FRAMES))
+        ms = scene_event.get("moveScale")
+        if ms is not None and abs(float(ms) - settings.MOVE_SCALE) > 1e-6:
+            problems.append("移動量の係数: Unity={} / settings.py MOVE_SCALE={}".format(ms, settings.MOVE_SCALE))
         return problems
 
     def _handle_episode_end(self, terminal_steps):
