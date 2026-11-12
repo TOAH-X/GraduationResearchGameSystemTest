@@ -112,6 +112,54 @@ Player は3フレームごとに判断するので、3で割り切れない値�
 
 記録は `logs/unity_YYYYMMDD.jsonl` に残る（接続情報、判断ごとのフレーム番号・判断番号・ゲーム内秒・Player の位置、同期の判定結果）。
 
+## 段階2b：間接操作と耐久
+
+OpenAI の API は使わない。Unity Editor で `Assets/Scenes/LLM/LLMTestScene` を開いておく。
+テスト用の間接操作（止まる・左・右・上・下）を一定の間隔でランダムに切り替えながら、1ゲーム（60秒）を超えて回す。
+
+1. LLMBridge フォルダで実行する（接続待ちになる。再生ボタンを押すまでに時間がかかりそうなら `--wait-sec 300`）
+   ```powershell
+   ..\..\helloworld\env\Scripts\python.exe step2b_unity_loop.py --wait-sec 300
+   ```
+2. 表示が出たら Editor の再生ボタンを押す
+3. 30秒目ごろに Editor 全体が65秒固まる（LLM の遅い返事を真似している。操作しない）
+4. 約2分半で終わる。終わったら Editor の再生を止める
+
+### オプション（長さ・間隔・位置は、フレームでも秒でも指定できる）
+| オプション | 既定 | 内容 |
+|---|---|---|
+| `--frames N` / `--sec S` | 4500フレーム（90秒） | 動かす長さ。シーンのやり直しを確かめるには60秒より長くする |
+| `--command-interval-frames N` / `--command-interval-sec S` | 150フレーム（3秒） | 間接操作を選び直す間隔 |
+| `--long-pause-at-frames N` / `--long-pause-at-sec S` | 1500フレーム（30秒） | 長い停止の位置（0なら止まらない） |
+| `--long-pause-sec S` | 65 | 長い停止の長さ（実時間の秒） |
+| `--seed N` | なし | ランダムな選び方を再現したいときに指定する |
+| `--wait-sec S` | 120 | Unity からの接続や応答を待つ上限（秒） |
+| `--behavior NAME` | Player | 操作する behavior 名 |
+
+短く試すとき：`--sec 20 --long-pause-sec 5`（シーンのやり直しは確かめられない）
+
+### 期待する出力（抜粋）
+```
+[step2b] 接続しました。behavior: Player?team=0 観察=[142] 操作=連続3
+[step2b] frame=0（0.00秒） game=1 間接操作: 右
+[step2b] frame=1002（20.04秒） 区切り: 20秒の区切り（MaxStep）（interrupted=True）
+[step2b] frame=1500（30.00秒）で 65.0秒止まります…（LLM の遅い返事を想定）
+[step2b] 再開しました
+[step2b] frame=3003（60.06秒） 区切り: ゲーム終了（interrupted=False） → game=2
+[step2b] エージェント数: 最大1体、これまでに見た ID: [1, 3]（増えていません）
+[step2b] 4500フレーム（90.00秒、1500判断）完了。ゲーム終了1回、20秒の区切り4回、間接操作の切り替え30回、平均 60.1ms/判断
+```
+ゲーム終了の瞬間に `[WARNING] Unknown side channel data received.` が多数出るが、既存コードが送る統計を受け取る口がまだ無いため（段階3で対応）。動作には影響しない。
+
+| 終了コード | 意味 |
+|---|---|
+| 0 | 成功 |
+| 2 | 設定エラー（オプションの誤り） |
+| 5 | Unity との接続・通信のエラー |
+| 7 | Player エージェントが増えた（作業を止めて相談する） |
+
+記録は `logs/unity_YYYYMMDD.jsonl` に残る。判断ごとに、通しのフレーム番号・判断番号・何ゲーム目か・そのゲームの中のフレーム番号・ゲーム内秒・今の間接操作・Player の位置・エージェントの ID と数。ほかに、間接操作の切り替え、区切り（種類つき）、長い停止の開始と終了。
+
 ## ログ
 
 `logs/llm_YYYYMMDD.jsonl` に、HTTP の1試行につき1行を追記する（`logs/` は `.gitignore` 済み）。

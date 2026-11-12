@@ -57,6 +57,19 @@ def frames_to_decisions(frames):
     return frames // DECISION_PERIOD
 
 
+def frames_from_options(frames, sec, default):
+    # type: (object, object, int) -> int
+    """オプションで「フレーム」か「秒」のどちらかで指定された値を、フレーム数にそろえる。
+
+    どちらも指定されていなければ default（フレーム）を使う。秒が指定されていれば換算する。
+    """
+    if sec is not None:
+        return sec_to_frames(float(sec))
+    if frames is not None:
+        return int(frames)
+    return default
+
+
 def describe(frames):
     # type: (int) -> str
     """フレーム数を「600フレーム（12.00秒、200判断）」の形の文字列にする（画面表示用）。"""
