@@ -203,11 +203,11 @@ Unity の `LLMBridgeManager` が10フレームに1回、敵・敵の弾・自分
 記録（`logs/state_*.jsonl` の `frame`）の形：
 | 項目 | 形 |
 |---|---|
-| `self` / `partner` | `[x, y, 移動量x×10, 移動量y×10]`（移動量が無ければ `[x, y]`、見つからなければ `[]`） |
-| `enemies` / `bullets` | `[["E10", x, y, 移動量x×10, 移動量y×10], ...]`（敵は E、弾は B。現れた最初のフレームは `[ID, x, y]`） |
+| `self` / `partner` | `[x, y, 移動量x×係数, 移動量y×係数]`（移動量が無ければ `[x, y]`、見つからなければ `[]`） |
+| `enemies` / `bullets` | `[["E10", x, y, 移動量x×係数, 移動量y×係数], ...]`（敵は E、弾は B。現れた最初のフレームは `[ID, x, y]`） |
 | `events` | `{"kind": "hit/kill/escape", "who": "self/partner", "enemy": "E10", "frame": 起きたフレーム}` |
 
-移動量は「1フレームの移動量 × 10」（`settings.MOVE_SCALE`）。数字は小数2桁。
+移動量は「1フレームの移動量 × `settings.MOVE_SCALE`」。段階3d から係数は12で、送られる移動量がそのまま「1手（12フレーム）で進む距離」になる（3b・3c のログは係数10）。数字は小数2桁。
 
 ## 段階3c：LLM との仮接続
 
@@ -243,6 +243,24 @@ LLM の返事を待つあいだ、ゲームは止まる（実時間で1ゲーム
 
 最後に10項目の確認（3a の1〜5、3b の6〜9、9つの操作の向き）と、LLM の集計（正しい返事の割合、待ち時間、トークン数）を表示する。
 LLM に送った文章と返事は `logs/llm_YYYYMMDD.jsonl`、選んだ操作と理由は `logs/unity_YYYYMMDD.jsonl` に残る。
+
+### 段階3d（実験）：数手まとめて考えさせ、考えながら進める
+
+`step3c_llm_play.py` にオプションを付けると動く（付けなければ 3c と同じ）。結果は PLAN.md 段階3d を参照。
+
+```powershell
+..\..\helloworld\env\Scripts\python.exe step3c_llm_play.py --real --plan-steps 3 --overlap --step-reasons --command-interval-frames 12 --wait-sec 300
+```
+
+| オプション | 内容 |
+|---|---|
+| `--plan-steps N` | 1回の思考で何手まとめて決めさせるか（1手の長さは `--command-interval-frames`。12＝0.24秒） |
+| `--overlap` | LLM が考えているあいだもゲームを進める。次の計画が間に合わなければ止まって待つ |
+| `--step-reasons` | 手ごとに理由を書かせる（理由が1つだと一直線の計画になりやすかった） |
+| `--mock-delay S` | モックの返事をわざと遅らせる（考えながら進める動きの確認用） |
+
+移動量の係数は12（送られる移動量＝1手で進む距離）。Unity の LLMBridgeManager の Move Scale も12にしてシーンを保存しておく。
+設定値が `settings.py` と食い違っていると、LLM を呼ぶ前に止まる（終了コード2）。
 
 ## ログ
 

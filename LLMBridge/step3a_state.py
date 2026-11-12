@@ -196,7 +196,11 @@ def main(argv=None, tag=None, stage="step3a", extra=None):
             TAG, os.path.relpath(logger.path, HERE), os.path.relpath(recorder.path, HERE)))
 
 
-def run_loop(conn, selector, plan, logger, recorder, warn_counter, extra=None, on_switch=None):
+class ConfigMismatch(Exception):
+    """Unity の設定値が settings.py と食い違っていて、strict_config のときに止めるための例外。"""
+
+
+def run_loop(conn, selector, plan, logger, recorder, warn_counter, extra=None, on_switch=None, strict_config=False):
     """判断ごとに状況を受け取って保存し、間接操作を送る。最後に5項目（と追加の確認）を判定して表示する。
 
     選ぶ係（selector）には、最新の状況の記録と、前回の選択からの出来事を渡す（段階3c から。ランダム版は使わない）。
@@ -230,6 +234,9 @@ def run_loop(conn, selector, plan, logger, recorder, warn_counter, extra=None, o
                 if config_problems is None:
                     config_problems = conn.check_config(ev)
                     show_config(ev, config_problems)
+                    if config_problems and strict_config:
+                        # 設定値が食い違ったまま続けると、状況の読み方がずれる（API の費用も無駄になる）ので、ここで止める
+                        raise ConfigMismatch("、".join(config_problems))
         for fr in d.frames:
             recorder.write(fr)
             frame_numbers.append(int(fr["frame"]))

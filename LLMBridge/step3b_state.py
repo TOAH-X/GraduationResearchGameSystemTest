@@ -157,7 +157,7 @@ class StateChecker(object):
             if abs(dx - vx * gap) > BULLET_TOLERANCE or abs(dy - vy * gap) > BULLET_TOLERANCE:
                 self.bullet_bad_count += 1
                 if len(self.bullet_bad) < 5:
-                    self.bullet_bad.append("id={}: 進んだ距離 ({:.2f}, {:.2f}) / 移動量×{} ({:.2f}, {:.2f})".format(
+                    self.bullet_bad.append("id={}: 進んだ距離 ({:.2f}, {:.2f}) / 1フレームの移動量×{}フレーム ({:.2f}, {:.2f})".format(
                         bid, dx, dy, gap, vx * gap, vy * gap))
 
     def _check_gone_enemies(self, prev_enemies, cur_ids, events):

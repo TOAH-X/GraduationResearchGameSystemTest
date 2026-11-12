@@ -2661,6 +2661,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   selfPlayerID: 1
   playerParentName: PlayerParent
+  enemyParentName: EnemyParent
+  bulletParentName: BulletParent
+  sendIntervalFrames: 10
+  moveScale: 12
 --- !u!1 &995659605
 GameObject:
   m_ObjectHideFlags: 0

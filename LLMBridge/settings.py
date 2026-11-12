@@ -25,10 +25,11 @@ DECISION_PERIOD = 3
 # 状況（敵・弾・機体の位置など）を Unity から送る間隔（フレーム）。LLMBridgeManager の Send Interval Frames と同じ値にする
 STATE_INTERVAL_FRAMES = 10
 
-# 移動量に掛けている係数。Unity は「1フレームの移動量 × MOVE_SCALE」を小数2桁で送ってくる
-# （1フレームの移動量は 0.02〜0.1 程度と小さく、そのまま2桁にすると細かさが足りないため）。
-# 元の「1フレームの移動量」に戻すには MOVE_SCALE で割る。LLMBridgeManager の MoveScale と同じ値にする
-MOVE_SCALE = 10.0
+# 移動量に掛けている係数。Unity は「1フレームの移動量 × MOVE_SCALE」を小数2桁で送ってくる。
+# 段階3d から 12（1手＝12フレーム）にして、送られる移動量がそのまま「1手（12フレーム）で進む距離」になるようにした
+# （段階3b・3c のログは 10。ログの scene に moveScale が残っているので区別できる）。
+# 元の「1フレームの移動量」に戻すには MOVE_SCALE で割る。LLMBridgeManager の Move Scale と同じ値にする
+MOVE_SCALE = 12.0
 
 # Unity Editor と通信するポート（ML-Agents の Editor 用の既定値）
 EDITOR_PORT = 5004

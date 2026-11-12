@@ -15,7 +15,8 @@
 //
 // 追跡は毎フレーム行う（ID の振り方、使い回しの見分け、出来事の見つけ方のため）。送るのを間引くだけ。
 // 数字は小数2桁で書き出す（末尾の0は省く）。データ量を抑えるため、JsonUtility ではなく自分で文字列を組み立てる。
-// 移動量は「1フレームで進んだ距離（前のフレームの位置との差）」に MoveScale（既定10）を掛けたもの。
+// 移動量は「1フレームで進んだ距離（前のフレームの位置との差）」に MoveScale（既定12）を掛けたもの。
+// 12 は1手（段階3d の LLM の1つの操作の長さ）のフレーム数なので、送る移動量はそのまま「1手で進む距離」になる。
 //
 // ID：敵と弾は使い回される（オブジェクトプーリング。非表示にして再利用される）ので、Unity の番号ではなく、
 //     「新しく現れた」たびにこのマネージャーが新しい通し番号を振る。番号は敵と弾で別々に1から数え、
@@ -48,7 +49,7 @@ public class LLMBridgeManager : SafeSingleton<LLMBridgeManager>
     [SerializeField] string enemyParentName = "EnemyParent";    // 敵がまとめて入っている親オブジェクトの名前
     [SerializeField] string bulletParentName = "BulletParent";  // 敵の弾がまとめて入っている親オブジェクトの名前
     [SerializeField] int sendIntervalFrames = 10;               // 何フレームに1回 "frame" を送るか（Python の settings.STATE_INTERVAL_FRAMES と同じ値）
-    [SerializeField] float moveScale = 10f;                     // 移動量に掛ける係数（Python の settings.MOVE_SCALE と同じ値）
+    [SerializeField] float moveScale = 12f;                     // 移動量に掛ける係数（Python の settings.MOVE_SCALE と同じ値。12＝1手のフレーム数）
 
     // 1フレームでこれ以上動いたら「同じフレームのうちに使い回されて別の場所に出てきた」とみなす
     const float ReuseJumpDistance = 1.0f;

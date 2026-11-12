@@ -29,8 +29,11 @@ import argparse
 import json
 import logging
 import os
+import math
 import random
+import statistics
 import sys
+import time
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 if HERE not in sys.path:
@@ -47,6 +50,7 @@ from mlagents_envs.exception import UnityException  # noqa: E402
 
 import settings  # noqa: E402
 import step3a_state  # noqa: E402
+from command.llm_planner import LLMPlanRunner  # noqa: E402
 from command.llm_selector import LLMSelector  # noqa: E402
 from command.test_commands import command_names, movement_of  # noqa: E402
 from envutil import get_env, load_dotenv, require_env  # noqa: E402
@@ -65,11 +69,24 @@ SIM_SCENARIOS = ("transient", "invalid", "auth")
 EXIT_OK, EXIT_CONFIG, EXIT_BUDGET, EXIT_LLM, EXIT_UNITY, EXIT_CHECK_NG = 0, 2, 3, 4, 5, 8
 
 
+STEP_REASONS = [False]  # --step-reasons のとき True にする（モック・疑似エラーの返事の形を合わせるため）
+
+
+def reply_obj(moves, reason):
+    """モック・疑似エラーの返事の中身を作る。1手なら 3c の形 {"command"}、数手なら 3d の形 {"commands": [...]}。"""
+    if STEP_REASONS[0]:
+        return {"steps": [{"command": m, "why": reason} for m in moves]}
+    if len(moves) == 1:
+        return {"command": moves[0], "reason": reason}
+    return {"commands": list(moves), "reason": reason}
+
+
 class GameSimTransport(Transport):
     """ゲーム中の疑似エラー用の偽の送信。ふだんは正しい返事（ランダムな操作）を返し、決まった回にエラーを起こす。"""
 
-    def __init__(self, scenario, names, model, seed=0):
-        """シナリオ名、選択肢、モデル名、乱数の種を受け取る。何回目の送信で何を起こすかを決める。"""
+    def __init__(self, scenario, names, model, seed=0, steps=1):
+        """シナリオ名、選択肢、モデル名、乱数の種、1回で何手返すか（段階3d）を受け取る。何回目の送信で何を起こすかを決める。"""
+        self.steps = steps
         self.scenario = scenario
         self.names = list(names)
         self.model = model
@@ -102,9 +119,10 @@ class GameSimTransport(Transport):
         if what == "not_json":
             return HttpResult(200, _ok_body(self.model, "左に動きます"))
         if what == "bad_command":
-            return HttpResult(200, _ok_body(self.model, json.dumps({"command": "斜め", "reason": "テスト"},
+            return HttpResult(200, _ok_body(self.model, json.dumps(reply_obj(["斜め"] * self.steps, "テスト"),
                                                                    ensure_ascii=False)))
-        reply = json.dumps({"command": self.rng.choice(self.names), "reason": "疑似の返事"}, ensure_ascii=False)
+        reply = json.dumps(reply_obj([self.rng.choice(self.names) for _ in range(self.steps)], "疑似の返事"),
+                           ensure_ascii=False)
         return HttpResult(200, _ok_body(self.model, reply))
 
 
@@ -171,7 +189,7 @@ class DirectionChecker(object):
             self.bad_examples.append("frame={} {}: 移動量({:.3f}, {:.3f})".format(f, self.current, mx, my))
 
     def results(self):
-        """確認10の結果を返す。使われた操作がすべて9割以上で合っていれば OK。"""
+        """確認10の結果を返す。選ばれた操作がすべて9割以上で合っていれば OK（選ばれなかった操作は表示だけ）。"""
         parts, ok = [], True
         unused = []
         for n in self.names:
@@ -188,7 +206,72 @@ class DirectionChecker(object):
             detail += "。確かめられなかった操作: " + "・".join(unused)
         if self.bad_examples and not ok:
             detail += "（例: " + " / ".join(self.bad_examples) + "）"
-        return [("9つの操作で対応表どおりの向きに動く", ok and not unused, detail)]
+        # 選ばれなかった操作は NG にしない（LLM がすべてを選ぶとは限らない。9つすべての確認はモックで行う）
+        return [("9つの操作で対応表どおりの向きに動く", ok and len(unused) < len(self.names), detail)]
+
+
+class PlayQuality(object):
+    """プレイの質を集計する係（参考。3c と 3d を比べるため。良し悪しの判定はしない）。
+
+    ゲーム開始直後と被弾後の復活中（60フレーム）は、位置の集計から除く。60秒（3000フレーム）を超えた分も除く。
+    """
+
+    SKIP = 60
+
+    def __init__(self):
+        """数え上げの入れ物を用意する。"""
+        self.last_hit = 0
+        self.hits = {"self": 0, "partner": 0}
+        self.kills = {"self": 0, "partner": 0}
+        self.nearest = []       # 一番近い弾までの距離
+        self.within1 = []       # 半径1以内の弾の数
+        self.wall = 0           # 壁際にいた記録の数
+        self.under = 0          # 敵の真下（横のずれ0.5以内、自分より上）にいた記録の数
+        self.total = 0
+
+    def on_scene(self, ev):
+        """シーンの読み込み（開始直後の登場の動きは除くため、被弾と同じ扱いにする）。"""
+        self.last_hit = max(self.last_hit, int(ev.get("frame", 0)))
+
+    def on_frame(self, fr):
+        """記録1つを受け取り、出来事と位置を数える。"""
+        f = int(fr["frame"])
+        if f >= 3000:
+            return
+        for ev in fr.get("events") or []:
+            if ev.get("kind") == "hit":
+                self.hits[ev.get("who", "self")] = self.hits.get(ev.get("who", "self"), 0) + 1
+                if ev.get("who") == "self":
+                    self.last_hit = int(ev.get("frame", f))
+            elif ev.get("kind") == "kill":
+                self.kills[ev.get("who", "self")] = self.kills.get(ev.get("who", "self"), 0) + 1
+        me = fr.get("self") or []
+        if len(me) < 2 or f - self.last_hit < self.SKIP:
+            return
+        x, y = me[0], me[1]
+        self.total += 1
+        if abs(x) >= 5.45 or y >= 3.95 or y <= -3.95:
+            self.wall += 1
+        d = [math.hypot(b[1] - x, b[2] - y) for b in fr.get("bullets") or []]
+        if d:
+            self.nearest.append(min(d))
+            self.within1.append(sum(1 for v in d if v <= 1.0))
+        if any(abs(e[1] - x) < 0.5 and e[2] > y for e in fr.get("enemies") or []):
+            self.under += 1
+
+    def results(self):
+        """確認の結果としては出さない（集計は summary_line で表示する）。"""
+        return []
+
+    def summary_line(self):
+        """集計を1行の文字列にする。"""
+        n = max(1, self.total)
+        med = statistics.median(self.nearest) if self.nearest else 0.0
+        w1 = statistics.mean(self.within1) if self.within1 else 0.0
+        return ("被弾 自分{}・相方{}、撃破 自分{}・相方{}、一番近い弾までの距離（中央値）{:.2f}、半径1以内の弾 平均{:.2f}発、"
+                "壁際にいた時間{:.0f}%、敵の真下にいた時間{:.0f}%".format(
+                    self.hits.get("self", 0), self.hits.get("partner", 0), self.kills.get("self", 0),
+                    self.kills.get("partner", 0), med, w1, 100.0 * self.wall / n, 100.0 * self.under / n))
 
 
 class Extras(object):
@@ -236,7 +319,14 @@ def parse_args(argv=None):
     g.add_argument("--command-interval-sec", type=float, help="LLM に選ばせる間隔（ゲーム内秒）")
     p.add_argument("--max-calls", type=int, default=350, help="1回の実行あたりの HTTP リクエストの上限（再試行も数える）。既定350")
     p.add_argument("--no-reason", action="store_true", help="理由（reason）を返させない")
+    p.add_argument("--plan-steps", type=int, default=1,
+                   help="段階3d（実験）：1回の思考で何手まとめて決めさせるか。既定1（3c と同じ）。1手の長さは --command-interval-frames")
+    p.add_argument("--step-reasons", action="store_true",
+                   help="段階3d（実験）：数手まとめるとき、手ごとに理由を書かせる")
+    p.add_argument("--overlap", action="store_true",
+                   help="段階3d（実験）：LLM が考えているあいだもゲームを進める（次の計画が間に合わなければ止まって待つ）")
     p.add_argument("--seed", type=int, default=0, help="モック・疑似エラーの乱数の種")
+    p.add_argument("--mock-delay", type=float, default=0.0, help="モックの返事をわざと遅らせる秒数（考えながら進める動きの確認用）")
     p.add_argument("--wait-sec", type=int, default=120, help="Unity からの接続や応答を待つ上限（秒）。既定120")
     p.add_argument("--behavior", default="Player", help="操作する behavior 名。既定 Player")
     p.add_argument("--env-file", default=os.path.join(HERE, ".env"), help="読み込む .env のパス")
@@ -246,6 +336,7 @@ def parse_args(argv=None):
 def make_client(args, budget, llm_logger):
     """動かし方（モック／疑似エラー／実API）に合った LLM クライアントを作る。（モード名, クライアント）を返す。"""
     names = command_names()
+    STEP_REASONS[0] = bool(args.step_reasons)
     if args.real:
         api_key = require_env("OPENAI_API_KEY")
         register_secret(api_key)
@@ -254,15 +345,15 @@ def make_client(args, budget, llm_logger):
                                     base_url=get_env("OPENAI_BASE_URL"), mode="real")
     if args.simulate:
         model = get_env("OPENAI_MODEL", DEFAULT_MODEL)
-        transport = GameSimTransport(args.simulate, names, model, seed=args.seed)
+        transport = GameSimTransport(args.simulate, names, model, seed=args.seed, steps=args.plan_steps)
         # 疑似エラーでは、再試行の待ち時間を飛ばす（確認を早く終えるため）
         return "simulate:" + args.simulate, OpenAIClient(
             api_key="sk-simulated-not-a-real-key", model=model, budget=budget, logger=llm_logger,
             transport=transport, sleep=lambda s: None, mode="simulate:" + args.simulate)
     rng = random.Random(args.seed)
-    replies = [json.dumps({"command": rng.choice(names), "reason": "モックの返事"}, ensure_ascii=False)
+    replies = [json.dumps(reply_obj([rng.choice(names) for _ in range(args.plan_steps)], "モックの返事"), ensure_ascii=False)
                for _ in range(500)]
-    return "mock", MockClient(budget=budget, logger=llm_logger, replies=replies)
+    return "mock", MockClient(budget=budget, logger=llm_logger, replies=replies, delay_s=args.mock_delay)
 
 
 def main(argv=None):
@@ -286,24 +377,44 @@ def main(argv=None):
     except ConfigError as e:
         sys.stderr.write("{} 設定エラー: {}\n".format(TAG, mask_secrets(e.message)))
         return EXIT_CONFIG
-    selector = LLMSelector(client, command_names(), with_reason=not args.no_reason, interval_frames=plan["interval"])
+    plan_mode = args.plan_steps > 1 or args.overlap
+    if plan_mode:
+        # 段階3d（実験）：数手まとめて考えさせる。1手の長さ＝切り替えの間隔
+        selector = LLMPlanRunner(client, command_names(), steps=args.plan_steps, step_frames=plan["interval"],
+                                 overlap=args.overlap, with_reason=not args.no_reason, step_reasons=args.step_reasons)
+    else:
+        selector = LLMSelector(client, command_names(), with_reason=not args.no_reason, interval_frames=plan["interval"])
 
     warn_counter = step3a_state.WarningCounter()
     logging.getLogger("mlagents_envs").addHandler(warn_counter)
     logger = JsonlLogger(os.path.join(HERE, "logs"), stage="step3c", prefix="unity")
     recorder = step3a_state.StateRecorder(os.path.join(HERE, "logs"))
-    extras = Extras(StateChecker(), DirectionChecker(command_names()))
+    quality = PlayQuality()
+    extras = Extras(StateChecker(), DirectionChecker(command_names()), quality)
 
     print("{} mode={} model={} max_calls={} reason={}".format(
         TAG, mode, getattr(client, "model", "?"), args.max_calls, "なし" if args.no_reason else "あり"), flush=True)
-    print("{} 長さ={} LLM に選ばせる間隔={}フレーム（{:.2f}秒）".format(
-        TAG, settings.describe(plan["total"]), plan["interval"], settings.frames_to_sec(plan["interval"])), flush=True)
+    print("{} 長さ={} {}={}フレーム（{:.2f}秒）".format(
+        TAG, settings.describe(plan["total"]), "1手" if plan_mode else "LLM に選ばせる間隔",
+        plan["interval"], settings.frames_to_sec(plan["interval"])), flush=True)
+    if plan_mode:
+        print("{} 1回の思考で{}手 考えながら進める={} 手ごとの理由={}（段階3d・実験）".format(
+            TAG, args.plan_steps, "あり" if args.overlap else "なし", "あり" if args.step_reasons else "なし"), flush=True)
     print("{} Unity の再生ボタンを押してください（ポート{}、最大{}秒待ちます）".format(
         TAG, settings.EDITOR_PORT, args.wait_sec), flush=True)
 
     def show_switch(frame, command, sel):
-        """切り替えのたびに、LLM が選んだ操作・理由・待ち時間を1行で表示する。"""
+        """切り替えのたびに、LLM が選んだ操作・理由・待ち時間を1行で表示する（数手まとめるときは、計画の始まりだけ）。"""
         last = sel.last or {}
+        if plan_mode:
+            if last.get("new_plan"):
+                print("{} frame={}（{:.2f}秒） 計画: {}（{}） 考えた時間{:.2f}秒 止まって待った{:.2f}秒".format(
+                    TAG, frame, settings.frames_to_sec(frame), "・".join(last.get("plan") or []),
+                    mask_secrets(last.get("reason") or "-"), last.get("latency_s", 0.0), last.get("waited_s", 0.0)), flush=True)
+            elif last.get("kept"):
+                print("{} frame={}（{:.2f}秒） 計画を受け取れず {} を続ける（{}）".format(
+                    TAG, frame, settings.frames_to_sec(frame), command, last.get("error") or "-"), flush=True)
+            return
         if last.get("command"):
             note = "{}（{}）".format(command, last.get("reason") or "-")
         else:
@@ -313,14 +424,21 @@ def main(argv=None):
 
     conn = UnityConnection(behavior=args.behavior, wait_sec=args.wait_sec, logger=logger)
     code = EXIT_OK
+    started = None
     try:
         info = conn.connect()
+        started = time.time()
         print("{} 接続しました。behavior: {} 観察={} 操作=連続{}".format(
             TAG, info["behavior"], info["obs_sizes"], info["continuous"]), flush=True)
-        code = step3a_state.run_loop(conn, selector, plan, logger, recorder, warn_counter, extras, on_switch=show_switch)
+        code = step3a_state.run_loop(conn, selector, plan, logger, recorder, warn_counter, extras, on_switch=show_switch,
+                                     strict_config=True)
     except UnityConnectError as e:
         sys.stderr.write("{} 失敗: {}\n".format(TAG, e))
         code = EXIT_UNITY
+    except step3a_state.ConfigMismatch as e:
+        sys.stderr.write("{} 停止: Unity の設定値が settings.py と食い違っています（{}）。LLM を呼ぶ前に止めました。\n".format(TAG, e))
+        sys.stderr.write("{} 対処: LLMBridgeManager の Inspector の値か settings.py を直し、シーンを保存してください。\n".format(TAG))
+        code = EXIT_CONFIG
     except BudgetExceededError as e:
         sys.stderr.write("{} 終了: {}（calls_used={}）\n".format(TAG, mask_secrets(e.message), budget.summary()))
         code = EXIT_BUDGET
@@ -336,12 +454,18 @@ def main(argv=None):
         sys.stderr.write("{} 失敗: Unity との通信が切れました（{}: {}）。\n".format(TAG, type(e).__name__, e))
         code = EXIT_UNITY
     finally:
+        if hasattr(selector, "close"):
+            selector.close()
         conn.close()
         recorder.close()
         logging.getLogger("mlagents_envs").removeHandler(warn_counter)
+        elapsed = (time.time() - started) if started else 0.0
+        print("{} 実行全体の実時間（接続から終了まで）: {:.1f}秒".format(TAG, elapsed), flush=True)
+        print("{} プレイの質: {}".format(TAG, quality.summary_line()), flush=True)
         print("{} LLM の集計: {}".format(TAG, selector.summary_line()), flush=True)
         print("{} 選ばれた操作: {}（calls_used={}）".format(TAG, selector.picked or "なし", budget.summary()), flush=True)
-        logger.log({"event": "llm_summary", "mode": mode, "summary": selector.summary_line(),
+        logger.log({"event": "llm_summary", "mode": mode, "plan_steps": args.plan_steps, "overlap": args.overlap,
+                    "summary": selector.summary_line(), "quality": quality.summary_line(), "elapsed_s": round(elapsed, 1),
                     "picked": selector.picked, "calls_used": budget.summary(), "exit_code": code})
         print("{} log saved: {} / {} / {}".format(TAG, os.path.relpath(llm_logger.path, HERE),
                                                  os.path.relpath(logger.path, HERE), os.path.relpath(recorder.path, HERE)))
